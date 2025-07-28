@@ -1,0 +1,24 @@
+backend:
+  name: git-gateway
+  branch: main
+media_folder: "images"
+public_folder: "/images"
+collections:
+  - name: "cv"
+    label: "السيرة الذاتية"
+    files:
+      - file: "index.html"
+        label: "محتوى الصفحة الرئيسية"
+        name: "homepage"
+        fields:
+          - { label: "الاسم الكامل", name: "full_name", widget: "string" }
+          - { label: "المسمى الوظيفي", name: "job_title", widget: "string" }
+          - { label: "البريد الإلكتروني", name: "email", widget: "string" }
+          - { label: "الهاتف", name: "phone", widget: "string" }
+          - { label: "المدينة والدولة", name: "location", widget: "string" }
+          - { label: "الملخص المهني", name: "summary", widget: "text" }
+          - { label: "الخبرات العملية", name: "experience", widget: "list", fields: [ {label: "الشركة", name: "company", widget: "string"}, {label: "الفترة", name: "period", widget: "string"}, {label: "الوصف", name: "desc", widget: "text"} ] }
+          - { label: "التعليم", name: "education", widget: "list", fields: [ {label: "المؤسسة", name: "school", widget: "string"}, {label: "الفترة", name: "period", widget: "string"}, {label: "الدرجة والتخصص", name: "degree", widget: "string"} ] }
+          - { label: "المهارات", name: "skills", widget: "list", field: {label: "المهارة", name: "skill", widget: "string"} }
+          - { label: "اللغات", name: "languages", widget: "list", field: {label: "اللغة", name: "lang", widget: "string"} }
+          - { label: "وسائل التواصل", name: "contacts", widget: "list", field: {label: "رابط", name: "link", widget: "string"} }
