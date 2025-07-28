@@ -9,16 +9,49 @@
   </head>
   <body>
     <script>
+      function renderAuthButtons(user) {
+        var btnDiv = document.getElementById('auth-btns');
+        if (!btnDiv) return;
+        btnDiv.innerHTML = '';
+        if (user) {
+          var logoutBtn = document.createElement('button');
+          logoutBtn.textContent = 'تسجيل الخروج';
+          logoutBtn.style.margin = '10px auto';
+          logoutBtn.style.display = 'block';
+          logoutBtn.onclick = function() {
+            window.netlifyIdentity.logout();
+          };
+          btnDiv.appendChild(logoutBtn);
+        } else {
+          var loginBtn = document.createElement('button');
+          loginBtn.textContent = 'تسجيل الدخول';
+          loginBtn.style.margin = '10px auto';
+          loginBtn.style.display = 'block';
+          loginBtn.onclick = function() {
+            window.netlifyIdentity.open();
+          };
+          btnDiv.appendChild(loginBtn);
+        }
+      }
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", function(user) {
+          renderAuthButtons(user);
           if (!user) {
             window.netlifyIdentity.on("login", function() {
               document.location.href = "/admin/";
             });
           }
         });
+        window.netlifyIdentity.on("login", function(user) {
+          renderAuthButtons(user);
+        });
+        window.netlifyIdentity.on("logout", function() {
+          renderAuthButtons(null);
+        });
+        window.netlifyIdentity.init();
       }
     </script>
+    <div id="auth-btns"></div>
     <h2 style="text-align:center;margin-top:40px;">لوحة تحكم إدارة السيرة الذاتية</h2>
     <div id="nc-root"></div>
   </body>
