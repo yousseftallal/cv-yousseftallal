@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Management Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .image-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        .image-item img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+        }
+        .image-item p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .profile-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Image Management Test</h1>
+        <p>This page tests the image management functionality.</p>
+        
+        <div class="test-section">
+            <h2>Current Images</h2>
+            <button class="test-button" onclick="loadImages()">Load Images</button>
+            <button class="test-button" onclick="clearImages()">Clear All Images</button>
+            <div id="images-display" class="data-display">Click "Load Images" to see current images</div>
+            <div id="images-preview" class="image-preview"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Image Operations</h2>
+            <button class="test-button" onclick="addTestImage()">Add Test Image</button>
+            <button class="test-button" onclick="setProfileImage()">Set Profile Image</button>
+            <button class="test-button" onclick="deleteLastImage()">Delete Last Image</button>
+            <div id="operation-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Image Upload Test</h2>
+            <input type="file" id="imageUpload" accept="image/*" multiple>
+            <button class="test-button" onclick="uploadImages()">Upload Images</button>
+            <div id="upload-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Navigation</h2>
+            <button class="test-button" onclick="openDashboard()">Open Dashboard</button>
+            <button class="test-button" onclick="openCV()">Open CV</button>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+        
+        function loadImages() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                const display = document.getElementById('images-display');
+                const preview = document.getElementById('images-preview');
+                
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    const images = parsed.images || [];
+                    
+                    display.textContent = JSON.stringify(images, null, 2);
+                    
+                    // Show image previews
+                    preview.innerHTML = '';
+                    images.forEach(image => {
+                        const imageItem = document.createElement('div');
+                        imageItem.className = 'image-item';
+                        
+                        const isProfile = image.isProfile || image.isDefault;
+                        const profileBadge = isProfile ? '<span class="profile-badge">Profile</span>' : '';
+                        
+                        imageItem.innerHTML = `
+                            <img src="${image.src}" alt="${image.name}" onerror="this.src='https://via.placeholder.com/100x100/ccc/666?text=Error'">
+                            <p>${image.name} ${profileBadge}</p>
+                            <p style="font-size: 10px; color: #666;">ID: ${image.id}</p>
+                        `;
+                        preview.appendChild(imageItem);
+                    });
+                    
+                    showResult('images-display', `Found ${images.length} images`, 'success');
+                } else {
+                    display.textContent = 'No images found';
+                    preview.innerHTML = '<p>No images to display</p>';
+                    showResult('images-display', 'No data found', 'info');
+                }
+            } catch (error) {
+                showResult('images-display', `Error loading images: ${error.message}`, 'error');
+            }
+        }
+        
+        function clearImages() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    parsed.images = [];
+                    localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                    showResult('images-display', 'All images cleared', 'success');
+                    loadImages();
+                }
+            } catch (error) {
+                showResult('images-display', `Error clearing images: ${error.message}`, 'error');
+            }
+        }
+        
+        function addTestImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                let parsed = data ? JSON.parse(data) : {};
+                
+                if (!parsed.images) {
+                    parsed.images = [];
+                }
+                
+                const testImage = {
+                    id: 'test_' + Date.now(),
+                    src: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=Test',
+                    name: 'Test Image ' + (parsed.images.length + 1),
+                    type: 'test',
+                    isDefault: false,
+                    isProfile: false
+                };
+                
+                parsed.images.push(testImage);
+                localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                
+                showResult('operation-result', 'Test image added successfully', 'success');
+                loadImages();
+            } catch (error) {
+                showResult('operation-result', `Error adding test image: ${error.message}`, 'error');
+            }
+        }
+        
+        function setProfileImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    if (parsed.images && parsed.images.length > 0) {
+                        // Set the last image as profile
+                        parsed.images.forEach(img => img.isProfile = false);
+                        parsed.images[parsed.images.length - 1].isProfile = true;
+                        
+                        localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                        showResult('operation-result', 'Profile image set successfully', 'success');
+                        loadImages();
+                    } else {
+                        showResult('operation-result', 'No images to set as profile', 'error');
+                    }
+                }
+            } catch (error) {
+                showResult('operation-result', `Error setting profile image: ${error.message}`, 'error');
+            }
+        }
+        
+        function deleteLastImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    if (parsed.images && parsed.images.length > 0) {
+                        parsed.images.pop();
+                        localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                        showResult('operation-result', 'Last image deleted successfully', 'success');
+                        loadImages();
+                    } else {
+                        showResult('operation-result', 'No images to delete', 'error');
+                    }
+                }
+            } catch (error) {
+                showResult('operation-result', `Error deleting image: ${error.message}`, 'error');
+            }
+        }
+        
+        function uploadImages() {
+            const fileInput = document.getElementById('imageUpload');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showResult('upload-result', 'Please select files first', 'error');
+                return;
+            }
+            
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                let parsed = data ? JSON.parse(data) : {};
+                
+                if (!parsed.images) {
+                    parsed.images = [];
+                }
+                
+                Array.from(files).forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imageData = {
+                                id: 'upload_' + Date.now() + '_' + index,
+                                src: e.target.result,
+                                name: file.name,
+                                type: 'uploaded',
+                                isDefault: false,
+                                isProfile: false
+                            };
+                            
+                            parsed.images.push(imageData);
+                            localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                            
+                            showResult('upload-result', `Image "${file.name}" uploaded successfully`, 'success');
+                            loadImages();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            } catch (error) {
+                showResult('upload-result', `Error uploading images: ${error.message}`, 'error');
+            }
+        }
+        
+        function openDashboard() {
+            window.open('admin/index.html', '_blank');
+        }
+        
+        function openCV() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            loadImages();
+        });
+    </script>
+</body>
+</html>

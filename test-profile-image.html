@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Image Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .profile-preview {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .profile-preview img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Profile Image Test</h1>
+        <p>This page tests the profile image functionality.</p>
+        
+        <div class="profile-preview">
+            <h3>Current Profile Image</h3>
+            <img id="profilePreview" src="https://via.placeholder.com/150x150/ccc/666?text=No+Image" alt="Profile Preview">
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Operations</h2>
+            <button class="test-button" onclick="checkProfileImage()">Check Profile Image</button>
+            <button class="test-button" onclick="updateProfileImage()">Update Profile Image</button>
+            <button class="test-button" onclick="addTestProfileImage()">Add Test Profile Image</button>
+            <button class="test-button" onclick="openCV()">Open CV Page</button>
+            <div id="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Current Data</h2>
+            <div id="data-display" class="data-display">Click "Check Profile Image" to see current data</div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const element = document.getElementById('test-result');
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+        
+        function checkProfileImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                const display = document.getElementById('data-display');
+                
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    const images = parsed.images || [];
+                    
+                    display.textContent = JSON.stringify(parsed, null, 2);
+                    
+                    // Find profile image
+                    const profileImage = images.find(img => img.isProfile === true);
+                    const defaultImage = images.find(img => img.isDefault === true);
+                    const firstImage = images.length > 0 ? images[0] : null;
+                    
+                    let selectedImage = profileImage || defaultImage || firstImage;
+                    
+                    if (selectedImage) {
+                        document.getElementById('profilePreview').src = selectedImage.src;
+                        showResult(`Found profile image: ${selectedImage.name} (${selectedImage.isProfile ? 'Profile' : 'Default/First'})`, 'success');
+                    } else {
+                        showResult('No profile image found', 'error');
+                    }
+                } else {
+                    display.textContent = 'No data found';
+                    showResult('No dashboard data found', 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateProfileImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    const images = parsed.images || [];
+                    
+                    if (images.length > 0) {
+                        // Set the first image as profile
+                        images.forEach(img => img.isProfile = false);
+                        images[0].isProfile = true;
+                        
+                        localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                        showResult('Profile image updated successfully', 'success');
+                        
+                        // Update preview
+                        document.getElementById('profilePreview').src = images[0].src;
+                    } else {
+                        showResult('No images to set as profile', 'error');
+                    }
+                } else {
+                    showResult('No dashboard data found', 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function addTestProfileImage() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                let parsed = data ? JSON.parse(data) : {};
+                
+                if (!parsed.images) {
+                    parsed.images = [];
+                }
+                
+                // Clear existing profile flags
+                parsed.images.forEach(img => img.isProfile = false);
+                
+                const testImage = {
+                    id: 'test_profile_' + Date.now(),
+                    src: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=Profile',
+                    name: 'Test Profile Image',
+                    type: 'test',
+                    isDefault: false,
+                    isProfile: true
+                };
+                
+                parsed.images.push(testImage);
+                localStorage.setItem('cvDashboardData', JSON.stringify(parsed));
+                
+                // Update preview
+                document.getElementById('profilePreview').src = testImage.src;
+                
+                showResult('Test profile image added successfully', 'success');
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function openCV() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            checkProfileImage();
+        });
+    </script>
+</body>
+</html>

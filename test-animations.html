@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Animations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .animation-status {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .animation-status.visible {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .animation-status.hidden {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Animations</h1>
+        <p>This page tests the animation functionality.</p>
+        
+        <div class="test-section">
+            <h2>Test Operations</h2>
+            <button class="test-button" onclick="checkAnimations()">Check Animations</button>
+            <button class="test-button" onclick="enableAllAnimations()">Enable All Animations</button>
+            <button class="test-button" onclick="disableAllAnimations()">Disable All Animations</button>
+            <button class="test-button" onclick="openCV()">Open CV Page</button>
+            <div id="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Animation Status</h2>
+            <div id="animation-status"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const element = document.getElementById('test-result');
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+        
+        function checkAnimations() {
+            try {
+                const statusDiv = document.getElementById('animation-status');
+                
+                // Check if CV page is loaded
+                const cvWindow = window.open('index.html', '_blank');
+                if (cvWindow) {
+                    setTimeout(() => {
+                        try {
+                            // Check animation classes
+                            const skillCards = cvWindow.document.querySelectorAll('.skill-card');
+                            const timelineItems = cvWindow.document.querySelectorAll('.timeline-item');
+                            const educationItems = cvWindow.document.querySelectorAll('.education-item');
+                            
+                            let statusHTML = '';
+                            
+                            // Check skill cards
+                            const visibleSkills = Array.from(skillCards).filter(el => 
+                                el.classList.contains('animate-in') || 
+                                (el.style.opacity !== '0' && !el.classList.contains('animate-hidden'))
+                            ).length;
+                            
+                            statusHTML += `
+                                <div class="animation-status ${visibleSkills > 0 ? 'visible' : 'hidden'}">
+                                    <strong>Skill Cards:</strong> ${visibleSkills}/${skillCards.length} visible
+                                    ${visibleSkills > 0 ? '✅' : '❌'}
+                                </div>
+                            `;
+                            
+                            // Check timeline items
+                            const visibleTimeline = Array.from(timelineItems).filter(el => 
+                                el.classList.contains('animate-in') || 
+                                (el.style.opacity !== '0' && !el.classList.contains('animate-hidden'))
+                            ).length;
+                            
+                            statusHTML += `
+                                <div class="animation-status ${visibleTimeline > 0 ? 'visible' : 'hidden'}">
+                                    <strong>Timeline Items:</strong> ${visibleTimeline}/${timelineItems.length} visible
+                                    ${visibleTimeline > 0 ? '✅' : '❌'}
+                                </div>
+                            `;
+                            
+                            // Check education items
+                            const visibleEducation = Array.from(educationItems).filter(el => 
+                                el.classList.contains('animate-in') || 
+                                (el.style.opacity !== '0' && !el.classList.contains('animate-hidden'))
+                            ).length;
+                            
+                            statusHTML += `
+                                <div class="animation-status ${visibleEducation > 0 ? 'visible' : 'hidden'}">
+                                    <strong>Education Items:</strong> ${visibleEducation}/${educationItems.length} visible
+                                    ${visibleEducation > 0 ? '✅' : '❌'}
+                                </div>
+                            `;
+                            
+                            statusDiv.innerHTML = statusHTML;
+                            
+                            const totalVisible = visibleSkills + visibleTimeline + visibleEducation;
+                            const totalElements = skillCards.length + timelineItems.length + educationItems.length;
+                            
+                            if (totalVisible > 0) {
+                                showResult(`Found ${totalVisible}/${totalElements} visible elements`, 'success');
+                            } else {
+                                showResult('No visible elements found', 'error');
+                            }
+                            
+                        } catch (error) {
+                            showResult(`Error checking CV page: ${error.message}`, 'error');
+                        }
+                    }, 2000);
+                } else {
+                    showResult('Could not open CV page', 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function enableAllAnimations() {
+            try {
+                const cvWindow = window.open('index.html', '_blank');
+                if (cvWindow) {
+                    setTimeout(() => {
+                        try {
+                            if (cvWindow.enableAnimations) {
+                                cvWindow.enableAnimations();
+                                showResult('All animations enabled successfully', 'success');
+                            } else {
+                                showResult('enableAnimations function not found', 'error');
+                            }
+                        } catch (error) {
+                            showResult(`Error enabling animations: ${error.message}`, 'error');
+                        }
+                    }, 2000);
+                } else {
+                    showResult('Could not open CV page', 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function disableAllAnimations() {
+            try {
+                const cvWindow = window.open('index.html', '_blank');
+                if (cvWindow) {
+                    setTimeout(() => {
+                        try {
+                            if (cvWindow.disableAnimations) {
+                                cvWindow.disableAnimations();
+                                showResult('All animations disabled successfully', 'success');
+                            } else {
+                                showResult('disableAnimations function not found', 'error');
+                            }
+                        } catch (error) {
+                            showResult(`Error disabling animations: ${error.message}`, 'error');
+                        }
+                    }, 2000);
+                } else {
+                    showResult('Could not open CV page', 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function openCV() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            showResult('Ready to test animations. Click "Check Animations" to start.', 'info');
+        });
+    </script>
+</body>
+</html>

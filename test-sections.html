@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sections</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .section-status {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section-status.visible {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .section-status.hidden {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Sections Visibility</h1>
+        <p>This page tests if sections are visible and have content.</p>
+        
+        <div class="test-section">
+            <h2>Test Operations</h2>
+            <button class="test-button" onclick="checkSections()">Check Sections</button>
+            <button class="test-button" onclick="clearData()">Clear All Data</button>
+            <button class="test-button" onclick="addTestData()">Add Test Data</button>
+            <button class="test-button" onclick="openCV()">Open CV Page</button>
+            <div id="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Section Status</h2>
+            <div id="sections-status"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const element = document.getElementById('test-result');
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+        
+        function checkSections() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                const statusDiv = document.getElementById('sections-status');
+                
+                let statusHTML = '';
+                
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    
+                    // Check skills
+                    const skills = parsed.skills || [];
+                    const skillsStatus = skills.length > 0 ? 'visible' : 'hidden';
+                    statusHTML += `
+                        <div class="section-status ${skillsStatus}">
+                            <strong>Skills:</strong> ${skills.length} items found
+                            ${skills.length > 0 ? '✅' : '❌'}
+                        </div>
+                    `;
+                    
+                    // Check experience
+                    const experience = parsed.experience || [];
+                    const experienceStatus = experience.length > 0 ? 'visible' : 'hidden';
+                    statusHTML += `
+                        <div class="section-status ${experienceStatus}">
+                            <strong>Experience:</strong> ${experience.length} items found
+                            ${experience.length > 0 ? '✅' : '❌'}
+                        </div>
+                    `;
+                    
+                    // Check education
+                    const education = parsed.education || [];
+                    const educationStatus = education.length > 0 ? 'visible' : 'hidden';
+                    statusHTML += `
+                        <div class="section-status ${educationStatus}">
+                            <strong>Education:</strong> ${education.length} items found
+                            ${education.length > 0 ? '✅' : '❌'}
+                        </div>
+                    `;
+                    
+                    showResult(`Found data with ${skills.length} skills, ${experience.length} experience, ${education.length} education`, 'success');
+                } else {
+                    statusHTML = `
+                        <div class="section-status hidden">
+                            <strong>No Data:</strong> No dashboard data found ❌
+                        </div>
+                    `;
+                    showResult('No dashboard data found', 'error');
+                }
+                
+                statusDiv.innerHTML = statusHTML;
+                
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function clearData() {
+            try {
+                localStorage.removeItem('cvDashboardData');
+                showResult('All data cleared successfully', 'success');
+                checkSections();
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function addTestData() {
+            try {
+                const testData = {
+                    personal: {
+                        fullName: 'Test User',
+                        jobTitle: 'Test Developer',
+                        aboutText: 'Test description'
+                    },
+                    skills: [
+                        {
+                            id: 'test_skill_1',
+                            name: 'Test Skill 1',
+                            icon: 'https://via.placeholder.com/50x50/4A90E2/FFFFFF?text=TS1',
+                            description: 'Test skill description',
+                            level: 'Beginner',
+                            experience: '1 year'
+                        },
+                        {
+                            id: 'test_skill_2',
+                            name: 'Test Skill 2',
+                            icon: 'https://via.placeholder.com/50x50/4A90E2/FFFFFF?text=TS2',
+                            description: 'Another test skill',
+                            level: 'Intermediate',
+                            experience: '2 years'
+                        }
+                    ],
+                    experience: [
+                        {
+                            id: 'test_exp_1',
+                            title: 'Test Job 1',
+                            period: '2023 - Present',
+                            description: 'Test job description',
+                            technologies: ['Test Tech 1', 'Test Tech 2']
+                        }
+                    ],
+                    education: [
+                        {
+                            id: 'test_edu_1',
+                            title: 'Test Degree',
+                            institution: 'Test University',
+                            period: '2021 - 2025',
+                            description: 'Test education description'
+                        }
+                    ]
+                };
+                
+                localStorage.setItem('cvDashboardData', JSON.stringify(testData));
+                showResult('Test data added successfully', 'success');
+                checkSections();
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function openCV() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            checkSections();
+        });
+    </script>
+</body>
+</html>

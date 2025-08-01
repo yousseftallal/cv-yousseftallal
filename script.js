@@ -82,12 +82,395 @@ const closeModal = document.querySelector('.close');
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
+// Load data from localStorage
+function loadDashboardData() {
+    try {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            updatePageWithData(data);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+// Update page with loaded data
+function updatePageWithData(data) {
+    // Update personal information
+    if (data.personal) {
+        // Update page title
+        document.title = `${data.personal.fullName} - CV & Resume`;
+        
+        // Update navigation brand
+        const navBrand = document.querySelector('.nav-brand h2');
+        if (navBrand) {
+            navBrand.textContent = data.personal.fullName;
+        }
+        
+        // Update hero section
+        const heroTitle = document.querySelector('.hero-text h1');
+        if (heroTitle) {
+            heroTitle.textContent = data.personal.fullName;
+        }
+        
+        const heroSubtitle = document.querySelector('.hero-subtitle');
+        if (heroSubtitle) {
+            heroSubtitle.textContent = data.personal.jobTitle;
+        }
+        
+        const heroDescription = document.querySelector('.hero-description');
+        if (heroDescription) {
+            heroDescription.textContent = data.personal.aboutText;
+        }
+        
+        // Update about section
+        const aboutText = document.querySelector('.about-text p');
+        if (aboutText) {
+            aboutText.textContent = data.personal.aboutText;
+        }
+        
+        // Update profile image
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            profileImg.alt = data.personal.fullName;
+            
+            // Update profile image if available
+            if (data.images && data.images.length > 0) {
+                console.log('Found images:', data.images);
+                
+                // First try to find a profile image
+                let profileImage = data.images.find(img => img.isProfile === true);
+                
+                // If no profile image, try to find default image
+                if (!profileImage) {
+                    profileImage = data.images.find(img => img.isDefault === true);
+                }
+                
+                // If still no image, use the first image
+                if (!profileImage && data.images.length > 0) {
+                    profileImage = data.images[0];
+                }
+                
+                if (profileImage) {
+                    console.log('Setting profile image:', profileImage);
+                    profileImg.src = profileImage.src;
+                    profileImg.alt = profileImage.name || data.personal.fullName;
+                } else {
+                    console.log('No profile image found');
+                }
+            } else {
+                console.log('No images data found');
+            }
+        }
+    }
+    
+    // Update skills if available
+    if (data.skills && data.skills.length > 0) {
+        updateSkillsSection(data.skills);
+    } else {
+        console.log('No skills data found, using default content');
+    }
+    
+    // Update experience if available
+    if (data.experience && data.experience.length > 0) {
+        updateExperienceSection(data.experience);
+    } else {
+        console.log('No experience data found, using default content');
+    }
+    
+    // Update education if available
+    if (data.education && data.education.length > 0) {
+        updateEducationSection(data.education);
+    } else {
+        console.log('No education data found, using default content');
+    }
+    
+    // Update contact information if available
+    if (data.personal) {
+        updateContactSection(data.personal);
+        updateFooter(data.personal);
+    }
+}
+
+// Update skills section
+function updateSkillsSection(skills) {
+    const skillsSection = document.getElementById('skills');
+    if (!skillsSection) return;
+    
+    // Update skills count in about section
+    const skillsCount = document.querySelector('.about-stats .stat h3');
+    if (skillsCount) {
+        skillsCount.textContent = `${skills.length}+`;
+    }
+    
+    // Update skills grid if it exists
+    if (skillsGrid) {
+        // Only update if we have skills data, otherwise keep default content
+        if (skills && skills.length > 0) {
+            skillsGrid.innerHTML = '';
+            skills.forEach(skill => {
+                const skillCard = createSkillCard(skill);
+                skillsGrid.appendChild(skillCard);
+            });
+        } else {
+            console.log('No skills data found, keeping default content');
+        }
+    }
+}
+
+// Update experience section
+function updateExperienceSection(experience) {
+    const experienceSection = document.getElementById('experience');
+    if (!experienceSection) return;
+    
+    const timeline = experienceSection.querySelector('.timeline');
+    if (timeline) {
+        // Only update if we have experience data, otherwise keep default content
+        if (experience && experience.length > 0) {
+            timeline.innerHTML = '';
+            experience.forEach(exp => {
+                const expItem = createExperienceItem(exp);
+                timeline.appendChild(expItem);
+            });
+        } else {
+            console.log('No experience data found, keeping default content');
+        }
+    }
+}
+
+// Create experience item
+function createExperienceItem(experience) {
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.innerHTML = `
+        <div class="timeline-content">
+            <h3>${experience.title}</h3>
+            <span class="timeline-date">${experience.period}</span>
+            <p>${experience.description}</p>
+            ${experience.technologies && experience.technologies.length > 0 ? 
+                `<div class="tech-stack">
+                    ${experience.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                </div>` : ''
+            }
+        </div>
+    `;
+    return item;
+}
+
+// Update education section
+function updateEducationSection(education) {
+    const educationSection = document.getElementById('education');
+    if (!educationSection) return;
+    
+    const educationGrid = educationSection.querySelector('.education-grid');
+    if (educationGrid) {
+        // Only update if we have education data, otherwise keep default content
+        if (education && education.length > 0) {
+            educationGrid.innerHTML = '';
+            education.forEach(edu => {
+                const eduItem = createEducationItem(edu);
+                educationGrid.appendChild(eduItem);
+            });
+        } else {
+            console.log('No education data found, keeping default content');
+        }
+    }
+}
+
+// Create education item
+function createEducationItem(education) {
+    const item = document.createElement('div');
+    item.className = 'education-item';
+    item.innerHTML = `
+        <div class="education-icon">
+            <i class="fas fa-university"></i>
+        </div>
+        <div class="education-content">
+            <h3>${education.title}</h3>
+            <p class="institution">${education.institution}</p>
+            <span class="duration">${education.period}</span>
+            <p class="description">${education.description}</p>
+        </div>
+    `;
+    return item;
+}
+
+// Update contact section
+function updateContactSection(personal) {
+    const contactSection = document.getElementById('contact');
+    if (!contactSection) return;
+    
+    // Update email
+    const emailElement = contactSection.querySelector('.contact-item:nth-child(1) p');
+    if (emailElement && personal.email) {
+        emailElement.textContent = personal.email;
+    }
+    
+    // Update phone
+    const phoneElement = contactSection.querySelector('.contact-item:nth-child(2) p');
+    if (phoneElement && personal.phone) {
+        phoneElement.textContent = personal.phone;
+    }
+    
+    // Update location
+    const locationElement = contactSection.querySelector('.contact-item:nth-child(3) p');
+    if (locationElement && personal.location) {
+        locationElement.textContent = personal.location;
+    }
+}
+
+// Function to update profile image specifically
+function updateProfileImage() {
+    try {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            const profileImg = document.querySelector('.profile-img');
+            
+            if (profileImg && data.images && data.images.length > 0) {
+                console.log('Updating profile image...');
+                console.log('Available images:', data.images);
+                
+                // Find profile image
+                let profileImage = data.images.find(img => img.isProfile === true);
+                
+                if (!profileImage) {
+                    profileImage = data.images.find(img => img.isDefault === true);
+                }
+                
+                if (!profileImage && data.images.length > 0) {
+                    profileImage = data.images[0];
+                }
+                
+                if (profileImage) {
+                    console.log('Setting profile image to:', profileImage);
+                    profileImg.src = profileImage.src;
+                    profileImg.alt = profileImage.name || 'Profile Image';
+                    return true;
+                } else {
+                    console.log('No suitable profile image found');
+                    return false;
+                }
+            } else {
+                console.log('Profile image element or images data not found');
+                return false;
+            }
+        } else {
+            console.log('No dashboard data found');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating profile image:', error);
+        return false;
+    }
+}
+
+// Function to restore default content if no data
+function restoreDefaultContent() {
+    console.log('Restoring default content...');
+    
+    // Reload the page to restore default HTML content
+    location.reload();
+}
+
+// Function to check if sections have content
+function checkSectionsContent() {
+    const skillsGrid = document.getElementById('skillsGrid');
+    const timeline = document.querySelector('.timeline');
+    const educationGrid = document.querySelector('.education-grid');
+    
+    const skillsEmpty = skillsGrid && skillsGrid.children.length === 0;
+    const timelineEmpty = timeline && timeline.children.length === 0;
+    const educationEmpty = educationGrid && educationGrid.children.length === 0;
+    
+    console.log('Sections content check:', {
+        skillsEmpty,
+        timelineEmpty,
+        educationEmpty
+    });
+    
+    // If all sections are empty, restore default content
+    if (skillsEmpty && timelineEmpty && educationEmpty) {
+        console.log('All sections are empty, restoring default content...');
+        restoreDefaultContent();
+    }
+}
+
+// Update footer
+function updateFooter(personal) {
+    const footer = document.querySelector('.footer p');
+    if (footer && personal.fullName) {
+        footer.textContent = `© 2025 ${personal.fullName}. All rights reserved.`;
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Load dashboard data first
+    loadDashboardData();
+    
+    // Initialize other components
     initializeSkills();
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
+    
+    // Set up data refresh on storage change
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'cvDashboardData' || e.key === 'cvDataTimestamp') {
+            console.log('Data updated, refreshing page...');
+            loadDashboardData();
+        }
+    });
+    
+    // Also listen for custom events (for same-tab updates)
+    window.addEventListener('cvDataUpdated', function() {
+        console.log('CV data updated event received');
+        loadDashboardData();
+    });
+    
+    // Check for data updates periodically (fallback)
+    setInterval(() => {
+        const timestamp = localStorage.getItem('cvDataTimestamp');
+        if (timestamp && (!window.lastDataTimestamp || window.lastDataTimestamp !== timestamp)) {
+            window.lastDataTimestamp = timestamp;
+            console.log('Data timestamp changed, refreshing...');
+            loadDashboardData();
+        }
+    }, 2000); // Check every 2 seconds
+    
+    // Make functions available globally for debugging
+    window.updateProfileImage = updateProfileImage;
+    window.loadDashboardData = loadDashboardData;
+    window.checkSectionsContent = checkSectionsContent;
+    window.restoreDefaultContent = restoreDefaultContent;
+    
+    console.log('CV page loaded. Use updateProfileImage() to manually update profile image.');
+    console.log('Use checkSectionsContent() to check if sections have content.');
+    console.log('Use restoreDefaultContent() to restore default content.');
+    
+    // Check sections content after a short delay
+    setTimeout(() => {
+        checkSectionsContent();
+    }, 1000);
+    
+    // Make animation functions available globally
+    window.enableAnimations = function() {
+        document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+            el.classList.remove('animate-hidden');
+            el.classList.add('animate-in');
+        });
+    };
+    
+    window.disableAnimations = function() {
+        document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+            el.classList.remove('animate-in');
+            el.classList.add('animate-hidden');
+        });
+    };
+    
+    console.log('Animation functions available: enableAnimations(), disableAnimations()');
 });
 
 // Initialize skills grid
@@ -306,12 +689,17 @@ function initializeScrollEffects() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
+                entry.target.classList.remove('animate-hidden');
             }
         });
     }, observerOptions);
     
     // Observe elements for animation
     document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+        // Add animate-hidden class to elements that should start hidden
+        if (!el.classList.contains('animate-in')) {
+            el.classList.add('animate-hidden');
+        }
         observer.observe(el);
     });
 }
@@ -357,8 +745,8 @@ function initializeAnimations() {
         }
         
         .skill-card, .timeline-item, .stat, .education-item, .contact-item {
-            opacity: 0;
-            transform: translateY(30px);
+            opacity: 1;
+            transform: translateY(0);
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
         
@@ -366,6 +754,13 @@ function initializeAnimations() {
         .education-item.animate-in, .contact-item.animate-in {
             opacity: 1;
             transform: translateY(0);
+        }
+        
+        /* Animation for elements that start hidden */
+        .skill-card.animate-hidden, .timeline-item.animate-hidden, .stat.animate-hidden, 
+        .education-item.animate-hidden, .contact-item.animate-hidden {
+            opacity: 0;
+            transform: translateY(30px);
         }
         
         .nav-menu a.active {

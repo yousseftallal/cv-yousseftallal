@@ -1,9 +1,40 @@
 // Admin Dashboard JavaScript
 class CVDashboard {
     constructor() {
+        // Check authentication first
+        if (!this.checkAuth()) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
         this.currentSection = 'overview';
         this.data = this.loadData();
         this.init();
+    }
+
+    checkAuth() {
+        const loggedIn = localStorage.getItem('dashboardLoggedIn');
+        const loginTime = localStorage.getItem('dashboardLoginTime');
+        
+        if (!loggedIn || !loginTime) return false;
+        
+        // Check if login is still valid (24 hours)
+        const now = Date.now();
+        const loginTimestamp = parseInt(loginTime);
+        const hoursSinceLogin = (now - loginTimestamp) / (1000 * 60 * 60);
+        
+        if (hoursSinceLogin > 24) {
+            this.logout();
+            return false;
+        }
+        
+        return true;
+    }
+
+    logout() {
+        localStorage.removeItem('dashboardLoggedIn');
+        localStorage.removeItem('dashboardLoginTime');
+        window.location.href = 'login.html';
     }
 
     init() {
@@ -156,16 +187,66 @@ class CVDashboard {
                     'https://linkedin.com/in/yousef-talal',
                     'https://github.com/yousef-talal'
                 ]
-            }
+            },
+            images: [
+                {
+                    id: 'profile-default',
+                    src: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT',
+                    name: 'Profile Image',
+                    type: 'profile',
+                    isDefault: true
+                }
+            ]
         };
 
         const savedData = localStorage.getItem('cvDashboardData');
-        return savedData ? { ...defaultData, ...JSON.parse(savedData) } : defaultData;
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                // Deep merge to preserve nested objects properly
+                return this.deepMerge(defaultData, parsedData);
+            } catch (error) {
+                console.error('Error parsing saved data:', error);
+                return defaultData;
+            }
+        }
+        return defaultData;
+    }
+
+    // Helper function for deep merging objects
+    deepMerge(target, source) {
+        const result = { ...target };
+        
+        for (const key in source) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                result[key] = this.deepMerge(target[key] || {}, source[key]);
+            } else if (Array.isArray(source[key])) {
+                // Preserve arrays if they have content, otherwise keep target
+                result[key] = source[key].length > 0 ? source[key] : (target[key] || []);
+            } else if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
+                result[key] = source[key];
+            } else if (source[key] === '' && target[key]) {
+                // Keep existing value if new value is empty
+                result[key] = target[key];
+            }
+        }
+        
+        return result;
     }
 
     saveData() {
         localStorage.setItem('cvDashboardData', JSON.stringify(this.data));
         this.showToast('Data saved successfully!', 'success');
+        
+        // Dispatch custom event to notify CV page
+        window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+        
+        // Also try to notify other tabs
+        try {
+            localStorage.setItem('cvDataTimestamp', Date.now().toString());
+        } catch (error) {
+            console.log('Could not update timestamp for cross-tab sync');
+        }
     }
 
     loadDashboardData() {
@@ -174,6 +255,7 @@ class CVDashboard {
         this.loadSkillsList();
         this.loadExperienceList();
         this.loadEducationList();
+        this.loadImagesList();
         this.loadSettingsForm();
     }
 
@@ -190,6 +272,9 @@ class CVDashboard {
                 break;
             case 'education':
                 this.loadEducationList();
+                break;
+            case 'images':
+                this.loadImagesList();
                 break;
         }
     }
@@ -256,7 +341,7 @@ class CVDashboard {
             siteTitle: document.getElementById('siteTitle').value,
             metaDescription: document.getElementById('metaDescription').value,
             themeColor: document.getElementById('themeColor').value,
-            socialLinks: this.data.settings.socialLinks // Keep existing social links
+            socialLinks: this.data.settings?.socialLinks || [] // Safely access social links
         };
         this.saveData();
     }
@@ -297,6 +382,7 @@ class CVDashboard {
     }
 
     addSkill() {
+        console.log('Adding new skill...');
         this.openModal('Add New Skill', this.getSkillForm());
     }
 
@@ -309,32 +395,43 @@ class CVDashboard {
 
     deleteSkill(skillId) {
         if (confirm('Are you sure you want to delete this skill?')) {
-            this.data.skills = this.data.skills.filter(s => s.id !== skillId);
-            this.saveData();
-            this.loadSkillsList();
-            this.updateStats();
+            try {
+                this.data.skills = this.data.skills.filter(s => s.id !== skillId);
+                this.saveData();
+                this.loadSkillsList();
+                this.updateStats();
+                this.showToast('Skill deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting skill:', error);
+                this.showToast('Error deleting skill', 'error');
+            }
         }
     }
 
     getSkillForm(skill = {}) {
+        // Generate experience options (1-10 years)
+        const experienceOptions = Array.from({length: 10}, (_, i) => i + 1)
+            .map(year => `<option value="${year} years" ${skill.experience === `${year} years` ? 'selected' : ''}>${year} years</option>`)
+            .join('');
+        
         return `
             <form id="skill-form" class="admin-form">
                 <input type="hidden" id="skill-id" value="${skill.id || ''}">
                 <div class="form-group">
-                    <label for="skill-name">Skill Name</label>
+                    <label for="skill-name">Skill Name *</label>
                     <input type="text" id="skill-name" value="${skill.name || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="skill-icon">Icon URL</label>
+                    <label for="skill-icon">Icon URL *</label>
                     <input type="url" id="skill-icon" value="${skill.icon || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="skill-description">Description</label>
+                    <label for="skill-description">Description *</label>
                     <textarea id="skill-description" rows="3" required>${skill.description || ''}</textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="skill-level">Level</label>
+                        <label for="skill-level">Level *</label>
                         <select id="skill-level" required>
                             <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
                             <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
@@ -343,8 +440,11 @@ class CVDashboard {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="skill-experience">Experience</label>
-                        <input type="text" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
+                        <label for="skill-experience">Experience (Years) *</label>
+                        <select id="skill-experience" required>
+                            <option value="">Select years of experience</option>
+                            ${experienceOptions}
+                        </select>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -356,27 +456,40 @@ class CVDashboard {
     }
 
     saveSkill(formData) {
-        const skillId = formData.get('skill-id') || this.generateId();
-        const skillData = {
-            id: skillId,
-            name: formData.get('skill-name'),
-            icon: formData.get('skill-icon'),
-            description: formData.get('skill-description'),
-            level: formData.get('skill-level'),
-            experience: formData.get('skill-experience')
-        };
+        try {
+            const skillId = formData.get('skill-id') || this.generateId();
+            const skillData = {
+                id: skillId,
+                name: formData.get('skill-name') || '',
+                icon: formData.get('skill-icon') || '',
+                description: formData.get('skill-description') || '',
+                level: formData.get('skill-level') || 'Beginner',
+                experience: formData.get('skill-experience') || ''
+            };
 
-        const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
-        if (existingIndex >= 0) {
-            this.data.skills[existingIndex] = skillData;
-        } else {
-            this.data.skills.push(skillData);
+            // Validate required fields
+            if (!skillData.name || !skillData.description || !skillData.icon || !skillData.experience) {
+                this.showToast('Please fill in all required fields (Name, Icon URL, Description, and Experience)', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
+            if (existingIndex >= 0) {
+                this.data.skills[existingIndex] = skillData;
+                this.showToast('Skill updated successfully!', 'success');
+            } else {
+                this.data.skills.push(skillData);
+                this.showToast('Skill added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadSkillsList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving skill:', error);
+            this.showToast('Error saving skill', 'error');
         }
-
-        this.saveData();
-        this.loadSkillsList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Experience Management
@@ -418,6 +531,7 @@ class CVDashboard {
     }
 
     addExperience() {
+        console.log('Adding new experience...');
         this.openModal('Add New Experience', this.getExperienceForm());
     }
 
@@ -430,10 +544,16 @@ class CVDashboard {
 
     deleteExperience(expId) {
         if (confirm('Are you sure you want to delete this experience?')) {
-            this.data.experience = this.data.experience.filter(e => e.id !== expId);
-            this.saveData();
-            this.loadExperienceList();
-            this.updateStats();
+            try {
+                this.data.experience = this.data.experience.filter(e => e.id !== expId);
+                this.saveData();
+                this.loadExperienceList();
+                this.updateStats();
+                this.showToast('Experience deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting experience:', error);
+                this.showToast('Error deleting experience', 'error');
+            }
         }
     }
 
@@ -442,20 +562,20 @@ class CVDashboard {
             <form id="experience-form" class="admin-form">
                 <input type="hidden" id="experience-id" value="${experience.id || ''}">
                 <div class="form-group">
-                    <label for="experience-title">Title</label>
+                    <label for="experience-title">Job Title *</label>
                     <input type="text" id="experience-title" value="${experience.title || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="experience-period">Period</label>
+                    <label for="experience-period">Period *</label>
                     <input type="text" id="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
                 </div>
                 <div class="form-group">
-                    <label for="experience-description">Description</label>
+                    <label for="experience-description">Description *</label>
                     <textarea id="experience-description" rows="4" required>${experience.description || ''}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="experience-technologies">Technologies (comma-separated)</label>
-                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
+                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Experience</button>
@@ -466,26 +586,40 @@ class CVDashboard {
     }
 
     saveExperience(formData) {
-        const expId = formData.get('experience-id') || this.generateId();
-        const expData = {
-            id: expId,
-            title: formData.get('experience-title'),
-            period: formData.get('experience-period'),
-            description: formData.get('experience-description'),
-            technologies: formData.get('experience-technologies').split(',').map(t => t.trim())
-        };
+        try {
+            const expId = formData.get('experience-id') || this.generateId();
+            const expData = {
+                id: expId,
+                title: formData.get('experience-title') || '',
+                period: formData.get('experience-period') || '',
+                description: formData.get('experience-description') || '',
+                technologies: formData.get('experience-technologies') ? 
+                    formData.get('experience-technologies').split(',').map(t => t.trim()).filter(t => t) : []
+            };
 
-        const existingIndex = this.data.experience.findIndex(e => e.id === expId);
-        if (existingIndex >= 0) {
-            this.data.experience[existingIndex] = expData;
-        } else {
-            this.data.experience.push(expData);
+            // Validate required fields
+            if (!expData.title || !expData.description || !expData.period) {
+                this.showToast('Please fill in all required fields (Title, Period, and Description)', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.experience.findIndex(e => e.id === expId);
+            if (existingIndex >= 0) {
+                this.data.experience[existingIndex] = expData;
+                this.showToast('Experience updated successfully!', 'success');
+            } else {
+                this.data.experience.push(expData);
+                this.showToast('Experience added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadExperienceList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving experience:', error);
+            this.showToast('Error saving experience', 'error');
         }
-
-        this.saveData();
-        this.loadExperienceList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Education Management
@@ -524,6 +658,7 @@ class CVDashboard {
     }
 
     addEducation() {
+        console.log('Adding new education...');
         this.openModal('Add New Education', this.getEducationForm());
     }
 
@@ -536,10 +671,16 @@ class CVDashboard {
 
     deleteEducation(eduId) {
         if (confirm('Are you sure you want to delete this education?')) {
-            this.data.education = this.data.education.filter(e => e.id !== eduId);
-            this.saveData();
-            this.loadEducationList();
-            this.updateStats();
+            try {
+                this.data.education = this.data.education.filter(e => e.id !== eduId);
+                this.saveData();
+                this.loadEducationList();
+                this.updateStats();
+                this.showToast('Education deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting education:', error);
+                this.showToast('Error deleting education', 'error');
+            }
         }
     }
 
@@ -548,19 +689,19 @@ class CVDashboard {
             <form id="education-form" class="admin-form">
                 <input type="hidden" id="education-id" value="${education.id || ''}">
                 <div class="form-group">
-                    <label for="education-title">Degree/Title</label>
+                    <label for="education-title">Degree/Title *</label>
                     <input type="text" id="education-title" value="${education.title || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-institution">Institution</label>
+                    <label for="education-institution">Institution *</label>
                     <input type="text" id="education-institution" value="${education.institution || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-period">Period</label>
+                    <label for="education-period">Period *</label>
                     <input type="text" id="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-description">Description</label>
+                    <label for="education-description">Description *</label>
                     <textarea id="education-description" rows="3" required>${education.description || ''}</textarea>
                 </div>
                 <div class="form-actions">
@@ -572,26 +713,39 @@ class CVDashboard {
     }
 
     saveEducation(formData) {
-        const eduId = formData.get('education-id') || this.generateId();
-        const eduData = {
-            id: eduId,
-            title: formData.get('education-title'),
-            institution: formData.get('education-institution'),
-            period: formData.get('education-period'),
-            description: formData.get('education-description')
-        };
+        try {
+            const eduId = formData.get('education-id') || this.generateId();
+            const eduData = {
+                id: eduId,
+                title: formData.get('education-title') || '',
+                institution: formData.get('education-institution') || '',
+                period: formData.get('education-period') || '',
+                description: formData.get('education-description') || ''
+            };
 
-        const existingIndex = this.data.education.findIndex(e => e.id === eduId);
-        if (existingIndex >= 0) {
-            this.data.education[existingIndex] = eduData;
-        } else {
-            this.data.education.push(eduData);
+            // Validate required fields
+            if (!eduData.title || !eduData.institution || !eduData.description || !eduData.period) {
+                this.showToast('Please fill in all required fields (Title, Institution, Period, and Description)', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.education.findIndex(e => e.id === eduId);
+            if (existingIndex >= 0) {
+                this.data.education[existingIndex] = eduData;
+                this.showToast('Education updated successfully!', 'success');
+            } else {
+                this.data.education.push(eduData);
+                this.showToast('Education added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadEducationList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving education:', error);
+            this.showToast('Error saving education', 'error');
         }
-
-        this.saveData();
-        this.loadEducationList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Modal Management
@@ -617,6 +771,11 @@ class CVDashboard {
         const modalTitle = document.getElementById('modal-title');
         const modalBody = document.getElementById('modal-body');
 
+        if (!modal || !modalTitle || !modalBody) {
+            console.error('Modal elements not found');
+            return;
+        }
+
         modalTitle.textContent = title;
         modalBody.innerHTML = content;
         modal.style.display = 'block';
@@ -624,15 +783,19 @@ class CVDashboard {
         // Setup form submission
         const form = modalBody.querySelector('form');
         if (form) {
-            form.addEventListener('submit', (e) => {
+            // Remove existing event listeners
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            newForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const formData = new FormData(form);
+                const formData = new FormData(newForm);
                 
-                if (form.id === 'skill-form') {
+                if (newForm.id === 'skill-form') {
                     this.saveSkill(formData);
-                } else if (form.id === 'experience-form') {
+                } else if (newForm.id === 'experience-form') {
                     this.saveExperience(formData);
-                } else if (form.id === 'education-form') {
+                } else if (newForm.id === 'education-form') {
                     this.saveEducation(formData);
                 }
             });
@@ -686,26 +849,182 @@ class CVDashboard {
     }
 
     addImageToPreview(src, name) {
+        // Add image to data
+        const imageId = this.generateId();
+        const imageData = {
+            id: imageId,
+            src: src,
+            name: name,
+            type: 'uploaded',
+            isDefault: false
+        };
+        
+        // Initialize images array if it doesn't exist
+        if (!this.data.images) {
+            this.data.images = [];
+        }
+        
+        this.data.images.push(imageData);
+        
+        // Update preview
         const imagePreview = document.getElementById('imagePreview');
         const imageItem = document.createElement('div');
         imageItem.className = 'image-item';
+        imageItem.setAttribute('data-image-id', imageId);
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
-                <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
+                <button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfile('${imageId}')">Set as Profile</button>
+                <button class="btn btn-sm btn-danger" onclick="dashboard.deleteImage('${imageId}')">Delete</button>
             </div>
             <p>${name}</p>
         `;
         imagePreview.appendChild(imageItem);
+        
+        // Save data
+        this.saveData();
+        this.showToast('Image uploaded successfully!', 'success');
+    }
+
+    // Image Management Functions
+    setAsProfile(imageId) {
+        try {
+            console.log('Setting profile image for ID:', imageId);
+            console.log('Current images:', this.data.images);
+            
+            // Find the image
+            const image = this.data.images.find(img => img.id === imageId);
+            if (!image) {
+                console.error('Image not found with ID:', imageId);
+                this.showToast('Image not found!', 'error');
+                return;
+            }
+            
+            console.log('Found image:', image);
+            
+            // Update all images to not be profile
+            this.data.images.forEach(img => {
+                img.isProfile = false;
+            });
+            
+            // Set this image as profile
+            image.isProfile = true;
+            
+            console.log('Updated images data:', this.data.images);
+            
+            // Save data
+            this.saveData();
+            this.showToast('Profile image updated successfully!', 'success');
+            
+            // Update preview
+            this.loadImagesList();
+            
+            console.log('Profile image set successfully');
+        } catch (error) {
+            console.error('Error setting profile image:', error);
+            this.showToast('Error updating profile image', 'error');
+        }
+    }
+
+    deleteImage(imageId) {
+        try {
+            if (confirm('Are you sure you want to delete this image?')) {
+                // Remove from data
+                this.data.images = this.data.images.filter(img => img.id !== imageId);
+                
+                // Remove from DOM
+                const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+                if (imageElement) {
+                    imageElement.remove();
+                }
+                
+                // Save data
+                this.saveData();
+                this.showToast('Image deleted successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            this.showToast('Error deleting image', 'error');
+        }
+    }
+
+    loadImagesList() {
+        const imagePreview = document.getElementById('imagePreview');
+        if (!imagePreview) return;
+        
+        // Clear existing images
+        imagePreview.innerHTML = '';
+        
+        // Load images from data
+        if (this.data.images && this.data.images.length > 0) {
+            this.data.images.forEach(image => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.setAttribute('data-image-id', image.id);
+                
+                const isProfile = image.isProfile || image.isDefault;
+                const profileBadge = isProfile ? '<span class="profile-badge">Profile</span>' : '';
+                
+                imageItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.name}">
+                    <div class="image-actions">
+                        ${!isProfile ? `<button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfile('${image.id}')">Set as Profile</button>` : ''}
+                        ${!image.isDefault ? `<button class="btn btn-sm btn-danger" onclick="dashboard.deleteImage('${image.id}')">Delete</button>` : ''}
+                    </div>
+                    <p>${image.name} ${profileBadge}</p>
+                `;
+                imagePreview.appendChild(imageItem);
+            });
+        } else {
+            // Show default placeholder
+            const defaultItem = document.createElement('div');
+            defaultItem.className = 'image-item';
+            defaultItem.innerHTML = `
+                <img src="https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT" alt="Default Profile">
+                <div class="image-actions">
+                    <button class="btn btn-sm btn-secondary" disabled>Default Image</button>
+                </div>
+                <p>Default Profile Image</p>
+            `;
+            imagePreview.appendChild(defaultItem);
+        }
     }
 
     // Event Bindings
     bindEvents() {
+        console.log('Binding events...');
+        
         // Add buttons
-        document.getElementById('addSkill')?.addEventListener('click', () => this.addSkill());
-        document.getElementById('addExperience')?.addEventListener('click', () => this.addExperience());
-        document.getElementById('addEducation')?.addEventListener('click', () => this.addEducation());
+        const addSkillBtn = document.getElementById('addSkill');
+        const addExperienceBtn = document.getElementById('addExperience');
+        const addEducationBtn = document.getElementById('addEducation');
+        
+        if (addSkillBtn) {
+            addSkillBtn.addEventListener('click', () => {
+                console.log('Add skill button clicked');
+                this.addSkill();
+            });
+        } else {
+            console.error('Add skill button not found');
+        }
+        
+        if (addExperienceBtn) {
+            addExperienceBtn.addEventListener('click', () => {
+                console.log('Add experience button clicked');
+                this.addExperience();
+            });
+        } else {
+            console.error('Add experience button not found');
+        }
+        
+        if (addEducationBtn) {
+            addEducationBtn.addEventListener('click', () => {
+                console.log('Add education button clicked');
+                this.addEducation();
+            });
+        } else {
+            console.error('Add education button not found');
+        }
 
         // Header buttons
         document.getElementById('saveChanges')?.addEventListener('click', () => this.saveData());
@@ -717,6 +1036,11 @@ class CVDashboard {
 
         // Social links
         document.getElementById('addSocialLink')?.addEventListener('click', () => this.addSocialLink());
+
+        // Logout button
+        document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+        
+        console.log('Events bound successfully');
     }
 
     // Utility Functions
@@ -725,19 +1049,32 @@ class CVDashboard {
     }
 
     showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'exclamation'}"></i>
-            <span>${message}</span>
-        `;
+        try {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'exclamation'}"></i>
+                <span>${message}</span>
+            `;
 
-        const container = document.getElementById('toast-container');
-        container.appendChild(toast);
+            const container = document.getElementById('toast-container');
+            if (container) {
+                container.appendChild(toast);
 
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 3000);
+            } else {
+                // Fallback to alert if toast container not found
+                alert(`${type.toUpperCase()}: ${message}`);
+            }
+        } catch (error) {
+            console.error('Error showing toast:', error);
+            alert(`${type.toUpperCase()}: ${message}`);
+        }
     }
 
     exportData() {
@@ -798,7 +1135,6 @@ class CVDashboard {
 let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
     dashboard = new CVDashboard();
+    // Make functions available globally for onclick handlers
+    window.dashboard = dashboard;
 });
-
-// Make functions available globally for onclick handlers
-window.dashboard = dashboard;
