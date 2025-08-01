@@ -130,10 +130,18 @@ function updatePageWithData(data) {
             aboutText.textContent = data.personal.aboutText;
         }
         
-        // Update profile image alt text
+        // Update profile image
         const profileImg = document.querySelector('.profile-img');
         if (profileImg) {
             profileImg.alt = data.personal.fullName;
+            
+            // Update profile image if available
+            if (data.images && data.images.length > 0) {
+                const profileImage = data.images.find(img => img.isProfile || img.isDefault);
+                if (profileImage) {
+                    profileImg.src = profileImage.src;
+                }
+            }
         }
     }
     

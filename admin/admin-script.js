@@ -187,7 +187,16 @@ class CVDashboard {
                     'https://linkedin.com/in/yousef-talal',
                     'https://github.com/yousef-talal'
                 ]
-            }
+            },
+            images: [
+                {
+                    id: 'profile-default',
+                    src: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT',
+                    name: 'Profile Image',
+                    type: 'profile',
+                    isDefault: true
+                }
+            ]
         };
 
         const savedData = localStorage.getItem('cvDashboardData');
@@ -212,9 +221,13 @@ class CVDashboard {
             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
                 result[key] = this.deepMerge(target[key] || {}, source[key]);
             } else if (Array.isArray(source[key])) {
-                result[key] = source[key].length > 0 ? source[key] : target[key];
+                // Preserve arrays if they have content, otherwise keep target
+                result[key] = source[key].length > 0 ? source[key] : (target[key] || []);
             } else if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
                 result[key] = source[key];
+            } else if (source[key] === '' && target[key]) {
+                // Keep existing value if new value is empty
+                result[key] = target[key];
             }
         }
         
@@ -242,6 +255,7 @@ class CVDashboard {
         this.loadSkillsList();
         this.loadExperienceList();
         this.loadEducationList();
+        this.loadImagesList();
         this.loadSettingsForm();
     }
 
@@ -258,6 +272,9 @@ class CVDashboard {
                 break;
             case 'education':
                 this.loadEducationList();
+                break;
+            case 'images':
+                this.loadImagesList();
                 break;
         }
     }
@@ -824,18 +841,135 @@ class CVDashboard {
     }
 
     addImageToPreview(src, name) {
+        // Add image to data
+        const imageId = this.generateId();
+        const imageData = {
+            id: imageId,
+            src: src,
+            name: name,
+            type: 'uploaded',
+            isDefault: false
+        };
+        
+        // Initialize images array if it doesn't exist
+        if (!this.data.images) {
+            this.data.images = [];
+        }
+        
+        this.data.images.push(imageData);
+        
+        // Update preview
         const imagePreview = document.getElementById('imagePreview');
         const imageItem = document.createElement('div');
         imageItem.className = 'image-item';
+        imageItem.setAttribute('data-image-id', imageId);
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
-                <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
+                <button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfile('${imageId}')">Set as Profile</button>
+                <button class="btn btn-sm btn-danger" onclick="dashboard.deleteImage('${imageId}')">Delete</button>
             </div>
             <p>${name}</p>
         `;
         imagePreview.appendChild(imageItem);
+        
+        // Save data
+        this.saveData();
+        this.showToast('Image uploaded successfully!', 'success');
+    }
+
+    // Image Management Functions
+    setAsProfile(imageId) {
+        try {
+            // Find the image
+            const image = this.data.images.find(img => img.id === imageId);
+            if (!image) {
+                this.showToast('Image not found!', 'error');
+                return;
+            }
+            
+            // Update all images to not be profile
+            this.data.images.forEach(img => {
+                img.isProfile = false;
+            });
+            
+            // Set this image as profile
+            image.isProfile = true;
+            
+            // Save data
+            this.saveData();
+            this.showToast('Profile image updated successfully!', 'success');
+            
+            // Update preview
+            this.loadImagesList();
+        } catch (error) {
+            console.error('Error setting profile image:', error);
+            this.showToast('Error updating profile image', 'error');
+        }
+    }
+
+    deleteImage(imageId) {
+        try {
+            if (confirm('Are you sure you want to delete this image?')) {
+                // Remove from data
+                this.data.images = this.data.images.filter(img => img.id !== imageId);
+                
+                // Remove from DOM
+                const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+                if (imageElement) {
+                    imageElement.remove();
+                }
+                
+                // Save data
+                this.saveData();
+                this.showToast('Image deleted successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            this.showToast('Error deleting image', 'error');
+        }
+    }
+
+    loadImagesList() {
+        const imagePreview = document.getElementById('imagePreview');
+        if (!imagePreview) return;
+        
+        // Clear existing images
+        imagePreview.innerHTML = '';
+        
+        // Load images from data
+        if (this.data.images && this.data.images.length > 0) {
+            this.data.images.forEach(image => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.setAttribute('data-image-id', image.id);
+                
+                const isProfile = image.isProfile || image.isDefault;
+                const profileBadge = isProfile ? '<span class="profile-badge">Profile</span>' : '';
+                
+                imageItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.name}">
+                    <div class="image-actions">
+                        ${!isProfile ? `<button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfile('${image.id}')">Set as Profile</button>` : ''}
+                        ${!image.isDefault ? `<button class="btn btn-sm btn-danger" onclick="dashboard.deleteImage('${image.id}')">Delete</button>` : ''}
+                    </div>
+                    <p>${image.name} ${profileBadge}</p>
+                `;
+                imagePreview.appendChild(imageItem);
+            });
+        } else {
+            // Show default placeholder
+            const defaultItem = document.createElement('div');
+            defaultItem.className = 'image-item';
+            defaultItem.innerHTML = `
+                <img src="https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT" alt="Default Profile">
+                <div class="image-actions">
+                    <button class="btn btn-sm btn-secondary" disabled>Default Image</button>
+                </div>
+                <p>Default Profile Image</p>
+            `;
+            imagePreview.appendChild(defaultItem);
+        }
     }
 
     // Event Bindings
