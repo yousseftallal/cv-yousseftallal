@@ -1,9 +1,40 @@
 // Admin Dashboard JavaScript
 class CVDashboard {
     constructor() {
+        // Check authentication first
+        if (!this.checkAuth()) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
         this.currentSection = 'overview';
         this.data = this.loadData();
         this.init();
+    }
+
+    checkAuth() {
+        const loggedIn = localStorage.getItem('dashboardLoggedIn');
+        const loginTime = localStorage.getItem('dashboardLoginTime');
+        
+        if (!loggedIn || !loginTime) return false;
+        
+        // Check if login is still valid (24 hours)
+        const now = Date.now();
+        const loginTimestamp = parseInt(loginTime);
+        const hoursSinceLogin = (now - loginTimestamp) / (1000 * 60 * 60);
+        
+        if (hoursSinceLogin > 24) {
+            this.logout();
+            return false;
+        }
+        
+        return true;
+    }
+
+    logout() {
+        localStorage.removeItem('dashboardLoggedIn');
+        localStorage.removeItem('dashboardLoginTime');
+        window.location.href = 'login.html';
     }
 
     init() {
@@ -160,7 +191,34 @@ class CVDashboard {
         };
 
         const savedData = localStorage.getItem('cvDashboardData');
-        return savedData ? { ...defaultData, ...JSON.parse(savedData) } : defaultData;
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                // Deep merge to preserve nested objects properly
+                return this.deepMerge(defaultData, parsedData);
+            } catch (error) {
+                console.error('Error parsing saved data:', error);
+                return defaultData;
+            }
+        }
+        return defaultData;
+    }
+
+    // Helper function for deep merging objects
+    deepMerge(target, source) {
+        const result = { ...target };
+        
+        for (const key in source) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                result[key] = this.deepMerge(target[key] || {}, source[key]);
+            } else if (Array.isArray(source[key])) {
+                result[key] = source[key].length > 0 ? source[key] : target[key];
+            } else if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
+                result[key] = source[key];
+            }
+        }
+        
+        return result;
     }
 
     saveData() {
@@ -256,7 +314,7 @@ class CVDashboard {
             siteTitle: document.getElementById('siteTitle').value,
             metaDescription: document.getElementById('metaDescription').value,
             themeColor: document.getElementById('themeColor').value,
-            socialLinks: this.data.settings.socialLinks // Keep existing social links
+            socialLinks: this.data.settings?.socialLinks || [] // Safely access social links
         };
         this.saveData();
     }
@@ -717,6 +775,9 @@ class CVDashboard {
 
         // Social links
         document.getElementById('addSocialLink')?.addEventListener('click', () => this.addSocialLink());
+
+        // Logout button
+        document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
     }
 
     // Utility Functions
