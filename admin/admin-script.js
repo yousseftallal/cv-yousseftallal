@@ -229,6 +229,12 @@ class CVDashboard {
     saveData() {
         localStorage.setItem('cvDashboardData', JSON.stringify(this.data));
         this.showToast('Data saved successfully!', 'success');
+        
+        // Trigger storage event to notify main website
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'cvDashboardData',
+            newValue: JSON.stringify(this.data)
+        }));
     }
 
     loadDashboardData() {

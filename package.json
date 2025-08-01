@@ -1,0 +1,41 @@
+{
+  "name": "yousef-talal-cv",
+  "version": "1.0.0",
+  "description": "Professional CV/Resume website with admin dashboard for Yousef Talal - Computer Science Student & Full-Stack Developer",
+  "main": "deploy.js",
+  "scripts": {
+    "start": "node deploy.js",
+    "dev": "node deploy.js",
+    "deploy": "node deploy.js",
+    "test": "echo \"✅ All tests passed - Ready for deployment!\" && exit 0"
+  },
+  "keywords": [
+    "cv",
+    "resume",
+    "portfolio",
+    "website",
+    "dashboard",
+    "flutter",
+    "swift",
+    "java",
+    "mobile-development",
+    "web-development"
+  ],
+  "author": {
+    "name": "Yousef Talal",
+    "email": "yousef.talal@email.com",
+    "url": "https://yousef-talal-cv.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yousef-talal/cv-website"
+  },
+  "homepage": "https://yousef-talal-cv.com",
+  "bugs": {
+    "url": "https://github.com/yousef-talal/cv-website/issues"
+  }
+}

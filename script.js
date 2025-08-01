@@ -1,5 +1,20 @@
-// Skills data with detailed information from official sources
-const skillsData = [
+// Load data from dashboard or use defaults
+function loadDashboardData() {
+    try {
+        const dashboardData = localStorage.getItem('cvDashboardData');
+        if (dashboardData) {
+            const data = JSON.parse(dashboardData);
+            console.log('Dashboard data loaded:', data);
+            return data;
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+    return null;
+}
+
+// Default skills data - will be overridden by dashboard data if available
+const defaultSkillsData = [
     {
         id: 'flutter-mobile',
         name: 'Flutter Mobile Development',
@@ -69,6 +84,34 @@ const skillsData = [
         experience: '2+ years'
     }
 ];
+
+// Get current skills data from dashboard or use default
+function getCurrentSkillsData() {
+    const dashboardData = loadDashboardData();
+    if (dashboardData && dashboardData.skills && dashboardData.skills.length > 0) {
+        return dashboardData.skills;
+    }
+    return defaultSkillsData;
+}
+
+// Load personal data from dashboard
+function getCurrentPersonalData() {
+    const dashboardData = loadDashboardData();
+    if (dashboardData && dashboardData.personal) {
+        return dashboardData.personal;
+    }
+    return {
+        name: 'Yousef Talal',
+        title: 'Computer Science Student & Full-Stack Developer',
+        about: 'A passionate computer science student specializing in creating innovative mobile, desktop, and web applications. With expertise in multiple programming languages and frameworks, I focus on delivering high-quality, user-centered solutions.',
+        email: 'yousef.talal@example.com',
+        phone: '+1 (555) 123-4567',
+        location: 'Your City, Country'
+    };
+}
+
+const skillsData = getCurrentSkillsData();
+const personalData = getCurrentPersonalData();
 
 // DOM elements
 const skillsGrid = document.getElementById('skillsGrid');
@@ -439,13 +482,78 @@ function typeWriter(element, text, speed = 100) {
     type();
 }
 
+// Update personal information on page
+function updatePersonalInfo() {
+    console.log('Updating personal info with:', personalData);
+    
+    // Update hero section
+    const heroName = document.querySelector('.hero-text h1');
+    const heroTitle = document.querySelector('.hero-subtitle');
+    const heroDescription = document.querySelector('.hero-description');
+    
+    if (heroName && personalData.name) {
+        heroName.textContent = personalData.name;
+    }
+    if (heroTitle && personalData.title) {
+        heroTitle.textContent = personalData.title;
+    }
+    if (heroDescription && personalData.about) {
+        heroDescription.textContent = personalData.about;
+    }
+    
+    // Update about section
+    const aboutText = document.querySelector('.about-text p');
+    if (aboutText && personalData.about) {
+        aboutText.textContent = personalData.about;
+    }
+    
+    // Update contact section
+    const contactCards = document.querySelectorAll('.contact-card');
+    contactCards.forEach((card, index) => {
+        const span = card.querySelector('.contact-info span');
+        if (span) {
+            switch (index) {
+                case 0: // Email
+                    if (personalData.email) span.textContent = personalData.email;
+                    break;
+                case 1: // Phone
+                    if (personalData.phone) span.textContent = personalData.phone;
+                    break;
+                case 2: // Location
+                    if (personalData.location) span.textContent = personalData.location;
+                    break;
+            }
+        }
+    });
+    
+    // Update profile image if available
+    if (personalData.profileImage) {
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            profileImg.src = personalData.profileImage;
+            profileImg.alt = personalData.name || 'Profile Image';
+        }
+    }
+}
+
 // Initialize typing effect on page load
 window.addEventListener('load', function() {
+    // Update personal information first
+    updatePersonalInfo();
+    
     const heroTitle = document.querySelector('.hero-text h1');
     if (heroTitle) {
         const originalText = heroTitle.textContent;
         typeWriter(heroTitle, originalText, 100);
     }
+    
+    // Listen for dashboard updates
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'cvDashboardData') {
+            console.log('Dashboard data updated, refreshing...');
+            location.reload();
+        }
+    });
 });
 
 // Smooth reveal animations for sections
