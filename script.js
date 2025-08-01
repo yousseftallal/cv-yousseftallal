@@ -137,10 +137,30 @@ function updatePageWithData(data) {
             
             // Update profile image if available
             if (data.images && data.images.length > 0) {
-                const profileImage = data.images.find(img => img.isProfile || img.isDefault);
-                if (profileImage) {
-                    profileImg.src = profileImage.src;
+                console.log('Found images:', data.images);
+                
+                // First try to find a profile image
+                let profileImage = data.images.find(img => img.isProfile === true);
+                
+                // If no profile image, try to find default image
+                if (!profileImage) {
+                    profileImage = data.images.find(img => img.isDefault === true);
                 }
+                
+                // If still no image, use the first image
+                if (!profileImage && data.images.length > 0) {
+                    profileImage = data.images[0];
+                }
+                
+                if (profileImage) {
+                    console.log('Setting profile image:', profileImage);
+                    profileImg.src = profileImage.src;
+                    profileImg.alt = profileImage.name || data.personal.fullName;
+                } else {
+                    console.log('No profile image found');
+                }
+            } else {
+                console.log('No images data found');
             }
         }
     }
@@ -279,6 +299,52 @@ function updateContactSection(personal) {
     }
 }
 
+// Function to update profile image specifically
+function updateProfileImage() {
+    try {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            const profileImg = document.querySelector('.profile-img');
+            
+            if (profileImg && data.images && data.images.length > 0) {
+                console.log('Updating profile image...');
+                console.log('Available images:', data.images);
+                
+                // Find profile image
+                let profileImage = data.images.find(img => img.isProfile === true);
+                
+                if (!profileImage) {
+                    profileImage = data.images.find(img => img.isDefault === true);
+                }
+                
+                if (!profileImage && data.images.length > 0) {
+                    profileImage = data.images[0];
+                }
+                
+                if (profileImage) {
+                    console.log('Setting profile image to:', profileImage);
+                    profileImg.src = profileImage.src;
+                    profileImg.alt = profileImage.name || 'Profile Image';
+                    return true;
+                } else {
+                    console.log('No suitable profile image found');
+                    return false;
+                }
+            } else {
+                console.log('Profile image element or images data not found');
+                return false;
+            }
+        } else {
+            console.log('No dashboard data found');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating profile image:', error);
+        return false;
+    }
+}
+
 // Update footer
 function updateFooter(personal) {
     const footer = document.querySelector('.footer p');
@@ -321,6 +387,12 @@ document.addEventListener('DOMContentLoaded', function() {
             loadDashboardData();
         }
     }, 2000); // Check every 2 seconds
+    
+    // Make functions available globally for debugging
+    window.updateProfileImage = updateProfileImage;
+    window.loadDashboardData = loadDashboardData;
+    
+    console.log('CV page loaded. Use updateProfileImage() to manually update profile image.');
 });
 
 // Initialize skills grid

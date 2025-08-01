@@ -881,12 +881,18 @@ class CVDashboard {
     // Image Management Functions
     setAsProfile(imageId) {
         try {
+            console.log('Setting profile image for ID:', imageId);
+            console.log('Current images:', this.data.images);
+            
             // Find the image
             const image = this.data.images.find(img => img.id === imageId);
             if (!image) {
+                console.error('Image not found with ID:', imageId);
                 this.showToast('Image not found!', 'error');
                 return;
             }
+            
+            console.log('Found image:', image);
             
             // Update all images to not be profile
             this.data.images.forEach(img => {
@@ -896,12 +902,16 @@ class CVDashboard {
             // Set this image as profile
             image.isProfile = true;
             
+            console.log('Updated images data:', this.data.images);
+            
             // Save data
             this.saveData();
             this.showToast('Profile image updated successfully!', 'success');
             
             // Update preview
             this.loadImagesList();
+            
+            console.log('Profile image set successfully');
         } catch (error) {
             console.error('Error setting profile image:', error);
             this.showToast('Error updating profile image', 'error');
