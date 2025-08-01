@@ -48,71 +48,26 @@
             </div>
         </header>
 
+        <!-- Content Sections -->
+        
         <!-- Overview Section -->
         <section id="overview-section" class="content-section active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="skills-count">4</h3>
-                        <p>Technical Skills</p>
-                    </div>
+                    <h3>Technical Skills</h3>
+                    <div class="stat-number" id="skills-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="experience-count">4</h3>
-                        <p>Experience Items</p>
-                    </div>
+                    <h3>Experience Projects</h3>
+                    <div class="stat-number" id="experience-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="education-count">1</h3>
-                        <p>Education Items</p>
-                    </div>
+                    <h3>Education Items</h3>
+                    <div class="stat-number" id="education-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="last-updated">Today</h3>
-                        <p>Last Updated</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <i class="fas fa-edit"></i>
-                        <div class="activity-content">
-                            <p>Updated Flutter Mobile Development skill</p>
-                            <span class="activity-time">2 hours ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <i class="fas fa-plus"></i>
-                        <div class="activity-content">
-                            <p>Added new project experience</p>
-                            <span class="activity-time">1 day ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <i class="fas fa-image"></i>
-                        <div class="activity-content">
-                            <p>Updated profile image</p>
-                            <span class="activity-time">3 days ago</span>
-                        </div>
-                    </div>
+                    <h3>Last Updated</h3>
+                    <div class="stat-text" id="last-updated">Never</div>
                 </div>
             </div>
         </section>
@@ -122,31 +77,33 @@
             <div class="form-container">
                 <h3>Personal Information</h3>
                 <form id="personal-form" class="admin-form">
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" value="Yousef Talal" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" name="jobTitle" value="Computer Science Student & Application Developer" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="personal-name">Full Name</label>
+                            <input type="text" id="personal-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="personal-title">Professional Title</label>
+                            <input type="text" id="personal-title" name="title" required>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" value="yousef.talal@email.com" required>
+                            <label for="personal-email">Email</label>
+                            <input type="email" id="personal-email" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label for="phone">Phone</label>
-                            <input type="tel" id="phone" name="phone" value="+123 456 7890" required>
+                            <label for="personal-phone">Phone</label>
+                            <input type="tel" id="personal-phone" name="phone">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" name="location" value="City, Country" required>
+                        <label for="personal-location">Location</label>
+                        <input type="text" id="personal-location" name="location">
                     </div>
                     <div class="form-group">
-                        <label for="aboutText">About Me</label>
-                        <textarea id="aboutText" name="aboutText" rows="6" required>I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.</textarea>
+                        <label for="personal-about">About Me</label>
+                        <textarea id="personal-about" name="about" rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Save Personal Info</button>
@@ -159,62 +116,45 @@
         <section id="skills-section" class="content-section">
             <div class="section-header">
                 <h3>Technical Skills</h3>
-                <button class="btn btn-primary" id="addSkill"><i class="fas fa-plus"></i> Add New Skill</button>
+                <button class="btn btn-primary" id="add-skill">
+                    <i class="fas fa-plus"></i> Add New Skill
+                </button>
             </div>
-            <div class="skills-manager">
-                <div id="skills-list" class="items-list">
-                    <!-- Skills will be populated by JavaScript -->
-                </div>
-            </div>
+            <div id="skills-list" class="items-list"></div>
         </section>
 
         <!-- Experience Section -->
         <section id="experience-section" class="content-section">
             <div class="section-header">
                 <h3>Experience & Projects</h3>
-                <button class="btn btn-primary" id="addExperience"><i class="fas fa-plus"></i> Add New Experience</button>
+                <button class="btn btn-primary" id="add-experience">
+                    <i class="fas fa-plus"></i> Add New Experience
+                </button>
             </div>
-            <div class="experience-manager">
-                <div id="experience-list" class="items-list">
-                    <!-- Experience items will be populated by JavaScript -->
-                </div>
-            </div>
+            <div id="experience-list" class="items-list"></div>
         </section>
 
         <!-- Education Section -->
         <section id="education-section" class="content-section">
             <div class="section-header">
                 <h3>Education</h3>
-                <button class="btn btn-primary" id="addEducation"><i class="fas fa-plus"></i> Add New Education</button>
+                <button class="btn btn-primary" id="add-education">
+                    <i class="fas fa-plus"></i> Add New Education
+                </button>
             </div>
-            <div class="education-manager">
-                <div id="education-list" class="items-list">
-                    <!-- Education items will be populated by JavaScript -->
-                </div>
-            </div>
+            <div id="education-list" class="items-list"></div>
         </section>
 
         <!-- Images Section -->
         <section id="images-section" class="content-section">
-            <div class="form-container">
+            <div class="image-upload-section">
                 <h3>Image Management</h3>
-                <div class="image-upload-section">
-                    <div class="upload-area" id="uploadArea">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Drag & drop images here or click to browse</p>
-                        <input type="file" id="imageUpload" accept="image/*" multiple hidden>
-                    </div>
-                    <div class="image-preview" id="imagePreview">
-                        <div class="image-item">
-                            <img src="https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT" alt="Profile Image">
-                            <div class="image-actions">
-                                <button class="btn btn-sm btn-primary">Set as Profile</button>
-                                <button class="btn btn-sm btn-danger">Delete</button>
-                            </div>
-                            <p>Profile Image</p>
-                        </div>
-                    </div>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop images here or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple>
                 </div>
+                <div class="image-preview" id="imagePreview"></div>
             </div>
         </section>
 
@@ -224,56 +164,40 @@
                 <h3>Site Settings</h3>
                 <form id="settings-form" class="admin-form">
                     <div class="form-group">
-                        <label for="siteTitle">Site Title</label>
-                        <input type="text" id="siteTitle" name="siteTitle" value="Yousef Talal - CV & Resume">
+                        <label for="site-title">Site Title</label>
+                        <input type="text" id="site-title" name="title">
                     </div>
                     <div class="form-group">
-                        <label for="metaDescription">Meta Description</label>
-                        <textarea id="metaDescription" name="metaDescription" rows="3">Computer Science Student & Application Developer specializing in Flutter, Swift, and Java development.</textarea>
+                        <label for="site-description">Meta Description</label>
+                        <textarea id="site-description" name="description" rows="3"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="themeColor">Theme Color</label>
-                        <input type="color" id="themeColor" name="themeColor" value="#2563eb">
-                    </div>
-                    <div class="form-group">
-                        <label for="socialLinks">Social Links</label>
-                        <div class="social-links-editor">
-                            <div class="social-link-item">
-                                <input type="text" placeholder="LinkedIn URL" value="https://linkedin.com/in/yousef-talal">
-                                <button type="button" class="btn btn-sm btn-danger">Remove</button>
-                            </div>
-                            <div class="social-link-item">
-                                <input type="text" placeholder="GitHub URL" value="https://github.com/yousef-talal">
-                                <button type="button" class="btn btn-sm btn-danger">Remove</button>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-secondary" id="addSocialLink">Add Social Link</button>
-                        </div>
+                        <label for="theme-color">Theme Color</label>
+                        <input type="color" id="theme-color" name="themeColor">
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Save Settings</button>
-                        <button type="button" class="btn btn-secondary" id="exportData">Export Data</button>
-                        <button type="button" class="btn btn-warning" id="importData">Import Data</button>
                     </div>
                 </form>
             </div>
         </section>
     </div>
 
-    <!-- Modal for Adding/Editing Items -->
+    <!-- Modal -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Add New Item</h3>
-                <button class="modal-close" id="modal-close">&times;</button>
+                <h2 id="modal-title">Modal Title</h2>
+                <span class="modal-close" id="modal-close">&times;</span>
             </div>
             <div class="modal-body" id="modal-body">
-                <!-- Dynamic content will be inserted here -->
+                Modal content will be inserted here
             </div>
         </div>
     </div>
 
-    <!-- Success/Error Messages -->
-    <div id="toast-container" class="toast-container"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="admin-script.js"></script>
 </body>

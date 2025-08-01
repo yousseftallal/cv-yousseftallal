@@ -7,6 +7,7 @@ class CVDashboard {
     }
 
     init() {
+        console.log('Initializing dashboard components...');
         this.setupNavigation();
         this.setupMobileMenu();
         this.setupForms();
@@ -14,15 +15,27 @@ class CVDashboard {
         this.setupImageUpload();
         this.loadDashboardData();
         this.bindEvents();
+        
+        // Show overview section by default
+        this.showSection('overview');
+        console.log('Dashboard initialization complete');
     }
 
     // Navigation
     setupNavigation() {
         const navLinks = document.querySelectorAll('.nav-link');
+        console.log('Found nav links:', navLinks.length);
+        
+        if (navLinks.length === 0) {
+            console.warn('No navigation links found!');
+            return;
+        }
+        
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = link.getAttribute('href').substring(1);
+                console.log('Navigating to section:', section);
                 this.showSection(section);
                 this.updateActiveNav(link);
             });
@@ -30,18 +43,27 @@ class CVDashboard {
     }
 
     showSection(sectionName) {
+        console.log('Showing section:', sectionName);
+        
         // Hide all sections
-        document.querySelectorAll('.content-section').forEach(section => {
+        const allSections = document.querySelectorAll('.content-section');
+        console.log('Found content sections:', allSections.length);
+        
+        allSections.forEach(section => {
             section.classList.remove('active');
         });
 
         // Show target section
         const targetSection = document.getElementById(`${sectionName}-section`);
+        console.log('Target section found:', !!targetSection);
+        
         if (targetSection) {
             targetSection.classList.add('active');
             this.currentSection = sectionName;
             this.updatePageTitle(sectionName);
             this.loadSectionData(sectionName);
+        } else {
+            console.error(`Section ${sectionName}-section not found!`);
         }
     }
 
@@ -893,10 +915,21 @@ class CVDashboard {
 }
 
 // Initialize Dashboard
-let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
-    dashboard = new CVDashboard();
+    try {
+        console.log('Initializing CV Dashboard...');
+        window.dashboard = new CVDashboard();
+        console.log('Dashboard initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize dashboard:', error);
+        // Create a simple error display
+        document.body.innerHTML = `
+            <div style="padding: 20px; background: #fee2e2; border: 1px solid #ef4444; margin: 20px; border-radius: 5px; font-family: Arial, sans-serif;">
+                <h2 style="color: #dc2626;">Dashboard Error</h2>
+                <p>Failed to initialize dashboard: ${error.message}</p>
+                <p>Please check the console for more details.</p>
+                <button onclick="location.reload()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Reload Page</button>
+            </div>
+        `;
+    }
 });
-
-// Make functions available globally for onclick handlers
-window.dashboard = dashboard;
