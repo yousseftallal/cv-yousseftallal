@@ -454,6 +454,23 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         checkSectionsContent();
     }, 1000);
+    
+    // Make animation functions available globally
+    window.enableAnimations = function() {
+        document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+            el.classList.remove('animate-hidden');
+            el.classList.add('animate-in');
+        });
+    };
+    
+    window.disableAnimations = function() {
+        document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+            el.classList.remove('animate-in');
+            el.classList.add('animate-hidden');
+        });
+    };
+    
+    console.log('Animation functions available: enableAnimations(), disableAnimations()');
 });
 
 // Initialize skills grid
@@ -672,12 +689,17 @@ function initializeScrollEffects() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
+                entry.target.classList.remove('animate-hidden');
             }
         });
     }, observerOptions);
     
     // Observe elements for animation
     document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
+        // Add animate-hidden class to elements that should start hidden
+        if (!el.classList.contains('animate-in')) {
+            el.classList.add('animate-hidden');
+        }
         observer.observe(el);
     });
 }
@@ -723,8 +745,8 @@ function initializeAnimations() {
         }
         
         .skill-card, .timeline-item, .stat, .education-item, .contact-item {
-            opacity: 0;
-            transform: translateY(30px);
+            opacity: 1;
+            transform: translateY(0);
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
         
@@ -732,6 +754,13 @@ function initializeAnimations() {
         .education-item.animate-in, .contact-item.animate-in {
             opacity: 1;
             transform: translateY(0);
+        }
+        
+        /* Animation for elements that start hidden */
+        .skill-card.animate-hidden, .timeline-item.animate-hidden, .stat.animate-hidden, 
+        .education-item.animate-hidden, .contact-item.animate-hidden {
+            opacity: 0;
+            transform: translateY(30px);
         }
         
         .nav-menu a.active {
