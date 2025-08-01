@@ -82,12 +82,237 @@ const closeModal = document.querySelector('.close');
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
+// Load data from localStorage
+function loadDashboardData() {
+    try {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            updatePageWithData(data);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+// Update page with loaded data
+function updatePageWithData(data) {
+    // Update personal information
+    if (data.personal) {
+        // Update page title
+        document.title = `${data.personal.fullName} - CV & Resume`;
+        
+        // Update navigation brand
+        const navBrand = document.querySelector('.nav-brand h2');
+        if (navBrand) {
+            navBrand.textContent = data.personal.fullName;
+        }
+        
+        // Update hero section
+        const heroTitle = document.querySelector('.hero-text h1');
+        if (heroTitle) {
+            heroTitle.textContent = data.personal.fullName;
+        }
+        
+        const heroSubtitle = document.querySelector('.hero-subtitle');
+        if (heroSubtitle) {
+            heroSubtitle.textContent = data.personal.jobTitle;
+        }
+        
+        const heroDescription = document.querySelector('.hero-description');
+        if (heroDescription) {
+            heroDescription.textContent = data.personal.aboutText;
+        }
+        
+        // Update about section
+        const aboutText = document.querySelector('.about-text p');
+        if (aboutText) {
+            aboutText.textContent = data.personal.aboutText;
+        }
+        
+        // Update profile image alt text
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            profileImg.alt = data.personal.fullName;
+        }
+    }
+    
+    // Update skills if available
+    if (data.skills && data.skills.length > 0) {
+        updateSkillsSection(data.skills);
+    }
+    
+    // Update experience if available
+    if (data.experience && data.experience.length > 0) {
+        updateExperienceSection(data.experience);
+    }
+    
+    // Update education if available
+    if (data.education && data.education.length > 0) {
+        updateEducationSection(data.education);
+    }
+    
+    // Update contact information if available
+    if (data.personal) {
+        updateContactSection(data.personal);
+        updateFooter(data.personal);
+    }
+}
+
+// Update skills section
+function updateSkillsSection(skills) {
+    const skillsSection = document.getElementById('skills');
+    if (!skillsSection) return;
+    
+    // Update skills count in about section
+    const skillsCount = document.querySelector('.about-stats .stat h3');
+    if (skillsCount) {
+        skillsCount.textContent = `${skills.length}+`;
+    }
+    
+    // Update skills grid if it exists
+    if (skillsGrid) {
+        skillsGrid.innerHTML = '';
+        skills.forEach(skill => {
+            const skillCard = createSkillCard(skill);
+            skillsGrid.appendChild(skillCard);
+        });
+    }
+}
+
+// Update experience section
+function updateExperienceSection(experience) {
+    const experienceSection = document.getElementById('experience');
+    if (!experienceSection) return;
+    
+    const timeline = experienceSection.querySelector('.timeline');
+    if (timeline) {
+        timeline.innerHTML = '';
+        experience.forEach(exp => {
+            const expItem = createExperienceItem(exp);
+            timeline.appendChild(expItem);
+        });
+    }
+}
+
+// Create experience item
+function createExperienceItem(experience) {
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.innerHTML = `
+        <div class="timeline-content">
+            <h3>${experience.title}</h3>
+            <span class="timeline-date">${experience.period}</span>
+            <p>${experience.description}</p>
+            ${experience.technologies && experience.technologies.length > 0 ? 
+                `<div class="tech-stack">
+                    ${experience.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                </div>` : ''
+            }
+        </div>
+    `;
+    return item;
+}
+
+// Update education section
+function updateEducationSection(education) {
+    const educationSection = document.getElementById('education');
+    if (!educationSection) return;
+    
+    const educationGrid = educationSection.querySelector('.education-grid');
+    if (educationGrid) {
+        educationGrid.innerHTML = '';
+        education.forEach(edu => {
+            const eduItem = createEducationItem(edu);
+            educationGrid.appendChild(eduItem);
+        });
+    }
+}
+
+// Create education item
+function createEducationItem(education) {
+    const item = document.createElement('div');
+    item.className = 'education-item';
+    item.innerHTML = `
+        <div class="education-icon">
+            <i class="fas fa-university"></i>
+        </div>
+        <div class="education-content">
+            <h3>${education.title}</h3>
+            <p class="institution">${education.institution}</p>
+            <span class="duration">${education.period}</span>
+            <p class="description">${education.description}</p>
+        </div>
+    `;
+    return item;
+}
+
+// Update contact section
+function updateContactSection(personal) {
+    const contactSection = document.getElementById('contact');
+    if (!contactSection) return;
+    
+    // Update email
+    const emailElement = contactSection.querySelector('.contact-item:nth-child(1) p');
+    if (emailElement && personal.email) {
+        emailElement.textContent = personal.email;
+    }
+    
+    // Update phone
+    const phoneElement = contactSection.querySelector('.contact-item:nth-child(2) p');
+    if (phoneElement && personal.phone) {
+        phoneElement.textContent = personal.phone;
+    }
+    
+    // Update location
+    const locationElement = contactSection.querySelector('.contact-item:nth-child(3) p');
+    if (locationElement && personal.location) {
+        locationElement.textContent = personal.location;
+    }
+}
+
+// Update footer
+function updateFooter(personal) {
+    const footer = document.querySelector('.footer p');
+    if (footer && personal.fullName) {
+        footer.textContent = `© 2025 ${personal.fullName}. All rights reserved.`;
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Load dashboard data first
+    loadDashboardData();
+    
+    // Initialize other components
     initializeSkills();
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
+    
+    // Set up data refresh on storage change
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'cvDashboardData' || e.key === 'cvDataTimestamp') {
+            console.log('Data updated, refreshing page...');
+            loadDashboardData();
+        }
+    });
+    
+    // Also listen for custom events (for same-tab updates)
+    window.addEventListener('cvDataUpdated', function() {
+        console.log('CV data updated event received');
+        loadDashboardData();
+    });
+    
+    // Check for data updates periodically (fallback)
+    setInterval(() => {
+        const timestamp = localStorage.getItem('cvDataTimestamp');
+        if (timestamp && (!window.lastDataTimestamp || window.lastDataTimestamp !== timestamp)) {
+            window.lastDataTimestamp = timestamp;
+            console.log('Data timestamp changed, refreshing...');
+            loadDashboardData();
+        }
+    }, 2000); // Check every 2 seconds
 });
 
 // Initialize skills grid

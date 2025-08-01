@@ -224,6 +224,16 @@ class CVDashboard {
     saveData() {
         localStorage.setItem('cvDashboardData', JSON.stringify(this.data));
         this.showToast('Data saved successfully!', 'success');
+        
+        // Dispatch custom event to notify CV page
+        window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+        
+        // Also try to notify other tabs
+        try {
+            localStorage.setItem('cvDataTimestamp', Date.now().toString());
+        } catch (error) {
+            console.log('Could not update timestamp for cross-tab sync');
+        }
     }
 
     loadDashboardData() {

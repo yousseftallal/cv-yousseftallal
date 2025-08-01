@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Sync Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        .sync-success {
+            background: #28a745;
+        }
+        .sync-error {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>CV & Dashboard Sync Test</h1>
+        <p>This page tests the synchronization between the dashboard and CV page.</p>
+        
+        <div class="test-section">
+            <h2>Current Data Status</h2>
+            <button class="test-button" onclick="loadCurrentData()">Load Current Data</button>
+            <button class="test-button" onclick="clearData()">Clear All Data</button>
+            <div id="current-data" class="data-display">Click "Load Current Data" to see current data</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Data Updates</h2>
+            <button class="test-button" onclick="updatePersonalInfo()">Update Personal Info</button>
+            <button class="test-button" onclick="updateSkills()">Update Skills</button>
+            <button class="test-button" onclick="updateExperience()">Update Experience</button>
+            <button class="test-button" onclick="updateEducation()">Update Education</button>
+            <div id="update-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Sync Testing</h2>
+            <button class="test-button" onclick="testSync()">Test Sync</button>
+            <button class="test-button" onclick="openDashboard()">Open Dashboard</button>
+            <button class="test-button" onclick="openCV()">Open CV</button>
+            <div id="sync-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Event Log</h2>
+            <div id="event-log" class="data-display" style="max-height: 150px;"></div>
+        </div>
+    </div>
+
+    <div id="sync-status" class="sync-status" style="display: none;"></div>
+
+    <script>
+        let eventCount = 0;
+        
+        function logEvent(message) {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+            eventCount++;
+        }
+        
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+        
+        function showSyncStatus(message, isSuccess = true) {
+            const status = document.getElementById('sync-status');
+            status.textContent = message;
+            status.className = `sync-status ${isSuccess ? 'sync-success' : 'sync-error'}`;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        function loadCurrentData() {
+            try {
+                const data = localStorage.getItem('cvDashboardData');
+                const display = document.getElementById('current-data');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    display.textContent = JSON.stringify(parsed, null, 2);
+                    logEvent('Current data loaded successfully');
+                } else {
+                    display.textContent = 'No data found in localStorage';
+                    logEvent('No data found in localStorage');
+                }
+            } catch (error) {
+                showResult('current-data', `Error loading data: ${error.message}`, 'error');
+                logEvent(`Error loading data: ${error.message}`);
+            }
+        }
+        
+        function clearData() {
+            localStorage.removeItem('cvDashboardData');
+            localStorage.removeItem('cvDataTimestamp');
+            showResult('current-data', 'All data cleared', 'success');
+            logEvent('All data cleared');
+        }
+        
+        function updatePersonalInfo() {
+            const testData = {
+                personal: {
+                    fullName: 'Test User ' + Date.now(),
+                    jobTitle: 'Test Developer',
+                    email: 'test@example.com',
+                    phone: '+123 456 7890',
+                    location: 'Test City, Test Country',
+                    aboutText: 'This is a test update from the sync test page.'
+                }
+            };
+            
+            try {
+                localStorage.setItem('cvDashboardData', JSON.stringify(testData));
+                localStorage.setItem('cvDataTimestamp', Date.now().toString());
+                window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+                
+                showResult('update-result', 'Personal info updated successfully', 'success');
+                showSyncStatus('Data updated!', true);
+                logEvent('Personal info updated');
+            } catch (error) {
+                showResult('update-result', `Error updating data: ${error.message}`, 'error');
+                logEvent(`Error updating data: ${error.message}`);
+            }
+        }
+        
+        function updateSkills() {
+            const testData = {
+                skills: [
+                    {
+                        id: 'test-skill-1',
+                        name: 'Test Skill 1',
+                        icon: 'https://example.com/icon1.svg',
+                        description: 'This is a test skill',
+                        level: 'Advanced',
+                        experience: '5+ years'
+                    },
+                    {
+                        id: 'test-skill-2',
+                        name: 'Test Skill 2',
+                        icon: 'https://example.com/icon2.svg',
+                        description: 'This is another test skill',
+                        level: 'Intermediate',
+                        experience: '3+ years'
+                    }
+                ]
+            };
+            
+            try {
+                localStorage.setItem('cvDashboardData', JSON.stringify(testData));
+                localStorage.setItem('cvDataTimestamp', Date.now().toString());
+                window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+                
+                showResult('update-result', 'Skills updated successfully', 'success');
+                showSyncStatus('Skills updated!', true);
+                logEvent('Skills updated');
+            } catch (error) {
+                showResult('update-result', `Error updating skills: ${error.message}`, 'error');
+                logEvent(`Error updating skills: ${error.message}`);
+            }
+        }
+        
+        function updateExperience() {
+            const testData = {
+                experience: [
+                    {
+                        id: 'test-exp-1',
+                        title: 'Test Experience 1',
+                        period: '2023 - Present',
+                        description: 'This is a test experience',
+                        technologies: ['Test Tech 1', 'Test Tech 2']
+                    }
+                ]
+            };
+            
+            try {
+                localStorage.setItem('cvDashboardData', JSON.stringify(testData));
+                localStorage.setItem('cvDataTimestamp', Date.now().toString());
+                window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+                
+                showResult('update-result', 'Experience updated successfully', 'success');
+                showSyncStatus('Experience updated!', true);
+                logEvent('Experience updated');
+            } catch (error) {
+                showResult('update-result', `Error updating experience: ${error.message}`, 'error');
+                logEvent(`Error updating experience: ${error.message}`);
+            }
+        }
+        
+        function updateEducation() {
+            const testData = {
+                education: [
+                    {
+                        id: 'test-edu-1',
+                        title: 'Test Degree',
+                        institution: 'Test University',
+                        period: '2020 - 2024',
+                        description: 'This is a test education'
+                    }
+                ]
+            };
+            
+            try {
+                localStorage.setItem('cvDashboardData', JSON.stringify(testData));
+                localStorage.setItem('cvDataTimestamp', Date.now().toString());
+                window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+                
+                showResult('update-result', 'Education updated successfully', 'success');
+                showSyncStatus('Education updated!', true);
+                logEvent('Education updated');
+            } catch (error) {
+                showResult('update-result', `Error updating education: ${error.message}`, 'error');
+                logEvent(`Error updating education: ${error.message}`);
+            }
+        }
+        
+        function testSync() {
+            logEvent('Testing sync functionality...');
+            
+            // Test storage event
+            const testEvent = new StorageEvent('storage', {
+                key: 'cvDashboardData',
+                newValue: 'test',
+                oldValue: null,
+                url: window.location.href
+            });
+            
+            window.dispatchEvent(testEvent);
+            logEvent('Storage event dispatched');
+            
+            // Test custom event
+            window.dispatchEvent(new CustomEvent('cvDataUpdated'));
+            logEvent('Custom event dispatched');
+            
+            showResult('sync-result', 'Sync test completed. Check event log for details.', 'info');
+        }
+        
+        function openDashboard() {
+            window.open('admin/index.html', '_blank');
+            logEvent('Dashboard opened in new tab');
+        }
+        
+        function openCV() {
+            window.open('index.html', '_blank');
+            logEvent('CV opened in new tab');
+        }
+        
+        // Listen for data updates
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'cvDashboardData' || e.key === 'cvDataTimestamp') {
+                logEvent(`Storage event: ${e.key} changed`);
+                showSyncStatus('Data synced from another tab!', true);
+            }
+        });
+        
+        window.addEventListener('cvDataUpdated', function() {
+            logEvent('Custom cvDataUpdated event received');
+            showSyncStatus('Data updated!', true);
+        });
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            logEvent('Sync test page loaded');
+            loadCurrentData();
+        });
+    </script>
+</body>
+</html>
