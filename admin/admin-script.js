@@ -409,24 +409,29 @@ class CVDashboard {
     }
 
     getSkillForm(skill = {}) {
+        // Generate experience options (1-10 years)
+        const experienceOptions = Array.from({length: 10}, (_, i) => i + 1)
+            .map(year => `<option value="${year} years" ${skill.experience === `${year} years` ? 'selected' : ''}>${year} years</option>`)
+            .join('');
+        
         return `
             <form id="skill-form" class="admin-form">
                 <input type="hidden" id="skill-id" value="${skill.id || ''}">
                 <div class="form-group">
-                    <label for="skill-name">Skill Name</label>
+                    <label for="skill-name">Skill Name *</label>
                     <input type="text" id="skill-name" value="${skill.name || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="skill-icon">Icon URL</label>
+                    <label for="skill-icon">Icon URL *</label>
                     <input type="url" id="skill-icon" value="${skill.icon || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="skill-description">Description</label>
+                    <label for="skill-description">Description *</label>
                     <textarea id="skill-description" rows="3" required>${skill.description || ''}</textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="skill-level">Level</label>
+                        <label for="skill-level">Level *</label>
                         <select id="skill-level" required>
                             <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
                             <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
@@ -435,8 +440,11 @@ class CVDashboard {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="skill-experience">Experience</label>
-                        <input type="text" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
+                        <label for="skill-experience">Experience (Years) *</label>
+                        <select id="skill-experience" required>
+                            <option value="">Select years of experience</option>
+                            ${experienceOptions}
+                        </select>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -460,8 +468,8 @@ class CVDashboard {
             };
 
             // Validate required fields
-            if (!skillData.name || !skillData.description) {
-                this.showToast('Please fill in all required fields', 'error');
+            if (!skillData.name || !skillData.description || !skillData.icon || !skillData.experience) {
+                this.showToast('Please fill in all required fields (Name, Icon URL, Description, and Experience)', 'error');
                 return;
             }
 
@@ -554,20 +562,20 @@ class CVDashboard {
             <form id="experience-form" class="admin-form">
                 <input type="hidden" id="experience-id" value="${experience.id || ''}">
                 <div class="form-group">
-                    <label for="experience-title">Title</label>
+                    <label for="experience-title">Job Title *</label>
                     <input type="text" id="experience-title" value="${experience.title || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="experience-period">Period</label>
+                    <label for="experience-period">Period *</label>
                     <input type="text" id="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
                 </div>
                 <div class="form-group">
-                    <label for="experience-description">Description</label>
+                    <label for="experience-description">Description *</label>
                     <textarea id="experience-description" rows="4" required>${experience.description || ''}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="experience-technologies">Technologies (comma-separated)</label>
-                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
+                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Experience</button>
@@ -590,8 +598,8 @@ class CVDashboard {
             };
 
             // Validate required fields
-            if (!expData.title || !expData.description) {
-                this.showToast('Please fill in all required fields', 'error');
+            if (!expData.title || !expData.description || !expData.period) {
+                this.showToast('Please fill in all required fields (Title, Period, and Description)', 'error');
                 return;
             }
 
@@ -681,19 +689,19 @@ class CVDashboard {
             <form id="education-form" class="admin-form">
                 <input type="hidden" id="education-id" value="${education.id || ''}">
                 <div class="form-group">
-                    <label for="education-title">Degree/Title</label>
+                    <label for="education-title">Degree/Title *</label>
                     <input type="text" id="education-title" value="${education.title || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-institution">Institution</label>
+                    <label for="education-institution">Institution *</label>
                     <input type="text" id="education-institution" value="${education.institution || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-period">Period</label>
+                    <label for="education-period">Period *</label>
                     <input type="text" id="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
                 </div>
                 <div class="form-group">
-                    <label for="education-description">Description</label>
+                    <label for="education-description">Description *</label>
                     <textarea id="education-description" rows="3" required>${education.description || ''}</textarea>
                 </div>
                 <div class="form-actions">
@@ -716,8 +724,8 @@ class CVDashboard {
             };
 
             // Validate required fields
-            if (!eduData.title || !eduData.institution || !eduData.description) {
-                this.showToast('Please fill in all required fields', 'error');
+            if (!eduData.title || !eduData.institution || !eduData.description || !eduData.period) {
+                this.showToast('Please fill in all required fields (Title, Institution, Period, and Description)', 'error');
                 return;
             }
 
