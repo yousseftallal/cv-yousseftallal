@@ -8,6 +8,7 @@ class CVDashboard {
 
     init() {
         this.setupNavigation();
+        this.setupMobileMenu();
         this.setupForms();
         this.setupModals();
         this.setupImageUpload();
@@ -62,6 +63,46 @@ class CVDashboard {
             settings: 'Site Settings'
         };
         document.getElementById('page-title').textContent = titles[section] || section;
+    }
+
+    // Mobile Menu
+    setupMobileMenu() {
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (mobileToggle && sidebar) {
+            mobileToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                const icon = mobileToggle.querySelector('i');
+                
+                if (sidebar.classList.contains('open')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024) {
+                    if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                        mobileToggle.querySelector('i').className = 'fas fa-bars';
+                    }
+                }
+            });
+
+            // Close sidebar when clicking nav links on mobile
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 1024) {
+                        sidebar.classList.remove('open');
+                        mobileToggle.querySelector('i').className = 'fas fa-bars';
+                    }
+                });
+            });
+        }
     }
 
     // Data Management
@@ -319,23 +360,23 @@ class CVDashboard {
     getSkillForm(skill = {}) {
         return `
             <form id="skill-form" class="admin-form">
-                <input type="hidden" id="skill-id" value="${skill.id || ''}">
+                <input type="hidden" name="skill-id" id="skill-id" value="${skill.id || ''}">
                 <div class="form-group">
                     <label for="skill-name">Skill Name</label>
-                    <input type="text" id="skill-name" value="${skill.name || ''}" required>
+                    <input type="text" name="skill-name" id="skill-name" value="${skill.name || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="skill-icon">Icon URL</label>
-                    <input type="url" id="skill-icon" value="${skill.icon || ''}" required>
+                    <input type="url" name="skill-icon" id="skill-icon" value="${skill.icon || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="skill-description">Description</label>
-                    <textarea id="skill-description" rows="3" required>${skill.description || ''}</textarea>
+                    <textarea name="skill-description" id="skill-description" rows="3" required>${skill.description || ''}</textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="skill-level">Level</label>
-                        <select id="skill-level" required>
+                        <select name="skill-level" id="skill-level" required>
                             <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
                             <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
                             <option value="Advanced" ${skill.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
@@ -344,7 +385,7 @@ class CVDashboard {
                     </div>
                     <div class="form-group">
                         <label for="skill-experience">Experience</label>
-                        <input type="text" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
+                        <input type="text" name="skill-experience" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -356,27 +397,46 @@ class CVDashboard {
     }
 
     saveSkill(formData) {
-        const skillId = formData.get('skill-id') || this.generateId();
-        const skillData = {
-            id: skillId,
-            name: formData.get('skill-name'),
-            icon: formData.get('skill-icon'),
-            description: formData.get('skill-description'),
-            level: formData.get('skill-level'),
-            experience: formData.get('skill-experience')
-        };
+        try {
+            const skillId = formData.get('skill-id') || this.generateId();
+            const skillName = formData.get('skill-name')?.trim();
+            const skillIcon = formData.get('skill-icon')?.trim();
+            const skillDescription = formData.get('skill-description')?.trim();
+            const skillLevel = formData.get('skill-level');
+            const skillExperience = formData.get('skill-experience')?.trim();
 
-        const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
-        if (existingIndex >= 0) {
-            this.data.skills[existingIndex] = skillData;
-        } else {
-            this.data.skills.push(skillData);
+            // Validation
+            if (!skillName || !skillIcon || !skillDescription || !skillLevel || !skillExperience) {
+                this.showToast('Please fill in all required fields!', 'error');
+                return;
+            }
+
+            const skillData = {
+                id: skillId,
+                name: skillName,
+                icon: skillIcon,
+                description: skillDescription,
+                level: skillLevel,
+                experience: skillExperience
+            };
+
+            const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
+            if (existingIndex >= 0) {
+                this.data.skills[existingIndex] = skillData;
+                this.showToast('Skill updated successfully!', 'success');
+            } else {
+                this.data.skills.push(skillData);
+                this.showToast('Skill added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadSkillsList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving skill:', error);
+            this.showToast('Error saving skill. Please try again.', 'error');
         }
-
-        this.saveData();
-        this.loadSkillsList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Experience Management
@@ -440,22 +500,22 @@ class CVDashboard {
     getExperienceForm(experience = {}) {
         return `
             <form id="experience-form" class="admin-form">
-                <input type="hidden" id="experience-id" value="${experience.id || ''}">
+                <input type="hidden" name="experience-id" id="experience-id" value="${experience.id || ''}">
                 <div class="form-group">
                     <label for="experience-title">Title</label>
-                    <input type="text" id="experience-title" value="${experience.title || ''}" required>
+                    <input type="text" name="experience-title" id="experience-title" value="${experience.title || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="experience-period">Period</label>
-                    <input type="text" id="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
+                    <input type="text" name="experience-period" id="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
                 </div>
                 <div class="form-group">
                     <label for="experience-description">Description</label>
-                    <textarea id="experience-description" rows="4" required>${experience.description || ''}</textarea>
+                    <textarea name="experience-description" id="experience-description" rows="4" required>${experience.description || ''}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="experience-technologies">Technologies (comma-separated)</label>
-                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
+                    <input type="text" name="experience-technologies" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Experience</button>
@@ -546,22 +606,22 @@ class CVDashboard {
     getEducationForm(education = {}) {
         return `
             <form id="education-form" class="admin-form">
-                <input type="hidden" id="education-id" value="${education.id || ''}">
+                <input type="hidden" name="education-id" id="education-id" value="${education.id || ''}">
                 <div class="form-group">
                     <label for="education-title">Degree/Title</label>
-                    <input type="text" id="education-title" value="${education.title || ''}" required>
+                    <input type="text" name="education-title" id="education-title" value="${education.title || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="education-institution">Institution</label>
-                    <input type="text" id="education-institution" value="${education.institution || ''}" required>
+                    <input type="text" name="education-institution" id="education-institution" value="${education.institution || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="education-period">Period</label>
-                    <input type="text" id="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
+                    <input type="text" name="education-period" id="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
                 </div>
                 <div class="form-group">
                     <label for="education-description">Description</label>
-                    <textarea id="education-description" rows="3" required>${education.description || ''}</textarea>
+                    <textarea name="education-description" id="education-description" rows="3" required>${education.description || ''}</textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Education</button>
@@ -679,8 +739,11 @@ class CVDashboard {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.addImageToPreview(e.target.result, file.name);
+                    this.showToast(`Image "${file.name}" uploaded successfully!`, 'success');
                 };
                 reader.readAsDataURL(file);
+            } else {
+                this.showToast(`"${file.name}" is not a valid image file!`, 'error');
             }
         });
     }
@@ -692,12 +755,47 @@ class CVDashboard {
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
-                <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
+                <button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfile('${src}', '${name}')">Set as Profile</button>
+                <button class="btn btn-sm btn-danger" onclick="dashboard.removeImage(this)">Delete</button>
             </div>
             <p>${name}</p>
         `;
         imagePreview.appendChild(imageItem);
+        
+        // Save uploaded images to data
+        if (!this.data.images) {
+            this.data.images = [];
+        }
+        this.data.images.push({ src, name, type: 'uploaded' });
+        this.saveData();
+    }
+
+    setAsProfile(src, name) {
+        this.data.personal.profileImage = src;
+        this.saveData();
+        this.showToast(`"${name}" set as profile image!`, 'success');
+        
+        // Update main site profile image if possible
+        const mainProfileImg = window.parent?.document?.querySelector('.profile-img');
+        if (mainProfileImg) {
+            mainProfileImg.src = src;
+        }
+    }
+
+    removeImage(button) {
+        const imageItem = button.closest('.image-item');
+        const imageName = imageItem.querySelector('p').textContent;
+        
+        if (confirm(`Are you sure you want to delete "${imageName}"?`)) {
+            imageItem.remove();
+            
+            // Remove from data
+            if (this.data.images) {
+                this.data.images = this.data.images.filter(img => img.name !== imageName);
+            }
+            this.saveData();
+            this.showToast(`Image "${imageName}" deleted!`, 'success');
+        }
     }
 
     // Event Bindings

@@ -123,6 +123,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
 }
 
 .hero-content {
@@ -130,6 +131,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
+    width: 100%;
 }
 
 .hero-text h1 {
@@ -261,9 +263,10 @@ section {
 }
 
 .about-content {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     text-align: center;
+    padding: 0 1rem;
 }
 
 .about-text p {
@@ -271,13 +274,15 @@ section {
     margin-bottom: 1.5rem;
     color: #475569;
     line-height: 1.8;
+    text-align: left;
 }
 
 .about-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
+    justify-items: center;
 }
 
 .stat {
@@ -286,6 +291,8 @@ section {
     background: #f8fafc;
     border-radius: 1rem;
     transition: transform 0.3s ease;
+    width: 100%;
+    max-width: 250px;
 }
 
 .stat:hover {
@@ -316,9 +323,10 @@ section {
 
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
+    justify-items: center;
 }
 
 .skill-card {
@@ -331,6 +339,12 @@ section {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 350px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .skill-card::before {
@@ -551,16 +565,18 @@ section {
 }
 
 .contact-content {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     text-align: center;
+    padding: 0 1rem;
 }
 
 .contact-info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     margin-bottom: 3rem;
+    justify-items: center;
 }
 
 .contact-item {
@@ -762,6 +778,24 @@ section {
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .hero-content {
+        gap: 3rem;
+    }
+    
+    .skills-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    
+    .about-stats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .contact-info {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
     .hamburger {
         display: flex;
@@ -778,6 +812,7 @@ section {
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 2rem 0;
+        z-index: 999;
     }
     
     .nav-menu.active {
@@ -797,11 +832,37 @@ section {
     .hero-buttons {
         justify-content: center;
         flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .hero-buttons .btn {
+        flex: 1;
+        min-width: 140px;
+        max-width: 200px;
     }
     
     .profile-circle {
         width: 250px;
         height: 250px;
+    }
+    
+    .skills-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .skill-card {
+        max-width: 100%;
+    }
+    
+    .about-text p {
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .about-stats {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
     }
     
     .timeline::before {
@@ -812,6 +873,7 @@ section {
     .timeline-item:nth-child(even) .timeline-content {
         left: 60px;
         right: 0;
+        margin-left: 0;
     }
     
     .timeline-item:nth-child(odd) .timeline-content::before,
@@ -824,35 +886,140 @@ section {
         text-align: center;
     }
     
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
     .modal-content {
-        margin: 10% auto;
+        margin: 5% auto;
         width: 95%;
+        max-height: 85vh;
     }
     
     .modal-header {
         flex-direction: column;
         text-align: center;
+        gap: 1rem;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     .section-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+    
+    .hero {
+        padding: 100px 0 60px;
     }
     
     .hero-text h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        line-height: 1.2;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .profile-circle {
+        width: 200px;
+        height: 200px;
     }
     
     .skills-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .skill-card {
+        padding: 1.5rem;
+        min-height: 240px;
+    }
+    
+    .skill-icon {
+        width: 60px;
+        height: 60px;
     }
     
     .about-stats {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat {
+        padding: 1.5rem;
+    }
+    
+    .timeline-content {
+        padding: 1.5rem;
+    }
+    
+    .tech-stack {
+        gap: 0.25rem;
+    }
+    
+    .tech-tag {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
     }
     
     .contact-info {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .contact-item i {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .social-links {
+        gap: 0.75rem;
+    }
+    
+    .social-link {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .modal-content {
+        margin: 2% auto;
+        width: 98%;
+        max-height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
     }
 }

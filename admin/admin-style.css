@@ -623,10 +623,31 @@ body {
     }
 }
 
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
     .sidebar {
         transform: translateX(-100%);
+        z-index: 1000;
     }
     
     .sidebar.open {
@@ -639,6 +660,11 @@ body {
     
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .admin-header {
+        padding-left: 4rem;
     }
 }
 
@@ -649,9 +675,19 @@ body {
         align-items: flex-start;
     }
     
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+    
     .header-actions {
         width: 100%;
         justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    
+    .header-actions .btn {
+        flex: 1;
+        min-width: 120px;
     }
     
     .form-row {
@@ -660,6 +696,11 @@ body {
     
     .stats-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
     }
     
     .section-header {
@@ -668,13 +709,59 @@ body {
         gap: 1rem;
     }
     
+    .section-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .item-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .form-container {
+        padding: 1.5rem;
+    }
+    
     .modal-content {
         width: 95%;
         margin: 1rem;
+        max-height: 90vh;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem;
+    }
+    
+    .image-preview {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
     
     .toast-container {
         right: 1rem;
         left: 1rem;
+        top: 1rem;
+    }
+    
+    .social-link-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .social-link-item input {
+        width: 100%;
     }
 }
