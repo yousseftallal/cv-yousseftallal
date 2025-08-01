@@ -355,6 +355,7 @@ class CVDashboard {
     }
 
     addSkill() {
+        console.log('Adding new skill...');
         this.openModal('Add New Skill', this.getSkillForm());
     }
 
@@ -367,10 +368,16 @@ class CVDashboard {
 
     deleteSkill(skillId) {
         if (confirm('Are you sure you want to delete this skill?')) {
-            this.data.skills = this.data.skills.filter(s => s.id !== skillId);
-            this.saveData();
-            this.loadSkillsList();
-            this.updateStats();
+            try {
+                this.data.skills = this.data.skills.filter(s => s.id !== skillId);
+                this.saveData();
+                this.loadSkillsList();
+                this.updateStats();
+                this.showToast('Skill deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting skill:', error);
+                this.showToast('Error deleting skill', 'error');
+            }
         }
     }
 
@@ -414,27 +421,40 @@ class CVDashboard {
     }
 
     saveSkill(formData) {
-        const skillId = formData.get('skill-id') || this.generateId();
-        const skillData = {
-            id: skillId,
-            name: formData.get('skill-name'),
-            icon: formData.get('skill-icon'),
-            description: formData.get('skill-description'),
-            level: formData.get('skill-level'),
-            experience: formData.get('skill-experience')
-        };
+        try {
+            const skillId = formData.get('skill-id') || this.generateId();
+            const skillData = {
+                id: skillId,
+                name: formData.get('skill-name') || '',
+                icon: formData.get('skill-icon') || '',
+                description: formData.get('skill-description') || '',
+                level: formData.get('skill-level') || 'Beginner',
+                experience: formData.get('skill-experience') || ''
+            };
 
-        const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
-        if (existingIndex >= 0) {
-            this.data.skills[existingIndex] = skillData;
-        } else {
-            this.data.skills.push(skillData);
+            // Validate required fields
+            if (!skillData.name || !skillData.description) {
+                this.showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
+            if (existingIndex >= 0) {
+                this.data.skills[existingIndex] = skillData;
+                this.showToast('Skill updated successfully!', 'success');
+            } else {
+                this.data.skills.push(skillData);
+                this.showToast('Skill added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadSkillsList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving skill:', error);
+            this.showToast('Error saving skill', 'error');
         }
-
-        this.saveData();
-        this.loadSkillsList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Experience Management
@@ -476,6 +496,7 @@ class CVDashboard {
     }
 
     addExperience() {
+        console.log('Adding new experience...');
         this.openModal('Add New Experience', this.getExperienceForm());
     }
 
@@ -488,10 +509,16 @@ class CVDashboard {
 
     deleteExperience(expId) {
         if (confirm('Are you sure you want to delete this experience?')) {
-            this.data.experience = this.data.experience.filter(e => e.id !== expId);
-            this.saveData();
-            this.loadExperienceList();
-            this.updateStats();
+            try {
+                this.data.experience = this.data.experience.filter(e => e.id !== expId);
+                this.saveData();
+                this.loadExperienceList();
+                this.updateStats();
+                this.showToast('Experience deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting experience:', error);
+                this.showToast('Error deleting experience', 'error');
+            }
         }
     }
 
@@ -524,26 +551,40 @@ class CVDashboard {
     }
 
     saveExperience(formData) {
-        const expId = formData.get('experience-id') || this.generateId();
-        const expData = {
-            id: expId,
-            title: formData.get('experience-title'),
-            period: formData.get('experience-period'),
-            description: formData.get('experience-description'),
-            technologies: formData.get('experience-technologies').split(',').map(t => t.trim())
-        };
+        try {
+            const expId = formData.get('experience-id') || this.generateId();
+            const expData = {
+                id: expId,
+                title: formData.get('experience-title') || '',
+                period: formData.get('experience-period') || '',
+                description: formData.get('experience-description') || '',
+                technologies: formData.get('experience-technologies') ? 
+                    formData.get('experience-technologies').split(',').map(t => t.trim()).filter(t => t) : []
+            };
 
-        const existingIndex = this.data.experience.findIndex(e => e.id === expId);
-        if (existingIndex >= 0) {
-            this.data.experience[existingIndex] = expData;
-        } else {
-            this.data.experience.push(expData);
+            // Validate required fields
+            if (!expData.title || !expData.description) {
+                this.showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.experience.findIndex(e => e.id === expId);
+            if (existingIndex >= 0) {
+                this.data.experience[existingIndex] = expData;
+                this.showToast('Experience updated successfully!', 'success');
+            } else {
+                this.data.experience.push(expData);
+                this.showToast('Experience added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadExperienceList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving experience:', error);
+            this.showToast('Error saving experience', 'error');
         }
-
-        this.saveData();
-        this.loadExperienceList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Education Management
@@ -582,6 +623,7 @@ class CVDashboard {
     }
 
     addEducation() {
+        console.log('Adding new education...');
         this.openModal('Add New Education', this.getEducationForm());
     }
 
@@ -594,10 +636,16 @@ class CVDashboard {
 
     deleteEducation(eduId) {
         if (confirm('Are you sure you want to delete this education?')) {
-            this.data.education = this.data.education.filter(e => e.id !== eduId);
-            this.saveData();
-            this.loadEducationList();
-            this.updateStats();
+            try {
+                this.data.education = this.data.education.filter(e => e.id !== eduId);
+                this.saveData();
+                this.loadEducationList();
+                this.updateStats();
+                this.showToast('Education deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting education:', error);
+                this.showToast('Error deleting education', 'error');
+            }
         }
     }
 
@@ -630,26 +678,39 @@ class CVDashboard {
     }
 
     saveEducation(formData) {
-        const eduId = formData.get('education-id') || this.generateId();
-        const eduData = {
-            id: eduId,
-            title: formData.get('education-title'),
-            institution: formData.get('education-institution'),
-            period: formData.get('education-period'),
-            description: formData.get('education-description')
-        };
+        try {
+            const eduId = formData.get('education-id') || this.generateId();
+            const eduData = {
+                id: eduId,
+                title: formData.get('education-title') || '',
+                institution: formData.get('education-institution') || '',
+                period: formData.get('education-period') || '',
+                description: formData.get('education-description') || ''
+            };
 
-        const existingIndex = this.data.education.findIndex(e => e.id === eduId);
-        if (existingIndex >= 0) {
-            this.data.education[existingIndex] = eduData;
-        } else {
-            this.data.education.push(eduData);
+            // Validate required fields
+            if (!eduData.title || !eduData.institution || !eduData.description) {
+                this.showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const existingIndex = this.data.education.findIndex(e => e.id === eduId);
+            if (existingIndex >= 0) {
+                this.data.education[existingIndex] = eduData;
+                this.showToast('Education updated successfully!', 'success');
+            } else {
+                this.data.education.push(eduData);
+                this.showToast('Education added successfully!', 'success');
+            }
+
+            this.saveData();
+            this.loadEducationList();
+            this.updateStats();
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving education:', error);
+            this.showToast('Error saving education', 'error');
         }
-
-        this.saveData();
-        this.loadEducationList();
-        this.updateStats();
-        this.closeModal();
     }
 
     // Modal Management
@@ -675,6 +736,11 @@ class CVDashboard {
         const modalTitle = document.getElementById('modal-title');
         const modalBody = document.getElementById('modal-body');
 
+        if (!modal || !modalTitle || !modalBody) {
+            console.error('Modal elements not found');
+            return;
+        }
+
         modalTitle.textContent = title;
         modalBody.innerHTML = content;
         modal.style.display = 'block';
@@ -682,15 +748,19 @@ class CVDashboard {
         // Setup form submission
         const form = modalBody.querySelector('form');
         if (form) {
-            form.addEventListener('submit', (e) => {
+            // Remove existing event listeners
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            newForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const formData = new FormData(form);
+                const formData = new FormData(newForm);
                 
-                if (form.id === 'skill-form') {
+                if (newForm.id === 'skill-form') {
                     this.saveSkill(formData);
-                } else if (form.id === 'experience-form') {
+                } else if (newForm.id === 'experience-form') {
                     this.saveExperience(formData);
-                } else if (form.id === 'education-form') {
+                } else if (newForm.id === 'education-form') {
                     this.saveEducation(formData);
                 }
             });
@@ -760,10 +830,39 @@ class CVDashboard {
 
     // Event Bindings
     bindEvents() {
+        console.log('Binding events...');
+        
         // Add buttons
-        document.getElementById('addSkill')?.addEventListener('click', () => this.addSkill());
-        document.getElementById('addExperience')?.addEventListener('click', () => this.addExperience());
-        document.getElementById('addEducation')?.addEventListener('click', () => this.addEducation());
+        const addSkillBtn = document.getElementById('addSkill');
+        const addExperienceBtn = document.getElementById('addExperience');
+        const addEducationBtn = document.getElementById('addEducation');
+        
+        if (addSkillBtn) {
+            addSkillBtn.addEventListener('click', () => {
+                console.log('Add skill button clicked');
+                this.addSkill();
+            });
+        } else {
+            console.error('Add skill button not found');
+        }
+        
+        if (addExperienceBtn) {
+            addExperienceBtn.addEventListener('click', () => {
+                console.log('Add experience button clicked');
+                this.addExperience();
+            });
+        } else {
+            console.error('Add experience button not found');
+        }
+        
+        if (addEducationBtn) {
+            addEducationBtn.addEventListener('click', () => {
+                console.log('Add education button clicked');
+                this.addEducation();
+            });
+        } else {
+            console.error('Add education button not found');
+        }
 
         // Header buttons
         document.getElementById('saveChanges')?.addEventListener('click', () => this.saveData());
@@ -778,6 +877,8 @@ class CVDashboard {
 
         // Logout button
         document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+        
+        console.log('Events bound successfully');
     }
 
     // Utility Functions
@@ -786,19 +887,32 @@ class CVDashboard {
     }
 
     showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'exclamation'}"></i>
-            <span>${message}</span>
-        `;
+        try {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'exclamation'}"></i>
+                <span>${message}</span>
+            `;
 
-        const container = document.getElementById('toast-container');
-        container.appendChild(toast);
+            const container = document.getElementById('toast-container');
+            if (container) {
+                container.appendChild(toast);
 
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 3000);
+            } else {
+                // Fallback to alert if toast container not found
+                alert(`${type.toUpperCase()}: ${message}`);
+            }
+        } catch (error) {
+            console.error('Error showing toast:', error);
+            alert(`${type.toUpperCase()}: ${message}`);
+        }
     }
 
     exportData() {
@@ -859,7 +973,6 @@ class CVDashboard {
 let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
     dashboard = new CVDashboard();
+    // Make functions available globally for onclick handlers
+    window.dashboard = dashboard;
 });
-
-// Make functions available globally for onclick handlers
-window.dashboard = dashboard;
