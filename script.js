@@ -168,16 +168,22 @@ function updatePageWithData(data) {
     // Update skills if available
     if (data.skills && data.skills.length > 0) {
         updateSkillsSection(data.skills);
+    } else {
+        console.log('No skills data found, using default content');
     }
     
     // Update experience if available
     if (data.experience && data.experience.length > 0) {
         updateExperienceSection(data.experience);
+    } else {
+        console.log('No experience data found, using default content');
     }
     
     // Update education if available
     if (data.education && data.education.length > 0) {
         updateEducationSection(data.education);
+    } else {
+        console.log('No education data found, using default content');
     }
     
     // Update contact information if available
@@ -200,11 +206,16 @@ function updateSkillsSection(skills) {
     
     // Update skills grid if it exists
     if (skillsGrid) {
-        skillsGrid.innerHTML = '';
-        skills.forEach(skill => {
-            const skillCard = createSkillCard(skill);
-            skillsGrid.appendChild(skillCard);
-        });
+        // Only update if we have skills data, otherwise keep default content
+        if (skills && skills.length > 0) {
+            skillsGrid.innerHTML = '';
+            skills.forEach(skill => {
+                const skillCard = createSkillCard(skill);
+                skillsGrid.appendChild(skillCard);
+            });
+        } else {
+            console.log('No skills data found, keeping default content');
+        }
     }
 }
 
@@ -215,11 +226,16 @@ function updateExperienceSection(experience) {
     
     const timeline = experienceSection.querySelector('.timeline');
     if (timeline) {
-        timeline.innerHTML = '';
-        experience.forEach(exp => {
-            const expItem = createExperienceItem(exp);
-            timeline.appendChild(expItem);
-        });
+        // Only update if we have experience data, otherwise keep default content
+        if (experience && experience.length > 0) {
+            timeline.innerHTML = '';
+            experience.forEach(exp => {
+                const expItem = createExperienceItem(exp);
+                timeline.appendChild(expItem);
+            });
+        } else {
+            console.log('No experience data found, keeping default content');
+        }
     }
 }
 
@@ -249,11 +265,16 @@ function updateEducationSection(education) {
     
     const educationGrid = educationSection.querySelector('.education-grid');
     if (educationGrid) {
-        educationGrid.innerHTML = '';
-        education.forEach(edu => {
-            const eduItem = createEducationItem(edu);
-            educationGrid.appendChild(eduItem);
-        });
+        // Only update if we have education data, otherwise keep default content
+        if (education && education.length > 0) {
+            educationGrid.innerHTML = '';
+            education.forEach(edu => {
+                const eduItem = createEducationItem(edu);
+                educationGrid.appendChild(eduItem);
+            });
+        } else {
+            console.log('No education data found, keeping default content');
+        }
     }
 }
 
@@ -345,6 +366,37 @@ function updateProfileImage() {
     }
 }
 
+// Function to restore default content if no data
+function restoreDefaultContent() {
+    console.log('Restoring default content...');
+    
+    // Reload the page to restore default HTML content
+    location.reload();
+}
+
+// Function to check if sections have content
+function checkSectionsContent() {
+    const skillsGrid = document.getElementById('skillsGrid');
+    const timeline = document.querySelector('.timeline');
+    const educationGrid = document.querySelector('.education-grid');
+    
+    const skillsEmpty = skillsGrid && skillsGrid.children.length === 0;
+    const timelineEmpty = timeline && timeline.children.length === 0;
+    const educationEmpty = educationGrid && educationGrid.children.length === 0;
+    
+    console.log('Sections content check:', {
+        skillsEmpty,
+        timelineEmpty,
+        educationEmpty
+    });
+    
+    // If all sections are empty, restore default content
+    if (skillsEmpty && timelineEmpty && educationEmpty) {
+        console.log('All sections are empty, restoring default content...');
+        restoreDefaultContent();
+    }
+}
+
 // Update footer
 function updateFooter(personal) {
     const footer = document.querySelector('.footer p');
@@ -391,8 +443,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make functions available globally for debugging
     window.updateProfileImage = updateProfileImage;
     window.loadDashboardData = loadDashboardData;
+    window.checkSectionsContent = checkSectionsContent;
+    window.restoreDefaultContent = restoreDefaultContent;
     
     console.log('CV page loaded. Use updateProfileImage() to manually update profile image.');
+    console.log('Use checkSectionsContent() to check if sections have content.');
+    console.log('Use restoreDefaultContent() to restore default content.');
+    
+    // Check sections content after a short delay
+    setTimeout(() => {
+        checkSectionsContent();
+    }, 1000);
 });
 
 // Initialize skills grid
