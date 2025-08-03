@@ -95,6 +95,30 @@ body {
     transform: translateY(-2px);
 }
 
+/* Refresh Button */
+.refresh-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refresh-btn:hover {
+    background: rgba(37, 99, 235, 0.1);
+    transform: rotate(180deg);
+}
+
+.refresh-btn i {
+    transition: all 0.3s ease;
+}
+
 .hamburger {
     display: none;
     flex-direction: column;

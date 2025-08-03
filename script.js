@@ -84,13 +84,57 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Force reload to prevent caching issues
+    if (performance.navigation.type === 1) {
+        // Page was reloaded, clear any cached data
+        localStorage.removeItem('cvDashboardData');
+    }
+    
     loadCVDataFromDatabase();
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
     loadProfileImage();
     checkUrlForImageData();
+    addRefreshButton();
+    
+    // Force refresh data every 30 seconds to ensure latest data
+    setInterval(() => {
+        loadCVDataFromDatabase();
+        loadProfileImage();
+    }, 30000);
 });
+
+// Add refresh button to navigation
+function addRefreshButton() {
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu) {
+        const refreshLi = document.createElement('li');
+        refreshLi.innerHTML = `
+            <button onclick="forceRefresh()" class="refresh-btn" title="Force Refresh Data">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        `;
+        navMenu.appendChild(refreshLi);
+    }
+}
+
+// Force refresh function
+function forceRefresh() {
+    console.log('Force refreshing data...');
+    localStorage.removeItem('cvDashboardData');
+    loadCVDataFromDatabase();
+    loadProfileImage();
+    
+    // Show feedback
+    const refreshBtn = document.querySelector('.refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+        }, 2000);
+    }
+}
 
 // Check URL for image data (for sharing)
 function checkUrlForImageData() {
@@ -173,13 +217,13 @@ async function loadProfileImage() {
     if (!profileImg) return;
     
     try {
-        // Try to load from database first
-        const response = await fetch('/.netlify/functions/profile-image');
+        // Try to load from database first with cache busting
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/.netlify/functions/profile-image?t=${cacheBuster}`);
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.imageUrl) {
-                // Add cache busting
-                const cacheBuster = new Date().getTime();
+                // Add cache busting to image URL
                 const imageUrl = `${data.imageUrl}${data.imageUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`;
                 
                 profileImg.onload = () => {
@@ -238,7 +282,9 @@ async function loadProfileImage() {
 // Load CV data from database
 async function loadCVDataFromDatabase() {
     try {
-        const response = await fetch('/.netlify/functions/cv-data');
+        // Add cache busting to prevent caching issues
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`);
         if (response.ok) {
             const result = await response.json();
             if (result.success && result.data) {

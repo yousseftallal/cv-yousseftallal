@@ -803,7 +803,7 @@ class CVDashboard {
     }
 
     // Profile Image Management
-    updateProfileImage() {
+    async updateProfileImage() {
         const urlInput = document.getElementById('profileImageUrl');
         const imageUrl = urlInput.value.trim();
         
@@ -812,19 +812,46 @@ class CVDashboard {
             return;
         }
         
-        // Always try to load the image, regardless of URL validation
-        this.showToast('Testing image...', 'info');
+        this.showToast('Updating profile image...', 'info');
         
-        // Test if the image loads
-        const testImg = new Image();
-        testImg.onload = () => {
-            this.setAsProfileImage(imageUrl);
-            this.showToast('Profile image updated successfully! The main site will open in a new tab.');
-        };
-        testImg.onerror = () => {
-            this.showToast('Could not load image. Please check the URL and make sure it\'s a direct link to an image.', 'error');
-        };
-        testImg.src = imageUrl;
+        try {
+            // Save to database directly
+            const response = await fetch('/.netlify/functions/profile-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imageUrl: imageUrl
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update local data
+                this.data.profileImage = imageUrl;
+                this.saveData();
+                
+                // Update preview
+                const preview = document.getElementById('profilePreview');
+                if (preview) {
+                    preview.src = imageUrl;
+                }
+                
+                this.showToast('Profile image updated successfully in database!', 'success');
+                
+                // Open main site to show the updated image
+                setTimeout(() => {
+                    window.open('../index.html', '_blank');
+                }, 1000);
+            } else {
+                this.showToast('Error: ' + (data.error || 'Failed to update image'), 'error');
+            }
+        } catch (error) {
+            console.error('Error updating profile image:', error);
+            this.showToast('Error: Failed to connect to database', 'error');
+        }
     }
 
     setupProfileImagePreview() {
