@@ -38,6 +38,7 @@ class CVDashboard {
         this.setupProfileImagePreview();
         this.loadDashboardData();
         this.bindEvents();
+        this.loadDataFromDatabase();
     }
 
     // Navigation
@@ -193,6 +194,51 @@ class CVDashboard {
         this.showToast('Data saved successfully!', 'success');
     }
 
+    // Save data to database
+    async saveDataToDatabase() {
+        try {
+            const response = await fetch('/.netlify/functions/cv-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('Data saved to database successfully');
+                return true;
+            } else {
+                console.error('Error saving to database:', result.error);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error saving to database:', error);
+            return false;
+        }
+    }
+
+    // Load data from database
+    async loadDataFromDatabase() {
+        try {
+            const response = await fetch('/.netlify/functions/cv-data');
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    // Merge database data with local data
+                    this.data = { ...this.data, ...result.data };
+                    this.saveData(); // Save merged data to localStorage
+                    this.loadDashboardData(); // Refresh dashboard
+                    console.log('Data loaded from database successfully');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading data from database:', error);
+        }
+    }
+
     loadDashboardData() {
         this.updateStats();
         this.loadPersonalForm();
@@ -274,7 +320,7 @@ class CVDashboard {
         document.getElementById('aboutText').value = personal.aboutText;
     }
 
-    savePersonalInfo() {
+    async savePersonalInfo() {
         this.data.personal = {
             fullName: document.getElementById('fullName').value,
             jobTitle: document.getElementById('jobTitle').value,
@@ -284,6 +330,14 @@ class CVDashboard {
             aboutText: document.getElementById('aboutText').value
         };
         this.saveData();
+        
+        // Save to database
+        const dbSuccess = await this.saveDataToDatabase();
+        if (dbSuccess) {
+            this.showToast('Personal info saved to database!', 'success');
+        } else {
+            this.showToast('Saved locally, but failed to save to database', 'warning');
+        }
     }
 
     loadSettingsForm() {
@@ -293,7 +347,7 @@ class CVDashboard {
         document.getElementById('themeColor').value = settings.themeColor;
     }
 
-    saveSettings() {
+    async saveSettings() {
         this.data.settings = {
             siteTitle: document.getElementById('siteTitle').value,
             metaDescription: document.getElementById('metaDescription').value,
@@ -301,6 +355,14 @@ class CVDashboard {
             socialLinks: this.data.settings.socialLinks // Keep existing social links
         };
         this.saveData();
+        
+        // Save to database
+        const dbSuccess = await this.saveDataToDatabase();
+        if (dbSuccess) {
+            this.showToast('Settings saved to database!', 'success');
+        } else {
+            this.showToast('Saved locally, but failed to save to database', 'warning');
+        }
     }
 
     // Skills Management
@@ -349,10 +411,19 @@ class CVDashboard {
         }
     }
 
-    deleteSkill(skillId) {
+    async deleteSkill(skillId) {
         if (confirm('Are you sure you want to delete this skill?')) {
             this.data.skills = this.data.skills.filter(s => s.id !== skillId);
             this.saveData();
+            
+            // Save to database
+            const dbSuccess = await this.saveDataToDatabase();
+            if (dbSuccess) {
+                this.showToast('Skill deleted from database!', 'success');
+            } else {
+                this.showToast('Deleted locally, but failed to update database', 'warning');
+            }
+            
             this.loadSkillsList();
             this.updateStats();
         }
@@ -397,7 +468,7 @@ class CVDashboard {
         `;
     }
 
-    saveSkill(formData) {
+    async saveSkill(formData) {
         const skillId = formData.get('skill-id') || this.generateId();
         const skillData = {
             id: skillId,
@@ -416,6 +487,15 @@ class CVDashboard {
         }
 
         this.saveData();
+        
+        // Save to database
+        const dbSuccess = await this.saveDataToDatabase();
+        if (dbSuccess) {
+            this.showToast('Skill saved to database!', 'success');
+        } else {
+            this.showToast('Saved locally, but failed to save to database', 'warning');
+        }
+        
         this.loadSkillsList();
         this.updateStats();
         this.closeModal();
@@ -470,10 +550,19 @@ class CVDashboard {
         }
     }
 
-    deleteExperience(expId) {
+    async deleteExperience(expId) {
         if (confirm('Are you sure you want to delete this experience?')) {
             this.data.experience = this.data.experience.filter(e => e.id !== expId);
             this.saveData();
+            
+            // Save to database
+            const dbSuccess = await this.saveDataToDatabase();
+            if (dbSuccess) {
+                this.showToast('Experience deleted from database!', 'success');
+            } else {
+                this.showToast('Deleted locally, but failed to update database', 'warning');
+            }
+            
             this.loadExperienceList();
             this.updateStats();
         }
@@ -507,7 +596,7 @@ class CVDashboard {
         `;
     }
 
-    saveExperience(formData) {
+    async saveExperience(formData) {
         const expId = formData.get('experience-id') || this.generateId();
         const expData = {
             id: expId,
@@ -525,6 +614,15 @@ class CVDashboard {
         }
 
         this.saveData();
+        
+        // Save to database
+        const dbSuccess = await this.saveDataToDatabase();
+        if (dbSuccess) {
+            this.showToast('Experience saved to database!', 'success');
+        } else {
+            this.showToast('Saved locally, but failed to save to database', 'warning');
+        }
+        
         this.loadExperienceList();
         this.updateStats();
         this.closeModal();
@@ -576,10 +674,19 @@ class CVDashboard {
         }
     }
 
-    deleteEducation(eduId) {
+    async deleteEducation(eduId) {
         if (confirm('Are you sure you want to delete this education?')) {
             this.data.education = this.data.education.filter(e => e.id !== eduId);
             this.saveData();
+            
+            // Save to database
+            const dbSuccess = await this.saveDataToDatabase();
+            if (dbSuccess) {
+                this.showToast('Education deleted from database!', 'success');
+            } else {
+                this.showToast('Deleted locally, but failed to update database', 'warning');
+            }
+            
             this.loadEducationList();
             this.updateStats();
         }
@@ -613,7 +720,7 @@ class CVDashboard {
         `;
     }
 
-    saveEducation(formData) {
+    async saveEducation(formData) {
         const eduId = formData.get('education-id') || this.generateId();
         const eduData = {
             id: eduId,
@@ -631,6 +738,15 @@ class CVDashboard {
         }
 
         this.saveData();
+        
+        // Save to database
+        const dbSuccess = await this.saveDataToDatabase();
+        if (dbSuccess) {
+            this.showToast('Education saved to database!', 'success');
+        } else {
+            this.showToast('Saved locally, but failed to save to database', 'warning');
+        }
+        
         this.loadEducationList();
         this.updateStats();
         this.closeModal();

@@ -84,7 +84,7 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSkills();
+    loadCVDataFromDatabase();
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
@@ -235,13 +235,116 @@ async function loadProfileImage() {
 
 
 
+// Load CV data from database
+async function loadCVDataFromDatabase() {
+    try {
+        const response = await fetch('/.netlify/functions/cv-data');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                // Update skills data
+                if (result.data.skills) {
+                    window.skillsData = result.data.skills;
+                }
+                
+                // Update personal info
+                if (result.data.personal) {
+                    updatePersonalInfo(result.data.personal);
+                }
+                
+                // Update experience
+                if (result.data.experience) {
+                    updateExperience(result.data.experience);
+                }
+                
+                // Update education
+                if (result.data.education) {
+                    updateEducation(result.data.education);
+                }
+                
+                // Initialize skills with new data
+                initializeSkills();
+                
+                console.log('CV data loaded from database successfully');
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading CV data from database:', error);
+    }
+    
+    // Fallback to default data
+    console.log('Using default CV data');
+    initializeSkills();
+}
+
+// Update personal information
+function updatePersonalInfo(personal) {
+    const nameElement = document.querySelector('.hero h1');
+    const titleElement = document.querySelector('.hero p');
+    const aboutElement = document.querySelector('.about-content p');
+    
+    if (nameElement && personal.fullName) {
+        nameElement.textContent = personal.fullName;
+    }
+    
+    if (titleElement && personal.jobTitle) {
+        titleElement.textContent = personal.jobTitle;
+    }
+    
+    if (aboutElement && personal.aboutText) {
+        aboutElement.textContent = personal.aboutText;
+    }
+}
+
+// Update experience section
+function updateExperience(experience) {
+    const experienceSection = document.querySelector('.experience-section');
+    if (experienceSection && experience.length > 0) {
+        let experienceHTML = '';
+        experience.forEach(exp => {
+            experienceHTML += `
+                <div class="experience-item">
+                    <h3>${exp.title}</h3>
+                    <p class="period">${exp.period}</p>
+                    <p>${exp.description}</p>
+                    <div class="technologies">
+                        ${exp.technologies ? exp.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('') : ''}
+                    </div>
+                </div>
+            `;
+        });
+        experienceSection.innerHTML = experienceHTML;
+    }
+}
+
+// Update education section
+function updateEducation(education) {
+    const educationSection = document.querySelector('.education-section');
+    if (educationSection && education.length > 0) {
+        let educationHTML = '';
+        education.forEach(edu => {
+            educationHTML += `
+                <div class="education-item">
+                    <h3>${edu.title}</h3>
+                    <p class="institution">${edu.institution}</p>
+                    <p class="period">${edu.period}</p>
+                    <p>${edu.description}</p>
+                </div>
+            `;
+        });
+        educationSection.innerHTML = educationHTML;
+    }
+}
+
 // Initialize skills grid
 function initializeSkills() {
     if (!skillsGrid) return;
     
     skillsGrid.innerHTML = '';
     
-    skillsData.forEach(skill => {
+    const currentSkillsData = window.skillsData || skillsData;
+    currentSkillsData.forEach(skill => {
         const skillCard = createSkillCard(skill);
         skillsGrid.appendChild(skillCard);
     });

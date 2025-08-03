@@ -23,6 +23,18 @@ async function initializeDatabase() {
             )
         `);
         
+        // Create cv_data table for all CV content
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS cv_data (
+                id SERIAL PRIMARY KEY,
+                section_name VARCHAR(100) NOT NULL,
+                content JSONB NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(section_name)
+            )
+        `);
+        
         // Insert default image if table is empty
         const result = await client.query('SELECT COUNT(*) FROM profile_image');
         if (parseInt(result.rows[0].count) === 0) {
@@ -30,6 +42,57 @@ async function initializeDatabase() {
                 INSERT INTO profile_image (image_url) 
                 VALUES ('https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT')
             `);
+        }
+        
+        // Insert default CV data if table is empty
+        const cvResult = await client.query('SELECT COUNT(*) FROM cv_data');
+        if (parseInt(cvResult.rows[0].count) === 0) {
+            const defaultData = {
+                personalInfo: {
+                    name: "Youssef Tallal",
+                    title: "Full Stack Developer",
+                    email: "youssef@example.com",
+                    phone: "+1234567890",
+                    location: "Cairo, Egypt",
+                    about: "Passionate full stack developer with experience in modern web technologies."
+                },
+                skills: [
+                    { name: "JavaScript", icon: "fab fa-js", level: 90 },
+                    { name: "React", icon: "fab fa-react", level: 85 },
+                    { name: "Node.js", icon: "fab fa-node-js", level: 80 },
+                    { name: "Python", icon: "fab fa-python", level: 75 },
+                    { name: "HTML/CSS", icon: "fab fa-html5", level: 95 }
+                ],
+                experience: [
+                    {
+                        title: "Senior Developer",
+                        company: "Tech Company",
+                        period: "2022 - Present",
+                        description: "Leading development team and implementing new features."
+                    }
+                ],
+                education: [
+                    {
+                        degree: "Bachelor of Computer Science",
+                        institution: "University Name",
+                        period: "2018 - 2022",
+                        description: "Studied computer science and software engineering."
+                    }
+                ],
+                projects: [
+                    {
+                        title: "E-commerce Platform",
+                        description: "Built a full-stack e-commerce platform using React and Node.js",
+                        technologies: ["React", "Node.js", "MongoDB"],
+                        link: "https://github.com/example/project"
+                    }
+                ]
+            };
+            
+            await client.query(`
+                INSERT INTO cv_data (section_name, content) 
+                VALUES ('allData', $1)
+            `, [JSON.stringify(defaultData)]);
         }
         
         client.release();
@@ -68,9 +131,42 @@ async function updateProfileImage(imageUrl) {
     }
 }
 
+// Get all CV data
+async function getCVData() {
+    try {
+        const client = await pool.connect();
+        const result = await client.query('SELECT content FROM cv_data WHERE section_name = $1', ['allData']);
+        client.release();
+        return result.rows[0]?.content || null;
+    } catch (error) {
+        console.error('Error getting CV data:', error);
+        return null;
+    }
+}
+
+// Update CV data
+async function updateCVData(data) {
+    try {
+        const client = await pool.connect();
+        await client.query(`
+            INSERT INTO cv_data (section_name, content) 
+            VALUES ('allData', $1)
+            ON CONFLICT (section_name) 
+            DO UPDATE SET content = $1, updated_at = CURRENT_TIMESTAMP
+        `, [JSON.stringify(data)]);
+        client.release();
+        return true;
+    } catch (error) {
+        console.error('Error updating CV data:', error);
+        return false;
+    }
+}
+
 module.exports = {
     pool,
     initializeDatabase,
     getProfileImage,
-    updateProfileImage
+    updateProfileImage,
+    getCVData,
+    updateCVData
 };
