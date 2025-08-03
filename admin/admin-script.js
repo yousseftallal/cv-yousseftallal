@@ -499,34 +499,28 @@ class CVDashboard {
 
     async saveSkill(formData) {
         const skillId = formData.get('skill-id') || this.generateId();
-        
         // Convert features and projects text to arrays
         const featuresText = formData.get('skill-features') || '';
         const projectsText = formData.get('skill-projects') || '';
-        
         const features = featuresText ? featuresText.split('\n').map(f => f.trim()).filter(f => f) : [];
         const projects = projectsText ? projectsText.split('\n').map(p => p.trim()).filter(p => p) : [];
-        
         const skillData = {
             id: skillId,
-            name: formData.get('skill-name'),
-            icon: formData.get('skill-icon'),
-            description: formData.get('skill-description'),
+            name: formData.get('skill-name') || '',
+            icon: formData.get('skill-icon') || '',
+            description: formData.get('skill-description') || '',
             level: parseInt(formData.get('skill-level')) || 80,
-            experience: formData.get('skill-experience'),
-            features: features,
-            projects: projects
+            experience: formData.get('skill-experience') || 'Beginner',
+            features: Array.isArray(features) ? features : [],
+            projects: Array.isArray(projects) ? projects : []
         };
-
         const existingIndex = this.data.skills.findIndex(s => s.id === skillId);
         if (existingIndex >= 0) {
             this.data.skills[existingIndex] = skillData;
         } else {
             this.data.skills.push(skillData);
         }
-
         this.saveData();
-        
         // Save to database
         const dbSuccess = await this.saveDataToDatabase();
         if (dbSuccess) {
@@ -534,7 +528,6 @@ class CVDashboard {
         } else {
             this.showToast('Saved locally, but failed to save to database', 'warning');
         }
-        
         this.loadSkillsList();
         this.updateStats();
         this.closeModal();

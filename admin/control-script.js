@@ -248,21 +248,20 @@ class ContentController {
             return;
         }
         
-        // Convert features text to array
+        // Convert features text to array, always array
         const features = featuresText ? featuresText.split('\n').map(f => f.trim()).filter(f => f) : [];
-        
-        // Convert projects text to array
+        // Convert projects text to array, always array
         const projects = projectsText ? projectsText.split('\n').map(p => p.trim()).filter(p => p) : [];
         
         const skill = {
             id: Date.now(),
-            name,
-            level,
-            icon,
-            description,
+            name: name || '',
+            level: isNaN(level) ? 80 : level,
+            icon: icon || '',
+            description: description || '',
             experience: experience || 'Beginner',
-            features,
-            projects
+            features: Array.isArray(features) ? features : [],
+            projects: Array.isArray(projects) ? projects : []
         };
         
         this.data.skills.push(skill);
