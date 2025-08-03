@@ -119,9 +119,50 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Remove skill preview overlay */
+/* Skill Preview Overlay */
 .skill-preview {
-    display: none !important;
+    position: fixed;
+    z-index: 3000;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
+    max-width: 300px;
+    border: 2px solid #2563eb;
+    animation: fadeIn 0.3s ease;
+    pointer-events: none;
+}
+
+.preview-content {
+    text-align: center;
+}
+
+.preview-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+    object-fit: contain;
+}
+
+.preview-content h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.preview-content p {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.preview-hint {
+    color: #2563eb !important;
+    font-weight: 500;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 }
 
 .hamburger {

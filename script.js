@@ -420,13 +420,19 @@ function createSkillCard(skill) {
         </div>
     `;
     
-    // Add hover effect
+    // Add hover effect with cursor following
     card.addEventListener('mouseenter', function(e) {
         this.style.transform = 'translateY(-10px) scale(1.02)';
+        showSkillPreview(skill, e);
     });
     
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0) scale(1)';
+        hideSkillPreview();
+    });
+    
+    card.addEventListener('mousemove', function(e) {
+        updateSkillPreview(e);
     });
     
     // Add click event to open modal
@@ -437,7 +443,50 @@ function createSkillCard(skill) {
     return card;
 }
 
-// Skill preview functions removed to fix overlay issue
+// Show skill preview on hover
+function showSkillPreview(skill, event) {
+    let preview = document.getElementById('skillPreview');
+    if (!preview) {
+        preview = document.createElement('div');
+        preview.id = 'skillPreview';
+        preview.className = 'skill-preview';
+        document.body.appendChild(preview);
+    }
+    
+    // Handle null/undefined values
+    const skillName = skill.name || 'Unnamed Skill';
+    const skillIcon = skill.icon || 'https://via.placeholder.com/80x80/2563eb/FFFFFF?text=?';
+    const skillDescription = skill.description || 'No description available';
+    
+    preview.innerHTML = `
+        <div class="preview-content">
+            <img src="${skillIcon}" alt="${skillName}" class="preview-icon">
+            <h4>${skillName}</h4>
+            <p>${skillDescription}</p>
+            <p class="preview-hint">Click for more details</p>
+        </div>
+    `;
+    
+    preview.style.display = 'block';
+    updateSkillPreview(event);
+}
+
+// Update skill preview position
+function updateSkillPreview(event) {
+    const preview = document.getElementById('skillPreview');
+    if (preview) {
+        preview.style.left = (event.pageX + 20) + 'px';
+        preview.style.top = (event.pageY - 50) + 'px';
+    }
+}
+
+// Hide skill preview
+function hideSkillPreview() {
+    const preview = document.getElementById('skillPreview');
+    if (preview) {
+        preview.style.display = 'none';
+    }
+}
 
 // Open skill modal
 function openSkillModal(skill) {
