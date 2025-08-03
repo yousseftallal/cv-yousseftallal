@@ -759,8 +759,27 @@ class CVDashboard {
             firstImageItem.src = imageSrc;
         }
         
+        // Test the image on the main site
+        this.testImageOnMainSite(imageSrc);
+        
         // Create shareable URL
         this.createShareableUrl(imageSrc);
+    }
+
+    testImageOnMainSite(imageSrc) {
+        // Open main site in new tab to test the image
+        const testUrl = `${window.location.origin}/index.html?testImage=true`;
+        const newWindow = window.open(testUrl, '_blank');
+        
+        // Send message to the new window after it loads
+        setTimeout(() => {
+            if (newWindow && !newWindow.closed) {
+                newWindow.postMessage({
+                    type: 'TEST_PROFILE_IMAGE',
+                    imageSrc: imageSrc
+                }, '*');
+            }
+        }, 1000);
     }
 
     createShareableUrl(imageSrc) {

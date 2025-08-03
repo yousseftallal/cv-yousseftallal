@@ -88,9 +88,35 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
+    
+    // Load profile image immediately and show status
     loadProfileImage();
+    
+    // Start watcher and check URL
     startProfileImageWatcher();
     checkUrlForImageData();
+    
+    // Show image status in console for debugging
+    setTimeout(() => {
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            const currentSrc = profileImg.src;
+            const isDefaultImage = currentSrc.includes('via.placeholder.com');
+            console.log('Profile Image Status:', isDefaultImage ? 'Default Placeholder' : 'Custom Image');
+            console.log('Current Image Source:', currentSrc.substring(0, 100) + '...');
+        }
+    }, 1000);
+    
+    // Listen for messages from admin dashboard
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'TEST_PROFILE_IMAGE') {
+            const profileImg = document.querySelector('.profile-img');
+            if (profileImg) {
+                profileImg.src = event.data.imageSrc;
+                showImageLoadMessage('Profile image updated from admin dashboard!');
+            }
+        }
+    });
 });
 
 // Check URL for image data (for sharing)
@@ -142,6 +168,24 @@ function checkUrlForImageData() {
             console.error('Error processing image ID:', error);
             showImageLoadMessage('Error loading image. Please try again.', 'error');
         }
+    }
+    
+    // Check for test parameter
+    const testImage = urlParams.get('testImage');
+    if (testImage === 'true') {
+        console.log('Test mode activated - checking for profile image...');
+        setTimeout(() => {
+            const profileImg = document.querySelector('.profile-img');
+            if (profileImg) {
+                const currentSrc = profileImg.src;
+                const isDefaultImage = currentSrc.includes('via.placeholder.com');
+                if (isDefaultImage) {
+                    showImageLoadMessage('No custom profile image found. Please set one from the admin dashboard.', 'error');
+                } else {
+                    showImageLoadMessage('Custom profile image is loaded successfully!');
+                }
+            }
+        }, 2000);
     }
 }
 
@@ -215,9 +259,9 @@ function loadProfileImage() {
         }
     }
     
-    if (imageData) {
-        const profileImg = document.querySelector('.profile-img');
-        if (profileImg) {
+    const profileImg = document.querySelector('.profile-img');
+    if (profileImg) {
+        if (imageData) {
             // Add cache busting parameter to prevent caching issues
             const cacheBuster = new Date().getTime();
             const imageUrl = imageData.includes('data:') 
@@ -230,7 +274,12 @@ function loadProfileImage() {
             profileImg.src = '';
             setTimeout(() => {
                 profileImg.src = imageUrl;
+                console.log('Profile image loaded successfully:', imageUrl.substring(0, 50) + '...');
             }, 10);
+        } else {
+            // If no custom image, show a default placeholder
+            profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+            console.log('No custom profile image found, using default placeholder');
         }
     }
 }
@@ -313,6 +362,24 @@ function testImageSharing() {
         }
     } else {
         alert('Image storage system not loaded.');
+    }
+}
+
+// Check current image status
+function checkImageStatus() {
+    const profileImg = document.querySelector('.profile-img');
+    if (profileImg) {
+        const currentSrc = profileImg.src;
+        const isDefaultImage = currentSrc.includes('via.placeholder.com');
+        
+        let message = '';
+        if (isDefaultImage) {
+            message = 'Current Status: Using default placeholder image\n\nTo set a custom image:\n1. Go to /admin/login.html\n2. Login with admin/admin123\n3. Upload and set a profile image';
+        } else {
+            message = `Current Status: Using custom profile image\n\nImage source: ${currentSrc.substring(0, 100)}...\n\nTo test sharing:\n1. Copy the current URL\n2. Open in incognito mode\n3. The image should load automatically`;
+        }
+        
+        alert(message);
     }
 }
 
