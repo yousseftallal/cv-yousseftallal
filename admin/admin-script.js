@@ -191,6 +191,9 @@ class CVDashboard {
             case 'education':
                 this.loadEducationList();
                 break;
+            case 'images':
+                this.loadCurrentProfileImage();
+                break;
         }
     }
 
@@ -230,6 +233,9 @@ class CVDashboard {
         document.getElementById('phone').value = personal.phone;
         document.getElementById('location').value = personal.location;
         document.getElementById('aboutText').value = personal.aboutText;
+        
+        // Load current profile image if it exists
+        this.loadCurrentProfileImage();
     }
 
     savePersonalInfo() {
@@ -692,12 +698,52 @@ class CVDashboard {
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
+                <button class="btn btn-sm btn-primary set-profile-btn">Set as Profile</button>
                 <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
             </div>
             <p>${name}</p>
         `;
+        
+        // Add event listener to "Set as Profile" button
+        const setProfileBtn = imageItem.querySelector('.set-profile-btn');
+        setProfileBtn.addEventListener('click', () => {
+            this.setProfileImage(src);
+        });
+        
         imagePreview.appendChild(imageItem);
+    }
+
+    setProfileImage(imageSrc) {
+        // Save the profile image to the data
+        if (!this.data.personal) {
+            this.data.personal = {};
+        }
+        this.data.personal.profileImage = imageSrc;
+        
+        // Save to localStorage
+        this.saveData();
+        
+        // Show success message
+        this.showToast('Profile image updated successfully!', 'success');
+        
+        // Update the preview if we're on the personal info section
+        this.loadPersonalForm();
+    }
+
+    loadCurrentProfileImage() {
+        const imagePreview = document.getElementById('imagePreview');
+        if (!imagePreview) return;
+        
+        // Clear existing images
+        imagePreview.innerHTML = '';
+        
+        // If there's a saved profile image, show it
+        if (this.data.personal && this.data.personal.profileImage) {
+            this.addImageToPreview(this.data.personal.profileImage, 'Current Profile Image');
+        } else {
+            // Show default placeholder
+            this.addImageToPreview('https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT', 'Default Profile Image');
+        }
     }
 
     // Event Bindings

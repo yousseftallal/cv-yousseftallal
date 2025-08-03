@@ -88,6 +88,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
+    loadProfileImage();
+    
+    // Add cache refresh functionality
+    setupCacheRefresh();
 });
 
 // Initialize skills grid
@@ -494,3 +498,182 @@ function debounce(func, wait) {
 // Apply debouncing to scroll events
 window.addEventListener('scroll', debounce(updateActiveNavigation, 10));
 window.addEventListener('scroll', debounce(revealOnScroll, 10));
+
+// Load profile image and personal data from localStorage
+function loadProfileImage() {
+    try {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            
+            // Load profile image
+            if (data.personal && data.personal.profileImage) {
+                const profileImg = document.querySelector('.profile-img');
+                if (profileImg) {
+                    // Add timestamp to prevent caching issues
+                    const timestamp = new Date().getTime();
+                    const imageUrl = data.personal.profileImage.includes('data:') 
+                        ? data.personal.profileImage 
+                        : `${data.personal.profileImage}?t=${timestamp}`;
+                    profileImg.src = imageUrl;
+                    profileImg.alt = data.personal.fullName || 'Profile Image';
+                }
+            }
+            
+            // Load personal information
+            if (data.personal) {
+                // Update hero section
+                const heroTitle = document.querySelector('.hero-text h1');
+                const heroSubtitle = document.querySelector('.hero-subtitle');
+                const heroDescription = document.querySelector('.hero-description');
+                
+                if (heroTitle && data.personal.fullName) {
+                    heroTitle.textContent = data.personal.fullName;
+                }
+                if (heroSubtitle && data.personal.jobTitle) {
+                    heroSubtitle.textContent = data.personal.jobTitle;
+                }
+                if (heroDescription && data.personal.aboutText) {
+                    heroDescription.textContent = data.personal.aboutText;
+                }
+                
+                // Update about section
+                const aboutText = document.querySelector('.about-text p');
+                if (aboutText && data.personal.aboutText) {
+                    aboutText.textContent = data.personal.aboutText;
+                }
+            }
+        }
+    } catch (error) {
+        console.log('No saved data found or error loading data');
+    }
+}
+
+// Setup cache refresh functionality
+function setupCacheRefresh() {
+    // Add admin controls for cache refresh and data import
+    const adminControls = document.createElement('div');
+    adminControls.id = 'admin-controls';
+    adminControls.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; opacity: 0.1; transition: opacity 0.3s;';
+    
+    // Refresh button
+    const refreshButton = document.createElement('button');
+    refreshButton.id = 'cache-refresh-btn';
+    refreshButton.style.cssText = 'background: #2563eb; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 16px;';
+    refreshButton.textContent = '🔄';
+    refreshButton.title = 'Refresh Cache';
+    
+    // Import data button
+    const importButton = document.createElement('button');
+    importButton.id = 'import-data-btn';
+    importButton.style.cssText = 'background: #10b981; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 16px;';
+    importButton.textContent = '📁';
+    importButton.title = 'Import Data';
+    
+    // Export data button
+    const exportButton = document.createElement('button');
+    exportButton.id = 'export-data-btn';
+    exportButton.style.cssText = 'background: #f59e0b; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 16px;';
+    exportButton.textContent = '💾';
+    exportButton.title = 'Export Data';
+    
+    // Event listeners
+    refreshButton.addEventListener('click', () => {
+        loadProfileImage();
+        showCacheRefreshMessage();
+    });
+    
+    importButton.addEventListener('click', () => {
+        importDataFromFile();
+    });
+    
+    exportButton.addEventListener('click', () => {
+        exportDataToFile();
+    });
+    
+    // Hover effects
+    adminControls.addEventListener('mouseenter', () => {
+        adminControls.style.opacity = '1';
+    });
+    
+    adminControls.addEventListener('mouseleave', () => {
+        adminControls.style.opacity = '0.1';
+    });
+    
+    // Add buttons to container
+    adminControls.appendChild(refreshButton);
+    adminControls.appendChild(importButton);
+    adminControls.appendChild(exportButton);
+    
+    document.body.appendChild(adminControls);
+}
+
+// Show cache refresh message
+function showCacheRefreshMessage() {
+    const message = document.createElement('div');
+    message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px; border-radius: 5px; z-index: 1001; font-family: Inter, sans-serif;';
+    message.textContent = 'Cache refreshed!';
+    
+    document.body.appendChild(message);
+    
+    setTimeout(() => {
+        message.remove();
+    }, 3000);
+}
+
+// Import data from file
+function importDataFromFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    localStorage.setItem('cvDashboardData', JSON.stringify(importedData));
+                    loadProfileImage();
+                    showMessage('Data imported successfully!', 'success');
+                } catch (error) {
+                    showMessage('Error importing data!', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
+// Export data to file
+function exportDataToFile() {
+    const savedData = localStorage.getItem('cvDashboardData');
+    if (savedData) {
+        const dataBlob = new Blob([savedData], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'cv_data.json';
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        showMessage('Data exported successfully!', 'success');
+    } else {
+        showMessage('No data to export!', 'error');
+    }
+}
+
+// Show message
+function showMessage(text, type = 'success') {
+    const message = document.createElement('div');
+    message.style.cssText = `position: fixed; top: 20px; right: 20px; background: ${type === 'success' ? '#10b981' : '#ef4444'}; color: white; padding: 15px; border-radius: 5px; z-index: 1001; font-family: Inter, sans-serif;`;
+    message.textContent = text;
+    
+    document.body.appendChild(message);
+    
+    setTimeout(() => {
+        message.remove();
+    }, 3000);
+}
