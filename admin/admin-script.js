@@ -35,6 +35,7 @@ class CVDashboard {
         this.setupNavigation();
         this.setupForms();
         this.setupModals();
+        this.setupProfileImagePreview();
         this.loadDashboardData();
         this.bindEvents();
     }
@@ -228,6 +229,9 @@ class CVDashboard {
                 break;
             case 'education':
                 this.loadEducationList();
+                break;
+            case 'profile-image':
+                this.loadProfileImagePreview();
                 break;
         }
     }
@@ -701,12 +705,33 @@ class CVDashboard {
         const testImg = new Image();
         testImg.onload = () => {
             this.setAsProfileImage(imageUrl);
-            this.showToast('Profile image updated successfully!');
+            this.showToast('Profile image updated successfully! The main site will open in a new tab.');
         };
         testImg.onerror = () => {
             this.showToast('Could not load image. Please check the URL.', 'error');
         };
         testImg.src = imageUrl;
+    }
+
+    setupProfileImagePreview() {
+        const urlInput = document.getElementById('profileImageUrl');
+        if (urlInput) {
+            urlInput.addEventListener('input', (e) => {
+                const imageUrl = e.target.value.trim();
+                if (imageUrl && this.isValidImageUrl(imageUrl)) {
+                    const preview = document.getElementById('profilePreview');
+                    if (preview) {
+                        preview.onload = () => {
+                            // Image loaded successfully
+                        };
+                        preview.onerror = () => {
+                            // Image failed to load, keep default
+                        };
+                        preview.src = imageUrl;
+                    }
+                }
+            });
+        }
     }
 
     testProfileImage() {
@@ -728,6 +753,23 @@ class CVDashboard {
             };
             preview.src = imageUrl;
         }
+    }
+
+    clearProfileImage() {
+        this.data.profileImage = null;
+        this.saveData();
+        
+        if (window.imageStorage) {
+            window.imageStorage.clearProfileImage();
+        }
+        
+        const urlInput = document.getElementById('profileImageUrl');
+        const preview = document.getElementById('profilePreview');
+        
+        if (urlInput) urlInput.value = '';
+        if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+        
+        this.showToast('Profile image cleared successfully!');
     }
 
     isValidImageUrl(url) {
@@ -752,18 +794,16 @@ class CVDashboard {
         this.showToast('Profile image updated successfully!');
         
         // Update the profile image preview in admin
-        const profilePreview = document.querySelector('.image-preview .image-item img');
+        const profilePreview = document.getElementById('profilePreview');
         if (profilePreview) {
             profilePreview.src = imageSrc;
         }
         
-        // Also update the first image item if it exists
-        const firstImageItem = document.querySelector('.image-item img');
-        if (firstImageItem) {
-            firstImageItem.src = imageSrc;
-        }
-        
-
+        // Open main site to show the updated image
+        setTimeout(() => {
+            window.open('../index.html', '_blank');
+        }, 1000);
+    }
 
     // Event Bindings
     bindEvents() {
