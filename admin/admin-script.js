@@ -35,7 +35,6 @@ class CVDashboard {
         this.setupNavigation();
         this.setupForms();
         this.setupModals();
-        this.setupImageUpload();
         this.loadDashboardData();
         this.bindEvents();
     }
@@ -83,7 +82,7 @@ class CVDashboard {
             skills: 'Technical Skills',
             experience: 'Experience & Projects',
             education: 'Education',
-            images: 'Image Management',
+            'profile-image': 'Profile Image',
             settings: 'Site Settings'
         };
         document.getElementById('page-title').textContent = titles[section] || section;
@@ -205,9 +204,13 @@ class CVDashboard {
 
     loadProfileImagePreview() {
         if (this.data.profileImage) {
-            const profilePreview = document.querySelector('.image-preview .image-item img');
+            const profilePreview = document.getElementById('profilePreview');
+            const urlInput = document.getElementById('profileImageUrl');
             if (profilePreview) {
                 profilePreview.src = this.data.profileImage;
+            }
+            if (urlInput) {
+                urlInput.value = this.data.profileImage;
             }
         }
     }
@@ -679,98 +682,13 @@ class CVDashboard {
         modal.style.display = 'none';
     }
 
-    // Image Upload
-    setupImageUpload() {
-        const uploadArea = document.getElementById('uploadArea');
-        const imageUpload = document.getElementById('imageUpload');
-
-        if (uploadArea && imageUpload) {
-            uploadArea.addEventListener('click', () => imageUpload.click());
-            
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#3b82f6';
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = '#d1d5db';
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#d1d5db';
-                this.handleFileUpload(e.dataTransfer.files);
-            });
-
-            imageUpload.addEventListener('change', (e) => {
-                this.handleFileUpload(e.target.files);
-            });
-        }
-    }
-
-    handleFileUpload(files) {
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.addImageToPreview(e.target.result, file.name);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    addImageToPreview(src, name) {
-        const imagePreview = document.getElementById('imagePreview');
-        const imageItem = document.createElement('div');
-        imageItem.className = 'image-item';
-        imageItem.innerHTML = `
-            <img src="${src}" alt="${name}">
-            <div class="image-actions">
-                <button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfileImage('${src}')">Set as Profile</button>
-                <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
-            </div>
-            <p>${name}</p>
-        `;
-        imagePreview.appendChild(imageItem);
-    }
-
-    addUrlImage() {
-        this.openModal('Add Image URL', `
-            <div style="text-align: center;">
-                <h4>Enter Image URL</h4>
-                <p>Paste a direct link to an image (e.g., from Imgur, Google Drive, etc.)</p>
-                <div style="margin: 1rem 0;">
-                    <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" 
-                           style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
-                </div>
-                <div style="margin: 1rem 0;">
-                    <button class="btn btn-primary" onclick="dashboard.addImageFromUrl()">
-                        <i class="fas fa-plus"></i> Add Image
-                    </button>
-                    <button class="btn btn-secondary" onclick="dashboard.closeModal()">
-                        Cancel
-                    </button>
-                </div>
-                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                    <p><strong>Tips:</strong></p>
-                    <ul style="text-align: left;">
-                        <li>Use direct image links (ending with .jpg, .png, .gif, etc.)</li>
-                        <li>For Imgur: Right-click image → Copy image address</li>
-                        <li>For Google Drive: Make sure the link is public</li>
-                        <li>For other services: Ensure the image is publicly accessible</li>
-                    </ul>
-                </div>
-            </div>
-        `);
-    }
-
-    addImageFromUrl() {
-        const urlInput = document.getElementById('imageUrlInput');
+    // Profile Image Management
+    updateProfileImage() {
+        const urlInput = document.getElementById('profileImageUrl');
         const imageUrl = urlInput.value.trim();
         
         if (!imageUrl) {
-            this.showToast('Please enter a valid URL', 'error');
+            this.showToast('Please enter a profile image URL', 'error');
             return;
         }
         
@@ -782,14 +700,34 @@ class CVDashboard {
         // Test if the image loads
         const testImg = new Image();
         testImg.onload = () => {
-            this.addImageToPreview(imageUrl, 'Image from URL');
-            this.closeModal();
-            this.showToast('Image added successfully!');
+            this.setAsProfileImage(imageUrl);
+            this.showToast('Profile image updated successfully!');
         };
         testImg.onerror = () => {
             this.showToast('Could not load image. Please check the URL.', 'error');
         };
         testImg.src = imageUrl;
+    }
+
+    testProfileImage() {
+        const urlInput = document.getElementById('profileImageUrl');
+        const imageUrl = urlInput.value.trim();
+        
+        if (!imageUrl) {
+            this.showToast('Please enter a profile image URL first', 'error');
+            return;
+        }
+        
+        const preview = document.getElementById('profilePreview');
+        if (preview) {
+            preview.onload = () => {
+                this.showToast('Image loaded successfully! Click "Save Profile Image" to apply it.', 'success');
+            };
+            preview.onerror = () => {
+                this.showToast('Could not load image. Please check the URL.', 'error');
+            };
+            preview.src = imageUrl;
+        }
     }
 
     isValidImageUrl(url) {
@@ -825,85 +763,7 @@ class CVDashboard {
             firstImageItem.src = imageSrc;
         }
         
-        // Test the image on the main site
-        this.testImageOnMainSite(imageSrc);
-        
-        // Create shareable URL
-        this.createShareableUrl(imageSrc);
-    }
 
-    testImageOnMainSite(imageSrc) {
-        // Open main site in new tab to test the image
-        const testUrl = `${window.location.origin}/index.html?testImage=true`;
-        const newWindow = window.open(testUrl, '_blank');
-        
-        // Send message to the new window after it loads
-        setTimeout(() => {
-            if (newWindow && !newWindow.closed) {
-                newWindow.postMessage({
-                    type: 'TEST_PROFILE_IMAGE',
-                    imageSrc: imageSrc
-                }, '*');
-            }
-        }, 1000);
-    }
-
-    createShareableUrl(imageSrc) {
-        try {
-            // Create a shareable URL with the image data
-            const encodedImage = encodeURIComponent(imageSrc);
-            const shareableUrl = `${window.location.origin}/index.html?profileImage=${encodedImage}`;
-            
-            // Also create a shorter version using a unique ID
-            const imageId = this.generateImageId(imageSrc);
-            const shortUrl = `${window.location.origin}/index.html?img=${imageId}`;
-            
-            // Show the shareable URL in a modal
-            this.openModal('Share Profile Image', `
-                <div style="text-align: center;">
-                    <h4>Share this URL to apply the profile image on any device:</h4>
-                    <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                        <p><strong>Full URL (works immediately):</strong></p>
-                        <code style="word-break: break-all; font-size: 12px;">${shareableUrl}</code>
-                    </div>
-                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                        <p><strong>Short URL (requires one-time setup):</strong></p>
-                        <code style="word-break: break-all; font-size: 12px;">${shortUrl}</code>
-                    </div>
-                    <div style="margin: 1rem 0;">
-                        <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${shareableUrl}').then(() => dashboard.showToast('Full URL copied!'))">
-                            <i class="fas fa-copy"></i> Copy Full URL
-                        </button>
-                        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${shortUrl}').then(() => dashboard.showToast('Short URL copied!'))">
-                            <i class="fas fa-copy"></i> Copy Short URL
-                        </button>
-                    </div>
-                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                        <p><strong>Instructions:</strong></p>
-                        <ul style="text-align: left;">
-                            <li>Use the <strong>Full URL</strong> for immediate sharing</li>
-                            <li>Use the <strong>Short URL</strong> for permanent sharing</li>
-                            <li>Open the URL in any browser or device</li>
-                            <li>The image will load automatically</li>
-                        </ul>
-                    </div>
-                </div>
-            `);
-        } catch (error) {
-            console.error('Error creating shareable URL:', error);
-        }
-    }
-
-    generateImageId(imageSrc) {
-        // Create a simple hash of the image data
-        let hash = 0;
-        for (let i = 0; i < imageSrc.length; i++) {
-            const char = imageSrc.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32-bit integer
-        }
-        return Math.abs(hash).toString(36);
-    }
 
     // Event Bindings
     bindEvents() {
