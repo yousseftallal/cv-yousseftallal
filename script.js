@@ -495,20 +495,14 @@ function initializeSkills() {
     
     const currentSkillsData = window.skillsData || skillsData;
     
-    // Create skill cards
+    // Create skill cards only once (no duplication)
     currentSkillsData.forEach(skill => {
         const skillCard = createSkillCard(skill);
         skillsGrid.appendChild(skillCard);
     });
     
-    // Duplicate skills for infinite scroll effect
-    currentSkillsData.forEach(skill => {
-        const skillCard = createSkillCard(skill);
-        skillsGrid.appendChild(skillCard);
-    });
-    
-    // Start auto-scroll animation
-    startAutoScroll();
+    // Remove auto-scroll - cards will be static and responsive
+    // startAutoScroll(); // Commented out to prevent scrolling
 }
 
 // Auto-scroll function
