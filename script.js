@@ -136,6 +136,27 @@ function forceRefresh() {
     }
 }
 
+// Scroll skills function
+function scrollSkills(direction) {
+    const skillsGrid = document.getElementById('skillsGrid');
+    if (!skillsGrid) return;
+    
+    const scrollAmount = 300; // Scroll by 300px
+    const currentScroll = skillsGrid.scrollLeft;
+    
+    if (direction === 'left') {
+        skillsGrid.scrollTo({
+            left: currentScroll - scrollAmount,
+            behavior: 'smooth'
+        });
+    } else if (direction === 'right') {
+        skillsGrid.scrollTo({
+            left: currentScroll + scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+}
+
 // Check URL for image data (for sharing)
 function checkUrlForImageData() {
     const urlParams = new URLSearchParams(window.location.search);

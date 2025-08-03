@@ -390,15 +390,80 @@ section {
     opacity: 1;
 }
 
+.skills-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(37, 99, 235, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scroll-btn:hover {
+    background: rgba(37, 99, 235, 1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-btn.left {
+    left: 10px;
+}
+
+.scroll-btn.right {
+    right: 10px;
+}
+
+.scroll-btn i {
+    font-size: 1.2rem;
+}
+
 .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: flex;
     gap: 2rem;
     margin-top: 2rem;
     position: relative;
     z-index: 5;
     visibility: visible;
     opacity: 1;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.skills-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.skills-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.skills-grid::-webkit-scrollbar-thumb {
+    background: #2563eb;
+    border-radius: 4px;
+}
+
+.skills-grid::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
 }
 
 .skill-card {
@@ -415,6 +480,8 @@ section {
     display: block;
     visibility: visible;
     opacity: 1;
+    min-width: 280px;
+    flex-shrink: 0;
 }
 
 .skill-card::before {
@@ -861,7 +928,7 @@ section {
     .hamburger {
         display: flex;
     }
-    
+
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -874,9 +941,26 @@ section {
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 2rem 0;
     }
-    
+
     .nav-menu.active {
         left: 0;
+    }
+    
+    .scroll-btn {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .scroll-btn.left {
+        left: 5px;
+    }
+    
+    .scroll-btn.right {
+        right: 5px;
+    }
+    
+    .skill-card {
+        min-width: 250px;
     }
     
     .hero-content {
