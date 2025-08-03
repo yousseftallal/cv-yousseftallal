@@ -131,6 +131,7 @@ body {
     border: 2px solid #2563eb;
     animation: fadeIn 0.3s ease;
     pointer-events: none;
+    display: none;
 }
 
 .preview-content {
@@ -382,6 +383,11 @@ section {
 /* Skills Section */
 .skills {
     background: #f8fafc;
+    position: relative;
+    z-index: 5;
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 .skills-grid {
@@ -389,6 +395,10 @@ section {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
+    position: relative;
+    z-index: 5;
+    visibility: visible;
+    opacity: 1;
 }
 
 .skill-card {
@@ -401,6 +411,10 @@ section {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    z-index: 10;
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 .skill-card::before {
@@ -429,18 +443,27 @@ section {
     height: 80px;
     margin-bottom: 1.5rem;
     object-fit: contain;
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 .skill-card h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 1rem;
     color: #1e293b;
+    margin-bottom: 1rem;
+    display: block;
+    visibility: visible;
+}
 }
 
 .skill-card p {
     color: #64748b;
     line-height: 1.6;
+    display: block;
+    visibility: visible;
+    margin-bottom: 1rem;
 }
 
 .skill-level {
@@ -449,6 +472,8 @@ section {
     justify-content: center;
     gap: 0.5rem;
     margin-top: 1rem;
+    visibility: visible;
+    opacity: 1;
 }
 
 .skill-level span {
