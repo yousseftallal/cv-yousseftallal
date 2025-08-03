@@ -286,28 +286,40 @@ async function loadCVDataFromDatabase() {
     try {
         // Add cache busting to prevent caching issues
         const cacheBuster = new Date().getTime();
+        console.log('Loading CV data from database...');
+        
         const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`);
+        console.log('Database response status:', response.status);
+        
         if (response.ok) {
             const result = await response.json();
+            console.log('Database response:', result);
+            
             if (result.success && result.data) {
+                console.log('Personal data from database:', result.data.personal);
+                
                 // Update skills data
                 if (result.data.skills) {
                     window.skillsData = result.data.skills;
+                    console.log('Skills data updated:', result.data.skills);
                 }
                 
                 // Update personal info
                 if (result.data.personal) {
                     updatePersonalInfo(result.data.personal);
+                    console.log('Personal info updated');
                 }
                 
                 // Update experience
                 if (result.data.experience) {
                     updateExperience(result.data.experience);
+                    console.log('Experience updated');
                 }
                 
                 // Update education
                 if (result.data.education) {
                     updateEducation(result.data.education);
+                    console.log('Education updated');
                 }
                 
                 // Initialize skills with new data
@@ -328,27 +340,64 @@ async function loadCVDataFromDatabase() {
 
 // Update personal information
 function updatePersonalInfo(personal) {
+    console.log('Updating personal info with:', personal);
+    
     // Update hero section
     const nameElement = document.querySelector('.hero-text h1');
     const subtitleElement = document.querySelector('.hero-subtitle');
     const descriptionElement = document.querySelector('.hero-description');
     
+    console.log('Found elements:', {
+        nameElement: !!nameElement,
+        subtitleElement: !!subtitleElement,
+        descriptionElement: !!descriptionElement
+    });
+    
     if (nameElement && personal.fullName) {
         nameElement.textContent = personal.fullName;
+        console.log('Updated name to:', personal.fullName);
     }
     
     if (subtitleElement && personal.jobTitle) {
         subtitleElement.textContent = personal.jobTitle;
+        console.log('Updated job title to:', personal.jobTitle);
     }
     
     if (descriptionElement && personal.aboutText) {
         descriptionElement.textContent = personal.aboutText;
+        console.log('Updated description to:', personal.aboutText);
     }
     
-    // Update about section
-    const aboutElement = document.querySelector('.about-text p');
-    if (aboutElement && personal.aboutText) {
-        aboutElement.textContent = personal.aboutText;
+    // Update about section - update all paragraphs
+    const aboutElements = document.querySelectorAll('.about-text p');
+    if (aboutElements.length > 0 && personal.aboutText) {
+        aboutElements[0].textContent = personal.aboutText;
+    }
+    
+    // Update contact information
+    const emailElement = document.querySelector('.contact-item:nth-child(1) p');
+    const phoneElement = document.querySelector('.contact-item:nth-child(2) p');
+    const locationElement = document.querySelector('.contact-item:nth-child(3) p');
+    
+    console.log('Found contact elements:', {
+        emailElement: !!emailElement,
+        phoneElement: !!phoneElement,
+        locationElement: !!locationElement
+    });
+    
+    if (emailElement && personal.email) {
+        emailElement.textContent = personal.email;
+        console.log('Updated email to:', personal.email);
+    }
+    
+    if (phoneElement && personal.phone) {
+        phoneElement.textContent = personal.phone;
+        console.log('Updated phone to:', personal.phone);
+    }
+    
+    if (locationElement && personal.location) {
+        locationElement.textContent = personal.location;
+        console.log('Updated location to:', personal.location);
     }
     
     // Update stats if available
