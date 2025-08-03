@@ -694,14 +694,13 @@ body {
 
 /* ===== CONTENT CONTROL STYLES ===== */
 
-/* Admin Container */
-.admin-container {
+/* Control Page Specific Styles */
+.control-page .admin-container {
     min-height: 100vh;
     background-color: #f8fafc;
 }
 
-/* Admin Header */
-.admin-header {
+.control-page .admin-header {
     background: white;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid #e2e8f0;
@@ -711,7 +710,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.admin-header h1 {
+.control-page .admin-header h1 {
     font-size: 1.5rem;
     font-weight: 600;
     color: #1e293b;
@@ -720,17 +719,17 @@ body {
     gap: 0.75rem;
 }
 
-.admin-header h1 i {
+.control-page .admin-header h1 i {
     color: #3b82f6;
 }
 
-.admin-nav {
+.control-page .admin-nav {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.nav-link {
+.control-page .nav-link {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -742,17 +741,17 @@ body {
     font-weight: 500;
 }
 
-.nav-link:hover {
+.control-page .nav-link:hover {
     background: #f1f5f9;
     color: #3b82f6;
 }
 
-.nav-link.active {
+.control-page .nav-link.active {
     background: #3b82f6;
     color: white;
 }
 
-.logout-btn {
+.control-page .logout-btn {
     background: #ef4444;
     color: white;
     border: none;
@@ -766,12 +765,12 @@ body {
     gap: 0.5rem;
 }
 
-.logout-btn:hover {
+.control-page .logout-btn:hover {
     background: #dc2626;
 }
 
-/* Admin Main */
-.admin-main {
+/* Control Page Main */
+.control-page .admin-main {
     padding: 2rem;
     max-width: 1400px;
     margin: 0 auto;
@@ -986,13 +985,13 @@ body {
 
 /* Responsive Design for Control Page */
 @media (max-width: 768px) {
-    .admin-header {
+    .control-page .admin-header {
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
     }
     
-    .admin-nav {
+    .control-page .admin-nav {
         width: 100%;
         justify-content: space-between;
     }
