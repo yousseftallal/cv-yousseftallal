@@ -382,18 +382,23 @@ class CVDashboard {
         card.className = 'item-card';
         
         const featuresPreview = skill.features && skill.features.length > 0 
-            ? skill.features.slice(0, 2).join(', ') + (skill.features.length > 2 ? '...' : '')
+            ? skill.features.slice(0, 3).join(', ') + (skill.features.length > 3 ? '...' : '')
             : 'No features listed';
             
         const projectsPreview = skill.projects && skill.projects.length > 0 
-            ? skill.projects.slice(0, 2).join(', ') + (skill.projects.length > 2 ? '...' : '')
+            ? skill.projects.slice(0, 3).join(', ') + (skill.projects.length > 3 ? '...' : '')
             : 'No projects listed';
         
         card.innerHTML = `
             <div class="item-header">
-                <div>
-                    <div class="item-title">${skill.name}</div>
-                    <div class="item-subtitle">${skill.level}% • ${skill.experience || 'Beginner'}</div>
+                <div class="skill-header-info">
+                    <div class="item-title">
+                        <i class="fas fa-code"></i> ${skill.name}
+                    </div>
+                    <div class="item-subtitle">
+                        <i class="fas fa-chart-line"></i> ${skill.level}% • 
+                        <i class="fas fa-clock"></i> ${skill.experience || 'Beginner'}
+                    </div>
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-sm btn-primary" onclick="dashboard.editSkill('${skill.id}')">
@@ -405,12 +410,16 @@ class CVDashboard {
                 </div>
             </div>
             <div class="item-content">
-                <p>${skill.description || 'No description'}</p>
-                <div class="skill-features-preview">
-                    <strong>Features:</strong> ${featuresPreview}
+                <div class="skill-description">
+                    <p>${skill.description || 'No description available'}</p>
                 </div>
-                <div class="skill-projects-preview">
-                    <strong>Projects:</strong> ${projectsPreview}
+                <div class="skill-details">
+                    <div class="skill-features-preview">
+                        <strong><i class="fas fa-star"></i> Features:</strong> ${featuresPreview}
+                    </div>
+                    <div class="skill-projects-preview">
+                        <strong><i class="fas fa-project-diagram"></i> Projects:</strong> ${projectsPreview}
+                    </div>
                 </div>
             </div>
         `;
