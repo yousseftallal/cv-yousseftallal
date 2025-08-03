@@ -754,17 +754,40 @@ class CVDashboard {
         }
     }
 
-    clearProfileImage() {
-        this.data.profileImage = null;
-        this.saveData();
-        
-        const urlInput = document.getElementById('profileImageUrl');
-        const preview = document.getElementById('profilePreview');
-        
-        if (urlInput) urlInput.value = '';
-        if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
-        
-        this.showToast('Profile image cleared successfully!');
+    async clearProfileImage() {
+        try {
+            // Reset to default image in database
+            const response = await fetch('/.netlify/functions/profile-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imageUrl: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Clear localStorage
+                this.data.profileImage = null;
+                this.saveData();
+                
+                const urlInput = document.getElementById('profileImageUrl');
+                const preview = document.getElementById('profilePreview');
+                
+                if (urlInput) urlInput.value = '';
+                if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+                
+                this.showToast('Profile image cleared successfully!');
+            } else {
+                this.showToast('Error: ' + (data.error || 'Failed to clear image'), 'error');
+            }
+        } catch (error) {
+            console.error('Error clearing profile image:', error);
+            this.showToast('Error: Failed to connect to database', 'error');
+        }
     }
 
     createShareableUrlFromCurrent() {
@@ -816,26 +839,48 @@ class CVDashboard {
         return true;
     }
 
-    setAsProfileImage(imageSrc) {
-        // Save to localStorage only (for admin dashboard)
-        this.data.profileImage = imageSrc;
-        this.saveData();
-        
-        this.showToast('Profile image updated successfully!');
-        
-        // Update the profile image preview in admin
-        const profilePreview = document.getElementById('profilePreview');
-        if (profilePreview) {
-            profilePreview.src = imageSrc;
+    async setAsProfileImage(imageSrc) {
+        // Save to database
+        try {
+            const response = await fetch('/.netlify/functions/profile-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imageUrl: imageSrc
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Also save to localStorage for admin dashboard
+                this.data.profileImage = imageSrc;
+                this.saveData();
+                
+                this.showToast('Profile image updated successfully in database!');
+                
+                // Update the profile image preview in admin
+                const profilePreview = document.getElementById('profilePreview');
+                if (profilePreview) {
+                    profilePreview.src = imageSrc;
+                }
+                
+                // Create shareable URL
+                this.createShareableUrl(imageSrc);
+                
+                // Open main site to show the updated image
+                setTimeout(() => {
+                    window.open('../index.html', '_blank');
+                }, 1000);
+            } else {
+                this.showToast('Error: ' + (data.error || 'Failed to update image'), 'error');
+            }
+        } catch (error) {
+            console.error('Error updating profile image:', error);
+            this.showToast('Error: Failed to connect to database', 'error');
         }
-        
-        // Create shareable URL
-        this.createShareableUrl(imageSrc);
-        
-        // Open main site to show the updated image
-        setTimeout(() => {
-            window.open('../index.html', '_blank');
-        }, 1000);
     }
 
     createShareableUrl(imageSrc) {

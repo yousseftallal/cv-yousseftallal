@@ -1,20 +1,40 @@
-# CV Dashboard - Profile Image Management
+# CV Dashboard - Neon Database Integration
 
-## Profile Image Update Issue Fix
+## Profile Image Management with Neon PostgreSQL Database
 
-This update resolves the issue where profile images changed in the admin dashboard weren't appearing on the published Netlify site due to caching problems and cross-browser storage limitations.
+This update integrates Neon PostgreSQL database for persistent profile image storage across all devices and browsers.
 
-### What was fixed:
+### What's New:
 
-1. **Profile Image Storage**: Profile images are now properly saved using a robust storage system
-2. **Cross-Browser Sharing**: Added URL-based sharing system for profile images
-3. **Admin Authentication**: Added login system for the admin dashboard
-4. **Dynamic Loading**: The main site now loads profile images from multiple storage sources
-5. **Cache Busting**: Added cache-busting mechanisms to prevent Netlify from serving cached images
-6. **Real-time Updates**: Added a watcher that checks for profile image updates every 2 seconds
-7. **Force Refresh**: Added keyboard shortcut (Ctrl+Shift+R) to force refresh the profile image
+1. **Neon Database Integration**: Profile images are now stored in Neon PostgreSQL database
+2. **Automatic Loading**: Images load automatically from database on all devices
+3. **No Local Storage**: No need for localStorage or URL parameters
+4. **Real-time Updates**: Changes appear immediately across all devices
+5. **Admin Authentication**: Secure login system for dashboard access
+6. **API Endpoints**: RESTful API for image management
 
-### How to use:
+### Setup Instructions:
+
+#### 1. Neon Database Setup:
+1. Create a Neon account at [neon.tech](https://neon.tech)
+2. Create a new project
+3. Copy your database connection string
+4. Add it as environment variable in Netlify:
+   - Go to Netlify Dashboard → Site Settings → Environment Variables
+   - Add: `DATABASE_URL` = your Neon connection string
+
+#### 2. Netlify Functions Setup:
+The project includes Netlify Functions for database operations:
+- `api/profile-image.js`: Handles GET/POST requests for profile images
+- `db/database.js`: Database connection and operations
+
+#### 3. Dependencies:
+Install required packages:
+```bash
+npm install
+```
+
+### How to Use:
 
 #### Admin Access:
 - **Username**: `admin`
@@ -23,46 +43,57 @@ This update resolves the issue where profile images changed in the admin dashboa
 
 #### Profile Image Management:
 1. **Login**: Access the admin dashboard with the credentials above
-2. **Upload Image**: Go to the Images section and upload an image
-3. **Set as Profile**: Click "Set as Profile" on the uploaded image
-4. **Share URL**: A modal will appear with a shareable URL
-5. **Copy URL**: Copy the URL and share it with others or use it on different devices
-
-#### Cross-Browser/Device Sharing:
-1. After setting a profile image, two shareable URLs are generated:
-   - **Full URL**: Contains the complete image data (works immediately)
-   - **Short URL**: Contains only the image ID (requires one-time setup)
-2. Copy either URL and open it in any browser or device
-3. The profile image will automatically load on that device
-4. The image is stored locally on that device for future visits
-5. Use the "Test Image" link in the navigation to test sharing functionality
+2. **Enter Image URL**: Paste an image URL in the Profile Image section
+3. **Update Image**: Click "Update Image" to save to database
+4. **Automatic Loading**: The image will appear on all devices automatically
 
 ### Technical Details:
 
-- **Storage System**: Uses localStorage, sessionStorage, and backup storage
-- **URL Sharing**: Images are encoded in URL parameters for cross-device sharing
-- **Authentication**: Simple login system with 24-hour session
-- **Cache Busting**: Multiple mechanisms to prevent caching issues
-- **Fallback System**: Multiple storage methods ensure image persistence
+- **Database**: Neon PostgreSQL with automatic table creation
+- **API**: Netlify Functions for database operations
+- **Authentication**: Client-side login with 24-hour session
+- **Caching**: Cache-busting mechanisms for reliable image loading
+- **Fallback**: localStorage backup for admin dashboard
 
-### Files Added/Modified:
+### Files Structure:
 
-- `admin/login.html`: Admin login page
-- `js/image-storage.js`: Robust image storage system
-- `admin/admin-script.js`: Updated with authentication and sharing
-- `script.js`: Updated with cross-browser image loading
-- `index.html`: Updated with new storage system
-- `netlify.toml`: Netlify configuration for caching
+```
+├── api/
+│   └── profile-image.js          # API endpoints
+├── db/
+│   └── database.js               # Database operations
+├── admin/
+│   ├── login.html               # Admin login
+│   ├── index.html               # Admin dashboard
+│   └── admin-script.js          # Dashboard logic
+├── script.js                    # Main site logic
+├── index.html                   # Main CV page
+├── package.json                 # Dependencies
+└── netlify.toml                # Netlify configuration
+```
+
+### Environment Variables:
+
+Required in Netlify:
+- `DATABASE_URL`: Your Neon PostgreSQL connection string
 
 ### Troubleshooting:
 
-If the profile image still doesn't update:
-1. Use the shareable URL generated in the admin dashboard
-2. Clear browser cache (Ctrl+Shift+Delete)
-3. Hard refresh the page (Ctrl+Shift+R)
-4. Check the browser console for any errors
-5. Try opening the shareable URL in a new browser/device
+If the profile image doesn't update:
+1. Check Netlify Functions logs in the dashboard
+2. Verify `DATABASE_URL` environment variable is set
+3. Check browser console for API errors
+4. Ensure the image URL is accessible
 
 ### Security Note:
 
 The current authentication is client-side only. For production use, consider implementing server-side authentication.
+
+### Deployment:
+
+1. Push code to GitHub
+2. Connect repository to Netlify
+3. Set `DATABASE_URL` environment variable
+4. Deploy automatically
+
+The system will automatically create the required database table on first deployment.

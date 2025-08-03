@@ -1,0 +1,19 @@
+{
+  "name": "cv-yousseftallal",
+  "version": "1.0.0",
+  "description": "CV website with Neon database integration",
+  "main": "index.js",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.0.0"
+  },
+  "keywords": ["cv", "portfolio", "neon", "database"],
+  "author": "Youssef Tallal",
+  "license": "MIT"
+}

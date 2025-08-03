@@ -167,57 +167,68 @@ function showSuccessMessage(message) {
 
 
 
-// Load profile image from localStorage (only for admin dashboard)
-function loadProfileImage() {
-    // Only load from localStorage if we're in admin mode or if there's a saved image
-    const savedData = localStorage.getItem('cvDashboardData');
-    let imageData = null;
+// Load profile image from database
+async function loadProfileImage() {
+    const profileImg = document.querySelector('.profile-img');
+    if (!profileImg) return;
     
+    try {
+        // Try to load from database first
+        const response = await fetch('/.netlify/functions/profile-image');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.imageUrl) {
+                // Add cache busting
+                const cacheBuster = new Date().getTime();
+                const imageUrl = `${data.imageUrl}${data.imageUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`;
+                
+                profileImg.onload = () => {
+                    console.log('Profile image loaded successfully from database:', data.imageUrl);
+                };
+                profileImg.onerror = () => {
+                    console.error('Failed to load image from database URL:', data.imageUrl);
+                    // Fallback to default
+                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                };
+                profileImg.src = imageUrl;
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading profile image from database:', error);
+    }
+    
+    // Fallback to localStorage (for admin dashboard)
+    const savedData = localStorage.getItem('cvDashboardData');
     if (savedData) {
         try {
             const data = JSON.parse(savedData);
-            imageData = data.profileImage;
+            if (data.profileImage) {
+                const imageData = data.profileImage;
+                
+                if (imageData.startsWith('http') || imageData.startsWith('https')) {
+                    const cacheBuster = new Date().getTime();
+                    const imageUrl = `${imageData}${imageData.includes('?') ? '&' : '?'}t=${cacheBuster}`;
+                    
+                    profileImg.onload = () => {
+                        console.log('Profile image loaded from localStorage:', imageData);
+                    };
+                    profileImg.onerror = () => {
+                        console.error('Failed to load image from localStorage URL:', imageData);
+                        profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                    };
+                    profileImg.src = imageUrl;
+                    return;
+                }
+            }
         } catch (error) {
             console.error('Error loading profile image from localStorage:', error);
         }
     }
     
-    const profileImg = document.querySelector('.profile-img');
-    if (profileImg) {
-        if (imageData) {
-            // Check if it's a URL or base64 data
-            if (imageData.startsWith('http') || imageData.startsWith('https')) {
-                // It's a URL, add cache busting
-                const cacheBuster = new Date().getTime();
-                const imageUrl = `${imageData}${imageData.includes('?') ? '&' : '?'}t=${cacheBuster}`;
-                
-                profileImg.onload = () => {
-                    console.log('Profile image loaded successfully from URL:', imageData);
-                };
-                profileImg.onerror = () => {
-                    console.error('Failed to load image from URL:', imageData);
-                    // Fallback to default
-                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
-                };
-                profileImg.src = imageUrl;
-            } else {
-                // It's base64 data
-                profileImg.onload = () => {
-                    console.log('Profile image loaded successfully from base64 data');
-                };
-                profileImg.onerror = () => {
-                    console.error('Failed to load base64 image');
-                    // Fallback to default
-                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
-                };
-                profileImg.src = imageData;
-            }
-        } else {
-            // If no custom image, show a default placeholder
-            profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
-            console.log('No custom profile image found, using default placeholder');
-        }
-    }
+    // Default placeholder
+    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+    console.log('Using default profile image placeholder');
 }
 
 
