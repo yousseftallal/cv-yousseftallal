@@ -328,60 +328,92 @@ async function loadCVDataFromDatabase() {
 
 // Update personal information
 function updatePersonalInfo(personal) {
-    const nameElement = document.querySelector('.hero h1');
-    const titleElement = document.querySelector('.hero p');
-    const aboutElement = document.querySelector('.about-content p');
+    // Update hero section
+    const nameElement = document.querySelector('.hero-text h1');
+    const subtitleElement = document.querySelector('.hero-subtitle');
+    const descriptionElement = document.querySelector('.hero-description');
     
     if (nameElement && personal.fullName) {
         nameElement.textContent = personal.fullName;
     }
     
-    if (titleElement && personal.jobTitle) {
-        titleElement.textContent = personal.jobTitle;
+    if (subtitleElement && personal.jobTitle) {
+        subtitleElement.textContent = personal.jobTitle;
     }
     
+    if (descriptionElement && personal.aboutText) {
+        descriptionElement.textContent = personal.aboutText;
+    }
+    
+    // Update about section
+    const aboutElement = document.querySelector('.about-text p');
     if (aboutElement && personal.aboutText) {
         aboutElement.textContent = personal.aboutText;
+    }
+    
+    // Update stats if available
+    if (personal.stats) {
+        const statsContainer = document.querySelector('.about-stats');
+        if (statsContainer && personal.stats.length > 0) {
+            let statsHTML = '';
+            personal.stats.forEach(stat => {
+                statsHTML += `
+                    <div class="stat">
+                        <i class="${stat.icon || 'fas fa-chart-bar'}"></i>
+                        <h3>${stat.value || '0'}</h3>
+                        <p>${stat.label || 'Stat'}</p>
+                    </div>
+                `;
+            });
+            statsContainer.innerHTML = statsHTML;
+        }
     }
 }
 
 // Update experience section
 function updateExperience(experience) {
-    const experienceSection = document.querySelector('.experience-section');
-    if (experienceSection && experience.length > 0) {
+    const timeline = document.querySelector('.timeline');
+    if (timeline && experience.length > 0) {
         let experienceHTML = '';
         experience.forEach(exp => {
             experienceHTML += `
-                <div class="experience-item">
-                    <h3>${exp.title}</h3>
-                    <p class="period">${exp.period}</p>
-                    <p>${exp.description}</p>
-                    <div class="technologies">
-                        ${exp.technologies ? exp.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('') : ''}
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>${exp.title || 'Experience'}</h3>
+                        <span class="timeline-date">${exp.period || 'Period'}</span>
+                        <p>${exp.description || 'No description available'}</p>
+                        <div class="tech-stack">
+                            ${exp.technologies ? exp.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('') : ''}
+                        </div>
                     </div>
                 </div>
             `;
         });
-        experienceSection.innerHTML = experienceHTML;
+        timeline.innerHTML = experienceHTML;
     }
 }
 
 // Update education section
 function updateEducation(education) {
-    const educationSection = document.querySelector('.education-section');
-    if (educationSection && education.length > 0) {
+    const educationGrid = document.querySelector('.education-grid');
+    if (educationGrid && education.length > 0) {
         let educationHTML = '';
         education.forEach(edu => {
             educationHTML += `
                 <div class="education-item">
-                    <h3>${edu.title}</h3>
-                    <p class="institution">${edu.institution}</p>
-                    <p class="period">${edu.period}</p>
-                    <p>${edu.description}</p>
+                    <div class="education-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="education-content">
+                        <h3>${edu.title || 'Education'}</h3>
+                        <div class="institution">${edu.institution || 'Institution'}</div>
+                        <div class="duration">${edu.period || 'Period'}</div>
+                        <div class="description">${edu.description || 'No description available'}</div>
+                    </div>
                 </div>
             `;
         });
-        educationSection.innerHTML = educationHTML;
+        educationGrid.innerHTML = educationHTML;
     }
 }
 
@@ -446,13 +478,17 @@ function createSkillCard(skill) {
     const skillExperience = skill.experience || '0 years';
     
     card.innerHTML = `
-        <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/80x80/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
-        <h3>${skillName}</h3>
-        <p>${skillDescription}</p>
-        <div class="skill-level">
-            <span>${skillLevel}</span>
-            <span>•</span>
-            <span>${skillExperience}</span>
+        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
+            <div>
+                <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/70x70/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
+                <h3>${skillName}</h3>
+                <p>${skillDescription}</p>
+            </div>
+            <div class="skill-level">
+                <span>${skillLevel}</span>
+                <span>•</span>
+                <span>${skillExperience}</span>
+            </div>
         </div>
     `;
     
