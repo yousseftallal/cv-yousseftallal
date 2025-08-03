@@ -89,7 +89,85 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeScrollEffects();
     initializeAnimations();
     loadProfileImage();
+    checkUrlForImageData();
 });
+
+// Check URL for image data (for sharing)
+function checkUrlForImageData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageData = urlParams.get('profileImage');
+    
+    if (imageData) {
+        try {
+            const decodedData = decodeURIComponent(imageData);
+            if (decodedData.startsWith('http') || decodedData.startsWith('https')) {
+                // Save the image to localStorage
+                if (window.imageStorage) {
+                    window.imageStorage.saveProfileImage(decodedData);
+                }
+                
+                // Load the image
+                loadProfileImage();
+                
+                // Remove the parameter from URL
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('profileImage');
+                window.history.replaceState({}, '', newUrl);
+                
+                // Show success message
+                showSuccessMessage('Profile image loaded successfully!');
+            }
+        } catch (error) {
+            console.error('Error processing URL image data:', error);
+        }
+    }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 300px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    messageDiv.innerHTML = `
+        <i class="fas fa-check"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; cursor: pointer; margin-left: auto;">&times;</button>
+    `;
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(messageDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
+        }
+    }, 5000);
+}
 
 
 

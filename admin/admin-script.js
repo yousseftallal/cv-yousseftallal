@@ -771,6 +771,15 @@ class CVDashboard {
         this.showToast('Profile image cleared successfully!');
     }
 
+    createShareableUrlFromCurrent() {
+        const currentImage = this.data.profileImage;
+        if (currentImage) {
+            this.createShareableUrl(currentImage);
+        } else {
+            this.showToast('No profile image set. Please save an image first.', 'error');
+        }
+    }
+
     isValidImageUrl(url) {
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
         const lowerUrl = url.toLowerCase();
@@ -829,10 +838,50 @@ class CVDashboard {
             profilePreview.src = imageSrc;
         }
         
+        // Create shareable URL
+        this.createShareableUrl(imageSrc);
+        
         // Open main site to show the updated image
         setTimeout(() => {
             window.open('../index.html', '_blank');
         }, 1000);
+    }
+
+    createShareableUrl(imageSrc) {
+        try {
+            // Create a shareable URL with the image data
+            const encodedImage = encodeURIComponent(imageSrc);
+            const shareableUrl = `${window.location.origin}/index.html?profileImage=${encodedImage}`;
+            
+            // Show the shareable URL in a modal
+            this.openModal('Share Profile Image', `
+                <div style="text-align: center;">
+                    <h4>Share this URL to apply the profile image on any device:</h4>
+                    <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <code style="word-break: break-all; font-size: 12px;">${shareableUrl}</code>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${shareableUrl}').then(() => dashboard.showToast('URL copied!'))">
+                            <i class="fas fa-copy"></i> Copy URL
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.open('${shareableUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> Test URL
+                        </button>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                        <p><strong>Instructions:</strong></p>
+                        <ul style="text-align: left;">
+                            <li>Copy this URL and share it with others</li>
+                            <li>Open the URL in any browser or device</li>
+                            <li>The profile image will automatically load</li>
+                            <li>The image will be saved locally on that device</li>
+                        </ul>
+                    </div>
+                </div>
+            `);
+        } catch (error) {
+            console.error('Error creating shareable URL:', error);
+        }
     }
 
     // Event Bindings
