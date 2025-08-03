@@ -546,6 +546,28 @@ function createSkillCard(skill) {
     const skillDescription = skill.description || 'No description available';
     const skillLevel = skill.level || 'Beginner';
     const skillExperience = skill.experience || '0 years';
+    const skillFeatures = skill.features || [];
+    const skillProjects = skill.projects || [];
+    
+    // Create features HTML
+    const featuresHTML = skillFeatures.length > 0 ? `
+        <div class="skill-features">
+            <h4>Key Features & Capabilities:</h4>
+            <ul>
+                ${skillFeatures.map(feature => `<li>${feature}</li>`).join('')}
+            </ul>
+        </div>
+    ` : '';
+    
+    // Create projects HTML
+    const projectsHTML = skillProjects.length > 0 ? `
+        <div class="skill-projects">
+            <h4>Projects & Experience:</h4>
+            <ul>
+                ${skillProjects.map(project => `<li>${project}</li>`).join('')}
+            </ul>
+        </div>
+    ` : '';
     
     card.innerHTML = `
         <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
@@ -553,6 +575,8 @@ function createSkillCard(skill) {
                 <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/70x70/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
                 <h3>${skillName}</h3>
                 <p>${skillDescription}</p>
+                ${featuresHTML}
+                ${projectsHTML}
             </div>
             <div class="skill-level">
                 <span>${skillLevel}</span>
@@ -650,13 +674,29 @@ function openSkillModal(skill) {
     
     // Populate features list
     modalFeatures.innerHTML = '';
-    skillFeatures.forEach(feature => {
+    if (Array.isArray(skillFeatures)) {
+        skillFeatures.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            modalFeatures.appendChild(li);
+        });
+    } else {
         const li = document.createElement('li');
-        li.textContent = feature;
+        li.textContent = skillFeatures;
         modalFeatures.appendChild(li);
-    });
+    }
     
-    modalProjects.textContent = skillProjects;
+    // Handle projects - can be string or array
+    modalProjects.innerHTML = '';
+    if (Array.isArray(skillProjects)) {
+        skillProjects.forEach(project => {
+            const li = document.createElement('li');
+            li.textContent = project;
+            modalProjects.appendChild(li);
+        });
+    } else {
+        modalProjects.textContent = skillProjects;
+    }
     
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';

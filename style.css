@@ -1072,7 +1072,7 @@ section {
 
 @media (max-width: 480px) {
     .section-title {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
     
     .hero-text h1 {
@@ -1082,4 +1082,106 @@ section {
     .about-stats {
         grid-template-columns: 1fr;
     }
+}
+
+/* Enhanced Skill Styles */
+.skill-features,
+.skill-projects {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+}
+
+.skill-features h4,
+.skill-projects h4 {
+    color: #2563eb;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.skill-features ul,
+.skill-projects ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.skill-features li,
+.skill-projects li {
+    padding: 0.25rem 0;
+    color: #64748b;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.skill-features li::before,
+.skill-projects li::before {
+    content: '•';
+    color: #2563eb;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* Skill Card Enhancements */
+.skill-card .skill-features,
+.skill-card .skill-projects {
+    max-height: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+.skill-card .skill-features::after,
+.skill-card .skill-projects::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.9));
+    pointer-events: none;
+}
+
+/* Modal Enhancements */
+.modal .skill-features,
+.modal .skill-projects {
+    margin-top: 1.5rem;
+}
+
+.modal .skill-features h4,
+.modal .skill-projects h4 {
+    color: #2563eb;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.modal .skill-features ul,
+.modal .skill-projects ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.modal .skill-features li,
+.modal .skill-projects li {
+    padding: 0.5rem 0;
+    color: #64748b;
+    position: relative;
+    padding-left: 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal .skill-features li:last-child,
+.modal .skill-projects li:last-child {
+    border-bottom: none;
+}
+
+.modal .skill-features li::before,
+.modal .skill-projects li::before {
+    content: '✓';
+    color: #10b981;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
 }

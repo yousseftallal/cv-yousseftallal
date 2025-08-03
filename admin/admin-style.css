@@ -946,6 +946,17 @@ body {
     font-weight: 500;
 }
 
+.skill-features-preview,
+.skill-projects-preview {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: #f1f5f9;
+    border-radius: 0.25rem;
+    border-left: 3px solid #3b82f6;
+}
+
 /* Job and Education Specific Styles */
 .job-company,
 .education-institution {

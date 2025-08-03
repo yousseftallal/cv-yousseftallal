@@ -380,11 +380,20 @@ class CVDashboard {
     createSkillCard(skill) {
         const card = document.createElement('div');
         card.className = 'item-card';
+        
+        const featuresPreview = skill.features && skill.features.length > 0 
+            ? skill.features.slice(0, 2).join(', ') + (skill.features.length > 2 ? '...' : '')
+            : 'No features listed';
+            
+        const projectsPreview = skill.projects && skill.projects.length > 0 
+            ? skill.projects.slice(0, 2).join(', ') + (skill.projects.length > 2 ? '...' : '')
+            : 'No projects listed';
+        
         card.innerHTML = `
             <div class="item-header">
                 <div>
                     <div class="item-title">${skill.name}</div>
-                    <div class="item-subtitle">${skill.level} • ${skill.experience}</div>
+                    <div class="item-subtitle">${skill.level}% • ${skill.experience || 'Beginner'}</div>
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-sm btn-primary" onclick="dashboard.editSkill('${skill.id}')">
@@ -395,7 +404,15 @@ class CVDashboard {
                     </button>
                 </div>
             </div>
-            <div class="item-content">${skill.description}</div>
+            <div class="item-content">
+                <p>${skill.description || 'No description'}</p>
+                <div class="skill-features-preview">
+                    <strong>Features:</strong> ${featuresPreview}
+                </div>
+                <div class="skill-projects-preview">
+                    <strong>Projects:</strong> ${projectsPreview}
+                </div>
+            </div>
         `;
         return card;
     }
@@ -447,18 +464,21 @@ class CVDashboard {
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="skill-level">Level</label>
-                        <select id="skill-level" required>
-                            <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
-                            <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
-                            <option value="Advanced" ${skill.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
-                            <option value="Expert" ${skill.level === 'Expert' ? 'selected' : ''}>Expert</option>
-                        </select>
+                        <label for="skill-level">Level (1-100)</label>
+                        <input type="number" id="skill-level" value="${skill.level || 80}" min="1" max="100" required>
                     </div>
                     <div class="form-group">
                         <label for="skill-experience">Experience</label>
                         <input type="text" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="skill-features">Key Features & Capabilities (one per line)</label>
+                    <textarea id="skill-features" rows="4" placeholder="Enter features, one per line...">${skill.features ? skill.features.join('\n') : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="skill-projects">Projects & Experience (one per line)</label>
+                    <textarea id="skill-projects" rows="4" placeholder="Enter projects, one per line...">${skill.projects ? skill.projects.join('\n') : ''}</textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Skill</button>
@@ -470,13 +490,23 @@ class CVDashboard {
 
     async saveSkill(formData) {
         const skillId = formData.get('skill-id') || this.generateId();
+        
+        // Convert features and projects text to arrays
+        const featuresText = formData.get('skill-features') || '';
+        const projectsText = formData.get('skill-projects') || '';
+        
+        const features = featuresText ? featuresText.split('\n').map(f => f.trim()).filter(f => f) : [];
+        const projects = projectsText ? projectsText.split('\n').map(p => p.trim()).filter(p => p) : [];
+        
         const skillData = {
             id: skillId,
             name: formData.get('skill-name'),
             icon: formData.get('skill-icon'),
             description: formData.get('skill-description'),
-            level: formData.get('skill-level'),
-            experience: formData.get('skill-experience')
+            level: parseInt(formData.get('skill-level')) || 80,
+            experience: formData.get('skill-experience'),
+            features: features,
+            projects: projects
         };
 
         const existingIndex = this.data.skills.findIndex(s => s.id === skillId);

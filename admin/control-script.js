@@ -239,18 +239,30 @@ class ContentController {
         const level = parseInt(document.getElementById('skillLevel').value);
         const icon = document.getElementById('skillIcon').value.trim();
         const description = document.getElementById('skillDescription').value.trim();
+        const experience = document.getElementById('skillExperience').value.trim();
+        const featuresText = document.getElementById('skillFeatures').value.trim();
+        const projectsText = document.getElementById('skillProjects').value.trim();
         
         if (!name) {
             alert('Please fill in the skill name');
             return;
         }
         
+        // Convert features text to array
+        const features = featuresText ? featuresText.split('\n').map(f => f.trim()).filter(f => f) : [];
+        
+        // Convert projects text to array
+        const projects = projectsText ? projectsText.split('\n').map(p => p.trim()).filter(p => p) : [];
+        
         const skill = {
             id: Date.now(),
             name,
             level,
             icon,
-            description
+            description,
+            experience: experience || 'Beginner',
+            features,
+            projects
         };
         
         this.data.skills.push(skill);
@@ -272,8 +284,18 @@ class ContentController {
                     <div class="skill-level-bar">
                         <div class="skill-level-fill" style="width: ${skill.level}%"></div>
                     </div>
-                    <span class="skill-level-text">${skill.level}%</span>
+                    <span class="skill-level-text">${skill.level}% • ${skill.experience || 'Beginner'}</span>
                     ${skill.description ? `<p>${skill.description}</p>` : ''}
+                    ${skill.features && skill.features.length > 0 ? `
+                        <div class="skill-features-preview">
+                            <strong>Features:</strong> ${skill.features.slice(0, 2).join(', ')}${skill.features.length > 2 ? '...' : ''}
+                        </div>
+                    ` : ''}
+                    ${skill.projects && skill.projects.length > 0 ? `
+                        <div class="skill-projects-preview">
+                            <strong>Projects:</strong> ${skill.projects.slice(0, 2).join(', ')}${skill.projects.length > 2 ? '...' : ''}
+                        </div>
+                    ` : ''}
                 </div>
                 <button class="btn btn-danger" onclick="controller.removeSkill(${skill.id})">
                     <i class="fas fa-trash"></i>
@@ -287,6 +309,9 @@ class ContentController {
         document.getElementById('skillLevel').value = '80';
         document.getElementById('skillIcon').value = '';
         document.getElementById('skillDescription').value = '';
+        document.getElementById('skillExperience').value = '';
+        document.getElementById('skillFeatures').value = '';
+        document.getElementById('skillProjects').value = '';
     }
 
     // Jobs Methods
