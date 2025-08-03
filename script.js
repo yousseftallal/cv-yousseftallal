@@ -90,34 +90,71 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     loadProfileImage();
     startProfileImageWatcher();
+    checkUrlForImageData();
 });
+
+// Check URL for image data (for sharing)
+function checkUrlForImageData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageData = urlParams.get('profileImage');
+    
+    if (imageData && window.imageStorage) {
+        // Decode the image data
+        try {
+            const decodedData = decodeURIComponent(imageData);
+            if (decodedData.startsWith('data:image/')) {
+                window.imageStorage.saveProfileImage(decodedData);
+                loadProfileImage();
+                
+                // Remove the parameter from URL
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('profileImage');
+                window.history.replaceState({}, '', newUrl);
+            }
+        } catch (error) {
+            console.error('Error processing URL image data:', error);
+        }
+    }
+}
 
 // Load profile image from localStorage
 function loadProfileImage() {
-    const savedData = localStorage.getItem('cvDashboardData');
-    if (savedData) {
-        try {
-            const data = JSON.parse(savedData);
-            if (data.profileImage) {
-                const profileImg = document.querySelector('.profile-img');
-                if (profileImg) {
-                    // Add cache busting parameter to prevent caching issues
-                    const cacheBuster = new Date().getTime();
-                    const imageUrl = data.profileImage.includes('data:') 
-                        ? data.profileImage 
-                        : `${data.profileImage}?t=${cacheBuster}`;
-                    
-                    // Force image reload to prevent caching
-                    profileImg.onload = null;
-                    profileImg.onerror = null;
-                    profileImg.src = '';
-                    setTimeout(() => {
-                        profileImg.src = imageUrl;
-                    }, 10);
-                }
+    let imageData = null;
+    
+    // Try the new image storage system first
+    if (window.imageStorage) {
+        imageData = window.imageStorage.loadProfileImage();
+    }
+    
+    // Fallback to old localStorage method
+    if (!imageData) {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                imageData = data.profileImage;
+            } catch (error) {
+                console.error('Error loading profile image from localStorage:', error);
             }
-        } catch (error) {
-            console.error('Error loading profile image:', error);
+        }
+    }
+    
+    if (imageData) {
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            // Add cache busting parameter to prevent caching issues
+            const cacheBuster = new Date().getTime();
+            const imageUrl = imageData.includes('data:') 
+                ? imageData 
+                : `${imageData}?t=${cacheBuster}`;
+            
+            // Force image reload to prevent caching
+            profileImg.onload = null;
+            profileImg.onerror = null;
+            profileImg.src = '';
+            setTimeout(() => {
+                profileImg.src = imageUrl;
+            }, 10);
         }
     }
 }

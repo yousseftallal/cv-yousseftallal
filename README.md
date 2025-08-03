@@ -2,42 +2,64 @@
 
 ## Profile Image Update Issue Fix
 
-This update resolves the issue where profile images changed in the admin dashboard weren't appearing on the published Netlify site due to caching problems.
+This update resolves the issue where profile images changed in the admin dashboard weren't appearing on the published Netlify site due to caching problems and cross-browser storage limitations.
 
 ### What was fixed:
 
-1. **Profile Image Storage**: Profile images are now properly saved to localStorage when set in the admin dashboard
-2. **Dynamic Loading**: The main site now loads profile images from localStorage instead of using a static placeholder
-3. **Cache Busting**: Added cache-busting mechanisms to prevent Netlify from serving cached images
-4. **Real-time Updates**: Added a watcher that checks for profile image updates every 2 seconds
-5. **Force Refresh**: Added keyboard shortcut (Ctrl+Shift+R) to force refresh the profile image
+1. **Profile Image Storage**: Profile images are now properly saved using a robust storage system
+2. **Cross-Browser Sharing**: Added URL-based sharing system for profile images
+3. **Admin Authentication**: Added login system for the admin dashboard
+4. **Dynamic Loading**: The main site now loads profile images from multiple storage sources
+5. **Cache Busting**: Added cache-busting mechanisms to prevent Netlify from serving cached images
+6. **Real-time Updates**: Added a watcher that checks for profile image updates every 2 seconds
+7. **Force Refresh**: Added keyboard shortcut (Ctrl+Shift+R) to force refresh the profile image
 
 ### How to use:
 
-1. **Upload Image**: Go to the admin dashboard and upload an image in the Images section
-2. **Set as Profile**: Click "Set as Profile" on the uploaded image
-3. **View Changes**: The profile image will update immediately in both admin and main site
-4. **Force Refresh**: If the image doesn't update on Netlify, press Ctrl+Shift+R to force refresh
+#### Admin Access:
+- **Username**: `admin`
+- **Password**: `admin123`
+- Go to `/admin/login.html` to access the dashboard
+
+#### Profile Image Management:
+1. **Login**: Access the admin dashboard with the credentials above
+2. **Upload Image**: Go to the Images section and upload an image
+3. **Set as Profile**: Click "Set as Profile" on the uploaded image
+4. **Share URL**: A modal will appear with a shareable URL
+5. **Copy URL**: Copy the URL and share it with others or use it on different devices
+
+#### Cross-Browser/Device Sharing:
+1. After setting a profile image, a shareable URL is generated
+2. Copy this URL and open it in any browser or device
+3. The profile image will automatically load on that device
+4. The image is stored locally on that device for future visits
 
 ### Technical Details:
 
-- Profile images are stored as base64 data URLs in localStorage
-- Cache-busting parameters are added to image URLs to prevent caching
-- Netlify configuration (`netlify.toml`) prevents aggressive caching
-- Meta tags in HTML prevent browser caching
-- Version parameters added to CSS and JS files
+- **Storage System**: Uses localStorage, sessionStorage, and backup storage
+- **URL Sharing**: Images are encoded in URL parameters for cross-device sharing
+- **Authentication**: Simple login system with 24-hour session
+- **Cache Busting**: Multiple mechanisms to prevent caching issues
+- **Fallback System**: Multiple storage methods ensure image persistence
+
+### Files Added/Modified:
+
+- `admin/login.html`: Admin login page
+- `js/image-storage.js`: Robust image storage system
+- `admin/admin-script.js`: Updated with authentication and sharing
+- `script.js`: Updated with cross-browser image loading
+- `index.html`: Updated with new storage system
+- `netlify.toml`: Netlify configuration for caching
 
 ### Troubleshooting:
 
-If the profile image still doesn't update on Netlify:
-1. Clear browser cache (Ctrl+Shift+Delete)
-2. Hard refresh the page (Ctrl+Shift+R)
-3. Wait a few minutes for Netlify to rebuild
+If the profile image still doesn't update:
+1. Use the shareable URL generated in the admin dashboard
+2. Clear browser cache (Ctrl+Shift+Delete)
+3. Hard refresh the page (Ctrl+Shift+R)
 4. Check the browser console for any errors
+5. Try opening the shareable URL in a new browser/device
 
-### Files Modified:
+### Security Note:
 
-- `admin/admin-script.js`: Added profile image saving and management
-- `script.js`: Added profile image loading and cache busting
-- `index.html`: Added cache-busting meta tags and version parameters
-- `netlify.toml`: Added Netlify configuration for proper caching
+The current authentication is client-side only. For production use, consider implementing server-side authentication.

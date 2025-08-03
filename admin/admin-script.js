@@ -1,9 +1,34 @@
 // Admin Dashboard JavaScript
 class CVDashboard {
     constructor() {
+        // Check authentication
+        this.checkAuthentication();
+        
         this.currentSection = 'overview';
         this.data = this.loadData();
         this.init();
+    }
+
+    checkAuthentication() {
+        const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+        if (!isAuthenticated) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Check if login is still valid (24 hours)
+        const loginTime = localStorage.getItem('adminLoginTime');
+        if (loginTime) {
+            const currentTime = new Date().getTime();
+            const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
+            
+            if (hoursSinceLogin >= 24) {
+                localStorage.removeItem('adminAuthenticated');
+                localStorage.removeItem('adminLoginTime');
+                window.location.href = 'login.html';
+                return;
+            }
+        }
     }
 
     init() {
@@ -711,8 +736,15 @@ class CVDashboard {
     }
 
     setAsProfileImage(imageSrc) {
+        // Save to both localStorage and the new image storage system
         this.data.profileImage = imageSrc;
         this.saveData();
+        
+        // Use the new image storage system
+        if (window.imageStorage) {
+            window.imageStorage.saveProfileImage(imageSrc);
+        }
+        
         this.showToast('Profile image updated successfully!');
         
         // Update the profile image preview in admin
@@ -725,6 +757,32 @@ class CVDashboard {
         const firstImageItem = document.querySelector('.image-item img');
         if (firstImageItem) {
             firstImageItem.src = imageSrc;
+        }
+        
+        // Create shareable URL
+        this.createShareableUrl(imageSrc);
+    }
+
+    createShareableUrl(imageSrc) {
+        try {
+            // Create a shareable URL with the image data
+            const encodedImage = encodeURIComponent(imageSrc);
+            const shareableUrl = `${window.location.origin}/index.html?profileImage=${encodedImage}`;
+            
+            // Show the shareable URL in a modal
+            this.openModal('Share Profile Image', `
+                <div style="text-align: center;">
+                    <p>Share this URL to apply the profile image on any device:</p>
+                    <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <code style="word-break: break-all;">${shareableUrl}</code>
+                    </div>
+                    <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${shareableUrl}').then(() => dashboard.showToast('URL copied to clipboard!'))">
+                        <i class="fas fa-copy"></i> Copy URL
+                    </button>
+                </div>
+            `);
+        } catch (error) {
+            console.error('Error creating shareable URL:', error);
         }
     }
 
@@ -745,6 +803,9 @@ class CVDashboard {
 
         // Social links
         document.getElementById('addSocialLink')?.addEventListener('click', () => this.addSocialLink());
+        
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
     }
 
     // Utility Functions
@@ -819,6 +880,12 @@ class CVDashboard {
         `;
         
         container.insertBefore(newLinkItem, addButton);
+    }
+
+    logout() {
+        localStorage.removeItem('adminAuthenticated');
+        localStorage.removeItem('adminLoginTime');
+        window.location.href = 'login.html';
     }
 }
 
