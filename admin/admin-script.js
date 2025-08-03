@@ -175,6 +175,16 @@ class CVDashboard {
         this.loadExperienceList();
         this.loadEducationList();
         this.loadSettingsForm();
+        this.loadProfileImagePreview();
+    }
+
+    loadProfileImagePreview() {
+        if (this.data.profileImage) {
+            const profilePreview = document.querySelector('.image-preview .image-item img');
+            if (profilePreview) {
+                profilePreview.src = this.data.profileImage;
+            }
+        }
     }
 
     loadSectionData(section) {
@@ -692,12 +702,30 @@ class CVDashboard {
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
+                <button class="btn btn-sm btn-primary" onclick="dashboard.setAsProfileImage('${src}')">Set as Profile</button>
                 <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
             </div>
             <p>${name}</p>
         `;
         imagePreview.appendChild(imageItem);
+    }
+
+    setAsProfileImage(imageSrc) {
+        this.data.profileImage = imageSrc;
+        this.saveData();
+        this.showToast('Profile image updated successfully!');
+        
+        // Update the profile image preview in admin
+        const profilePreview = document.querySelector('.image-preview .image-item img');
+        if (profilePreview) {
+            profilePreview.src = imageSrc;
+        }
+        
+        // Also update the first image item if it exists
+        const firstImageItem = document.querySelector('.image-item img');
+        if (firstImageItem) {
+            firstImageItem.src = imageSrc;
+        }
     }
 
     // Event Bindings

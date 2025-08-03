@@ -88,6 +88,78 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
+    loadProfileImage();
+    startProfileImageWatcher();
+});
+
+// Load profile image from localStorage
+function loadProfileImage() {
+    const savedData = localStorage.getItem('cvDashboardData');
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            if (data.profileImage) {
+                const profileImg = document.querySelector('.profile-img');
+                if (profileImg) {
+                    // Add cache busting parameter to prevent caching issues
+                    const cacheBuster = new Date().getTime();
+                    const imageUrl = data.profileImage.includes('data:') 
+                        ? data.profileImage 
+                        : `${data.profileImage}?t=${cacheBuster}`;
+                    
+                    // Force image reload to prevent caching
+                    profileImg.onload = null;
+                    profileImg.onerror = null;
+                    profileImg.src = '';
+                    setTimeout(() => {
+                        profileImg.src = imageUrl;
+                    }, 10);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading profile image:', error);
+        }
+    }
+}
+
+// Check for profile image updates periodically
+function startProfileImageWatcher() {
+    let lastProfileImage = null;
+    
+    setInterval(() => {
+        const savedData = localStorage.getItem('cvDashboardData');
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                if (data.profileImage && data.profileImage !== lastProfileImage) {
+                    lastProfileImage = data.profileImage;
+                    loadProfileImage();
+                }
+            } catch (error) {
+                console.error('Error checking profile image updates:', error);
+            }
+        }
+    }, 2000); // Check every 2 seconds
+}
+
+// Force refresh profile image (useful for Netlify caching issues)
+function forceRefreshProfileImage() {
+    const profileImg = document.querySelector('.profile-img');
+    if (profileImg) {
+        const currentSrc = profileImg.src;
+        profileImg.src = '';
+        setTimeout(() => {
+            loadProfileImage();
+        }, 100);
+    }
+}
+
+// Add keyboard shortcut to force refresh (Ctrl+Shift+R)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+        forceRefreshProfileImage();
+        console.log('Profile image force refreshed');
+    }
 });
 
 // Initialize skills grid
