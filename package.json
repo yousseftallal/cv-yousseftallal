@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "netlify dev",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod --dir=.",
+    "deploy:preview": "netlify deploy --dir=.",
+    "setup": "npm install && netlify login"
   },
   "dependencies": {
     "pg": "^8.11.3"

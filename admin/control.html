@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Control - CV Dashboard</title>
+    <link rel="stylesheet" href="admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="control-page">
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1><i class="fas fa-cogs"></i> Content Control Panel</h1>
+            <nav class="admin-nav">
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="control.html" class="nav-link active"><i class="fas fa-edit"></i> Content Control</a>
+                <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </header>
+
+        <main class="admin-main">
+            <div class="control-grid">
+                <!-- Key Features Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-star"></i> Key Features & Capabilities</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Feature Title</label>
+                            <input type="text" id="featureTitle" placeholder="e.g., Mobile Development">
+                        </div>
+                        <div class="input-group">
+                            <label>Feature Description</label>
+                            <textarea id="featureDescription" placeholder="Describe the feature..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Icon Class</label>
+                            <input type="text" id="featureIcon" placeholder="e.g., fas fa-mobile-alt">
+                        </div>
+                        <button class="btn btn-primary" onclick="addFeature()">Add Feature</button>
+                        <div id="featuresList" class="items-list"></div>
+                    </div>
+                </div>
+
+                <!-- Projects Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-project-diagram"></i> Projects & Experience</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Project Title</label>
+                            <input type="text" id="projectTitle" placeholder="e.g., E-commerce App">
+                        </div>
+                        <div class="input-group">
+                            <label>Project Description</label>
+                            <textarea id="projectDescription" placeholder="Describe the project..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Technologies (comma separated)</label>
+                            <input type="text" id="projectTechnologies" placeholder="e.g., React, Node.js, MongoDB">
+                        </div>
+                        <div class="input-group">
+                            <label>Project URL</label>
+                            <input type="url" id="projectUrl" placeholder="https://github.com/...">
+                        </div>
+                        <button class="btn btn-primary" onclick="addProject()">Add Project</button>
+                        <div id="projectsList" class="items-list"></div>
+                    </div>
+                </div>
+
+                <!-- Contact Links Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-link"></i> Contact Links</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Platform</label>
+                            <select id="contactPlatform">
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="github">GitHub</option>
+                                <option value="twitter">Twitter</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="website">Website</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Phone</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>URL/Link</label>
+                            <input type="url" id="contactUrl" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label>Icon Class</label>
+                            <input type="text" id="contactIcon" placeholder="e.g., fab fa-linkedin">
+                        </div>
+                        <button class="btn btn-primary" onclick="addContactLink()">Add Link</button>
+                        <div id="contactLinksList" class="items-list"></div>
+                    </div>
+                </div>
+
+                <!-- Skills Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-code"></i> Skills Management</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Skill Name</label>
+                            <input type="text" id="skillName" placeholder="e.g., JavaScript">
+                        </div>
+                        <div class="input-group">
+                            <label>Skill Level (1-100)</label>
+                            <input type="number" id="skillLevel" min="1" max="100" value="80">
+                        </div>
+                        <div class="input-group">
+                            <label>Icon URL</label>
+                            <input type="url" id="skillIcon" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label>Description</label>
+                            <textarea id="skillDescription" placeholder="Describe the skill..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Experience (e.g., 2+ years)</label>
+                            <input type="text" id="skillExperience" placeholder="e.g., 2+ years">
+                        </div>
+                        <div class="input-group">
+                            <label>Key Features & Capabilities (one per line)</label>
+                            <textarea id="skillFeatures" placeholder="Enter features, one per line..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Projects & Experience (one per line)</label>
+                            <textarea id="skillProjects" placeholder="Enter projects, one per line..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="addSkill()">Add Skill</button>
+                        <div id="skillsList" class="items-list"></div>
+                    </div>
+                </div>
+
+                <!-- Jobs Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-briefcase"></i> Jobs & Experience</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Job Title</label>
+                            <input type="text" id="jobTitle" placeholder="e.g., Senior Developer">
+                        </div>
+                        <div class="input-group">
+                            <label>Company</label>
+                            <input type="text" id="jobCompany" placeholder="e.g., Tech Company">
+                        </div>
+                        <div class="input-group">
+                            <label>Period</label>
+                            <input type="text" id="jobPeriod" placeholder="e.g., 2022 - Present">
+                        </div>
+                        <div class="input-group">
+                            <label>Description</label>
+                            <textarea id="jobDescription" placeholder="Describe the job..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Technologies (comma separated)</label>
+                            <input type="text" id="jobTechnologies" placeholder="e.g., React, Node.js">
+                        </div>
+                        <button class="btn btn-primary" onclick="addJob()">Add Job</button>
+                        <div id="jobsList" class="items-list"></div>
+                    </div>
+                </div>
+
+                <!-- Education Control -->
+                <div class="control-section">
+                    <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+                    <div class="control-content">
+                        <div class="input-group">
+                            <label>Degree</label>
+                            <input type="text" id="educationDegree" placeholder="e.g., Bachelor of Computer Science">
+                        </div>
+                        <div class="input-group">
+                            <label>Institution</label>
+                            <input type="text" id="educationInstitution" placeholder="e.g., University Name">
+                        </div>
+                        <div class="input-group">
+                            <label>Period</label>
+                            <input type="text" id="educationPeriod" placeholder="e.g., 2018 - 2022">
+                        </div>
+                        <div class="input-group">
+                            <label>Description</label>
+                            <textarea id="educationDescription" placeholder="Describe the education..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="addEducation()">Add Education</button>
+                        <div id="educationList" class="items-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save All Button -->
+            <div class="save-section">
+                <button class="btn btn-success" onclick="saveAllChanges()">
+                    <i class="fas fa-save"></i> Save All Changes
+                </button>
+                <button class="btn btn-secondary" onclick="refreshContent()">
+                    <i class="fas fa-sync-alt"></i> Refresh Content
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="control-script.js"></script>
+</body>
+</html>
