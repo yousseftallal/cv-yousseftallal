@@ -32,10 +32,39 @@ class ContentController {
                         jobs: result.data.jobs || [],
                         education: result.data.education || []
                     };
+                    console.log('Data loaded successfully:', this.data);
+                } else {
+                    console.log('No data found, using defaults');
+                    this.data = {
+                        keyFeatures: [],
+                        projects: [],
+                        contactLinks: [],
+                        skills: [],
+                        jobs: [],
+                        education: []
+                    };
                 }
+            } else {
+                console.log('Failed to load data, using defaults');
+                this.data = {
+                    keyFeatures: [],
+                    projects: [],
+                    contactLinks: [],
+                    skills: [],
+                    jobs: [],
+                    education: []
+                };
             }
         } catch (error) {
             console.error('Error loading data:', error);
+            this.data = {
+                keyFeatures: [],
+                projects: [],
+                contactLinks: [],
+                skills: [],
+                jobs: [],
+                education: []
+            };
         }
     }
 
@@ -234,7 +263,7 @@ class ContentController {
     }
 
     // Skills Methods
-    addSkill() {
+    async addSkill() {
         const name = document.getElementById('skillName').value.trim();
         const level = parseInt(document.getElementById('skillLevel').value);
         const icon = document.getElementById('skillIcon').value.trim();
@@ -264,26 +293,109 @@ class ContentController {
             projects: Array.isArray(projects) ? projects : []
         };
         
+        // Validate skill data
+        if (!this.validateSkillData(skill)) {
+            this.showErrorMessage('Invalid skill data. Please check your input.');
+            return;
+        }
+        
+        // Add to local data
         this.data.skills.push(skill);
+        console.log('Skill added to local data:', skill);
+        console.log('Current skills array:', this.data.skills);
         this.renderSkillsList();
         this.clearSkillForm();
+        
+        // Save to database immediately
+        try {
+            console.log('Saving to database with data:', this.data);
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            console.log('Database response status:', response.status);
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Database response:', result);
+                if (result.success) {
+                    console.log('Skill saved to database successfully!');
+                    // Show success message
+                    this.showSuccessMessage('Skill added and saved successfully!');
+                } else {
+                    console.error('Error saving skill to database:', result.error);
+                    this.showErrorMessage('Skill added locally but failed to save to database');
+                }
+            } else {
+                console.error('Error saving skill to database');
+                this.showErrorMessage('Skill added locally but failed to save to database');
+            }
+        } catch (error) {
+            console.error('Error saving skill to database:', error);
+            this.showErrorMessage('Skill added locally but failed to save to database');
+        }
     }
 
-    removeSkill(id) {
+    async removeSkill(id) {
         this.data.skills = this.data.skills.filter(s => s.id !== id);
         this.renderSkillsList();
+        
+        // Save to database immediately
+        try {
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Skill removed from database successfully!');
+                    this.showSuccessMessage('Skill removed successfully!');
+                } else {
+                    console.error('Error removing skill from database:', result.error);
+                    this.showErrorMessage('Skill removed locally but failed to update database');
+                }
+            } else {
+                console.error('Error removing skill from database');
+                this.showErrorMessage('Skill removed locally but failed to update database');
+            }
+        } catch (error) {
+            console.error('Error removing skill from database:', error);
+            this.showErrorMessage('Skill removed locally but failed to update database');
+        }
     }
 
     renderSkillsList() {
         const list = document.getElementById('skillsList');
+        console.log('Rendering skills list with data:', this.data.skills);
+        
+        if (!this.data.skills || this.data.skills.length === 0) {
+            list.innerHTML = '<div class="no-data">No skills added yet. Add your first skill above!</div>';
+            return;
+        }
+        
         list.innerHTML = this.data.skills.map(skill => `
             <div class="item-card">
                 <div class="item-content">
-                    <h4>${skill.name}</h4>
+                    <h4>${skill.name || 'Unnamed Skill'}</h4>
                     <div class="skill-level-bar">
-                        <div class="skill-level-fill" style="width: ${skill.level}%"></div>
+                        <div class="skill-level-fill" style="width: ${skill.level || 80}%"></div>
                     </div>
-                    <span class="skill-level-text">${skill.level}% • ${skill.experience || 'Beginner'}</span>
+                    <span class="skill-level-text">${skill.level || 80}% • ${skill.experience || 'Beginner'}</span>
                     ${skill.description ? `<p>${skill.description}</p>` : ''}
                     ${skill.features && skill.features.length > 0 ? `
                         <div class="skill-features-preview">
@@ -296,7 +408,7 @@ class ContentController {
                         </div>
                     ` : ''}
                 </div>
-                <button class="btn btn-danger" onclick="controller.removeSkill(${skill.id})">
+                <button class="btn btn-danger" onclick="removeSkill(${skill.id})">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -469,17 +581,100 @@ class ContentController {
         this.renderJobsList();
         this.renderEducationList();
     }
+
+    // Message display methods
+    showSuccessMessage(message) {
+        // Create a simple success message
+        const messageDiv = document.createElement('div');
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-weight: 500;
+        `;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 3000);
+    }
+
+    showErrorMessage(message) {
+        // Create a simple error message
+        const messageDiv = document.createElement('div');
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-weight: 500;
+        `;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 5000);
+    }
+
+    // Data validation method
+    validateSkillData(skill) {
+        console.log('Validating skill data:', skill);
+        
+        // Ensure all required fields are present
+        if (!skill.name || skill.name.trim() === '') {
+            console.error('Skill name is required');
+            return false;
+        }
+        
+        // Ensure level is a valid number
+        if (isNaN(skill.level) || skill.level < 1 || skill.level > 100) {
+            console.error('Skill level must be between 1 and 100');
+            return false;
+        }
+        
+        // Ensure arrays are actually arrays
+        if (!Array.isArray(skill.features)) {
+            skill.features = [];
+        }
+        
+        if (!Array.isArray(skill.projects)) {
+            skill.projects = [];
+        }
+        
+        console.log('Skill data validation passed');
+        return true;
+    }
 }
 
 // Global functions for HTML onclick handlers
 function addFeature() { controller.addFeature(); }
 function addProject() { controller.addProject(); }
 function addContactLink() { controller.addContactLink(); }
-function addSkill() { controller.addSkill(); }
+async function addSkill() { await controller.addSkill(); }
 function addJob() { controller.addJob(); }
 function addEducation() { controller.addEducation(); }
 function saveAllChanges() { controller.saveAllChanges(); }
 function refreshContent() { controller.refreshContent(); }
+async function removeSkill(id) { await controller.removeSkill(id); }
 
 // Initialize controller
 let controller;
