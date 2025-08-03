@@ -322,6 +322,27 @@ async function loadCVDataFromDatabase() {
                     console.log('Education updated');
                 }
                 
+                // Update contact links
+                if (result.data.contactLinks) {
+                    updateContactLinksDisplay(result.data.contactLinks);
+                    console.log('Contact links updated');
+                }
+                
+                // Update jobs
+                if (result.data.jobs) {
+                    updateJobsDisplay(result.data.jobs);
+                    console.log('Jobs updated');
+                }
+                
+                // Update key features and projects (if available)
+                if (result.data.keyFeatures) {
+                    console.log('Key features loaded:', result.data.keyFeatures);
+                }
+                
+                if (result.data.projects) {
+                    console.log('Projects loaded:', result.data.projects);
+                }
+                
                 // Initialize skills with new data
                 initializeSkills();
                 
@@ -929,3 +950,189 @@ function debounce(func, wait) {
 // Apply debouncing to scroll events
 window.addEventListener('scroll', debounce(updateActiveNavigation, 10));
 window.addEventListener('scroll', debounce(revealOnScroll, 10));
+
+// ===== ADMIN CONTROL FUNCTIONS =====
+
+// Load admin control data
+async function loadAdminControlData() {
+    try {
+        const response = await fetch('/.netlify/functions/admin-control');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                return result.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading admin control data:', error);
+    }
+    return null;
+}
+
+// Update specific section
+async function updateSection(section, data) {
+    try {
+        const response = await fetch('/.netlify/functions/admin-control', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                section: section,
+                data: data
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                console.log(`${section} updated successfully`);
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error(`Error updating ${section}:`, error);
+    }
+    return false;
+}
+
+// Update Key Features & Capabilities
+async function updateKeyFeatures(features) {
+    return await updateSection('keyFeatures', features);
+}
+
+// Update Projects & Experience
+async function updateProjects(projects) {
+    return await updateSection('projects', projects);
+}
+
+// Update Contact Links
+async function updateContactLinks(links) {
+    return await updateSection('contactLinks', links);
+}
+
+// Update Skills
+async function updateSkills(skills) {
+    return await updateSection('skills', skills);
+}
+
+// Update Jobs
+async function updateJobs(jobs) {
+    return await updateSection('jobs', jobs);
+}
+
+// Update Education
+async function updateEducation(education) {
+    return await updateSection('education', education);
+}
+
+// Refresh content from database
+async function refreshContent() {
+    const data = await loadAdminControlData();
+    if (data) {
+        // Update skills
+        if (data.skills) {
+            window.skillsData = data.skills;
+            initializeSkills();
+        }
+        
+        // Update contact links
+        if (data.contactLinks) {
+            updateContactLinksDisplay(data.contactLinks);
+        }
+        
+        // Update jobs and education visibility
+        if (data.jobs) {
+            updateJobsDisplay(data.jobs);
+        }
+        
+        if (data.education) {
+            updateEducationDisplay(data.education);
+        }
+        
+        console.log('Content refreshed successfully');
+    }
+}
+
+// Update contact links display
+function updateContactLinksDisplay(links) {
+    const socialLinks = document.querySelector('.social-links');
+    if (socialLinks && links) {
+        socialLinks.innerHTML = '';
+        links.forEach(link => {
+            const linkElement = document.createElement('a');
+            linkElement.href = link.url;
+            linkElement.className = 'social-link';
+            linkElement.innerHTML = `<i class="${link.icon}"></i>`;
+            linkElement.target = '_blank';
+            socialLinks.appendChild(linkElement);
+        });
+    }
+}
+
+// Update jobs display
+function updateJobsDisplay(jobs) {
+    const experienceSection = document.querySelector('#experience .timeline');
+    if (experienceSection && jobs) {
+        experienceSection.innerHTML = '';
+        jobs.forEach(job => {
+            const jobElement = document.createElement('div');
+            jobElement.className = 'timeline-item';
+            jobElement.innerHTML = `
+                <div class="timeline-content">
+                    <h3>${job.title}</h3>
+                    <span class="timeline-date">${job.period}</span>
+                    <p>${job.description}</p>
+                    <div class="tech-stack">
+                        ${job.technologies ? job.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('') : ''}
+                    </div>
+                </div>
+            `;
+            experienceSection.appendChild(jobElement);
+        });
+    }
+}
+
+// Update education display
+function updateEducationDisplay(education) {
+    const educationGrid = document.querySelector('#education .education-grid');
+    if (educationGrid && education) {
+        educationGrid.innerHTML = '';
+        education.forEach(edu => {
+            const eduElement = document.createElement('div');
+            eduElement.className = 'education-item';
+            eduElement.innerHTML = `
+                <div class="education-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="education-content">
+                    <h3>${edu.degree}</h3>
+                    <p class="institution">${edu.institution}</p>
+                    <span class="duration">${edu.period}</span>
+                    <p class="description">${edu.description}</p>
+                </div>
+            `;
+            educationGrid.appendChild(eduElement);
+        });
+    }
+}
+
+// Initialize admin control
+function initializeAdminControl() {
+    // Add refresh button for admin
+    const adminRefreshBtn = document.createElement('button');
+    adminRefreshBtn.id = 'adminRefreshBtn';
+    adminRefreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Content';
+    adminRefreshBtn.className = 'admin-refresh-btn';
+    adminRefreshBtn.onclick = refreshContent;
+    
+    // Add to page if admin is logged in
+    if (localStorage.getItem('adminLoggedIn')) {
+        document.body.appendChild(adminRefreshBtn);
+    }
+}
+
+// Call admin control initialization
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAdminControl();
+});
