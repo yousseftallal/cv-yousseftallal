@@ -1,6 +1,7 @@
 [build]
   publish = "."
   functions = "api"
+  command = "npm run build"
 
 [[headers]]
   for = "/*"
@@ -27,3 +28,16 @@
 [build.environment]
   NODE_VERSION = "18"
   DATABASE_URL = "postgresql://neondb_owner:npg_wBxuRO8jN7KX@ep-wild-shadow-aej6461z-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# Auto-deploy settings
+[context.production]
+  command = "npm run build"
+
+[context.deploy-preview]
+  command = "npm run build"
+
+# Redirects for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
