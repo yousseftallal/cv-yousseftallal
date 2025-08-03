@@ -262,20 +262,33 @@ function loadProfileImage() {
     const profileImg = document.querySelector('.profile-img');
     if (profileImg) {
         if (imageData) {
-            // Add cache busting parameter to prevent caching issues
-            const cacheBuster = new Date().getTime();
-            const imageUrl = imageData.includes('data:') 
-                ? imageData 
-                : `${imageData}?t=${cacheBuster}`;
-            
-            // Force image reload to prevent caching
-            profileImg.onload = null;
-            profileImg.onerror = null;
-            profileImg.src = '';
-            setTimeout(() => {
+            // Check if it's a URL or base64 data
+            if (imageData.startsWith('http') || imageData.startsWith('https')) {
+                // It's a URL, add cache busting
+                const cacheBuster = new Date().getTime();
+                const imageUrl = `${imageData}${imageData.includes('?') ? '&' : '?'}t=${cacheBuster}`;
+                
+                profileImg.onload = () => {
+                    console.log('Profile image loaded successfully from URL:', imageData);
+                };
+                profileImg.onerror = () => {
+                    console.error('Failed to load image from URL:', imageData);
+                    // Fallback to default
+                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                };
                 profileImg.src = imageUrl;
-                console.log('Profile image loaded successfully:', imageUrl.substring(0, 50) + '...');
-            }, 10);
+            } else {
+                // It's base64 data
+                profileImg.onload = () => {
+                    console.log('Profile image loaded successfully from base64 data');
+                };
+                profileImg.onerror = () => {
+                    console.error('Failed to load base64 image');
+                    // Fallback to default
+                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                };
+                profileImg.src = imageData;
+            }
         } else {
             // If no custom image, show a default placeholder
             profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
@@ -374,12 +387,30 @@ function checkImageStatus() {
         
         let message = '';
         if (isDefaultImage) {
-            message = 'Current Status: Using default placeholder image\n\nTo set a custom image:\n1. Go to /admin/login.html\n2. Login with admin/admin123\n3. Upload and set a profile image';
+            message = 'Current Status: Using default placeholder image\n\nTo set a custom image:\n1. Go to /admin/login.html\n2. Login with admin/admin123\n3. Use "Add Image URL" or upload a file';
         } else {
             message = `Current Status: Using custom profile image\n\nImage source: ${currentSrc.substring(0, 100)}...\n\nTo test sharing:\n1. Copy the current URL\n2. Open in incognito mode\n3. The image should load automatically`;
         }
         
         alert(message);
+    }
+}
+
+// Quick test with image URL
+function quickTestImage() {
+    const testUrl = prompt('Enter an image URL to test (e.g., https://example.com/image.jpg):');
+    if (testUrl) {
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg) {
+            profileImg.onload = () => {
+                alert('Image loaded successfully! Click "Set as Profile" in admin to save it permanently.');
+            };
+            profileImg.onerror = () => {
+                alert('Failed to load image. Please check the URL.');
+                profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+            };
+            profileImg.src = testUrl;
+        }
     }
 }
 

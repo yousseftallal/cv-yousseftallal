@@ -195,6 +195,14 @@
             <div class="form-container">
                 <h3>Image Management</h3>
                 <div class="image-upload-section">
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <button class="btn btn-primary" onclick="dashboard.addUrlImage()">
+                            <i class="fas fa-link"></i> Add Image URL
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('imageUpload').click()">
+                            <i class="fas fa-upload"></i> Upload File
+                        </button>
+                    </div>
                     <div class="upload-area" id="uploadArea">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Drag & drop images here or click to browse</p>

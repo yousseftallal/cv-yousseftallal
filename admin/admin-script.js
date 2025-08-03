@@ -735,6 +735,72 @@ class CVDashboard {
         imagePreview.appendChild(imageItem);
     }
 
+    addUrlImage() {
+        this.openModal('Add Image URL', `
+            <div style="text-align: center;">
+                <h4>Enter Image URL</h4>
+                <p>Paste a direct link to an image (e.g., from Imgur, Google Drive, etc.)</p>
+                <div style="margin: 1rem 0;">
+                    <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" 
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+                <div style="margin: 1rem 0;">
+                    <button class="btn btn-primary" onclick="dashboard.addImageFromUrl()">
+                        <i class="fas fa-plus"></i> Add Image
+                    </button>
+                    <button class="btn btn-secondary" onclick="dashboard.closeModal()">
+                        Cancel
+                    </button>
+                </div>
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <p><strong>Tips:</strong></p>
+                    <ul style="text-align: left;">
+                        <li>Use direct image links (ending with .jpg, .png, .gif, etc.)</li>
+                        <li>For Imgur: Right-click image → Copy image address</li>
+                        <li>For Google Drive: Make sure the link is public</li>
+                        <li>For other services: Ensure the image is publicly accessible</li>
+                    </ul>
+                </div>
+            </div>
+        `);
+    }
+
+    addImageFromUrl() {
+        const urlInput = document.getElementById('imageUrlInput');
+        const imageUrl = urlInput.value.trim();
+        
+        if (!imageUrl) {
+            this.showToast('Please enter a valid URL', 'error');
+            return;
+        }
+        
+        if (!this.isValidImageUrl(imageUrl)) {
+            this.showToast('Please enter a valid image URL', 'error');
+            return;
+        }
+        
+        // Test if the image loads
+        const testImg = new Image();
+        testImg.onload = () => {
+            this.addImageToPreview(imageUrl, 'Image from URL');
+            this.closeModal();
+            this.showToast('Image added successfully!');
+        };
+        testImg.onerror = () => {
+            this.showToast('Could not load image. Please check the URL.', 'error');
+        };
+        testImg.src = imageUrl;
+    }
+
+    isValidImageUrl(url) {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+        const lowerUrl = url.toLowerCase();
+        return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
+               lowerUrl.includes('imgur.com') || 
+               lowerUrl.includes('drive.google.com') ||
+               lowerUrl.includes('data:image/');
+    }
+
     setAsProfileImage(imageSrc) {
         // Save to both localStorage and the new image storage system
         this.data.profileImage = imageSrc;
