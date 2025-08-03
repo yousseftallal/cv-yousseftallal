@@ -741,6 +741,7 @@ function initializeScrollEffects() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
+                console.log('Added animate-in class to:', entry.target.className);
             }
         });
     }, observerOptions);
@@ -748,6 +749,13 @@ function initializeScrollEffects() {
     // Observe elements for animation
     document.querySelectorAll('.skill-card, .timeline-item, .stat, .education-item, .contact-item').forEach(el => {
         observer.observe(el);
+        // Fallback: ensure elements are visible after a short delay
+        setTimeout(() => {
+            if (!el.classList.contains('animate-in')) {
+                el.classList.add('animate-in');
+                console.log('Fallback: Added animate-in class to:', el.className);
+            }
+        }, 1000);
     });
 }
 
@@ -792,15 +800,16 @@ function initializeAnimations() {
         }
         
         .skill-card, .timeline-item, .stat, .education-item, .contact-item {
-            opacity: 0;
-            transform: translateY(30px);
+            opacity: 1;
+            transform: translateY(0);
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
         
         .skill-card.animate-in, .timeline-item.animate-in, .stat.animate-in, 
         .education-item.animate-in, .contact-item.animate-in {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1.02);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
         
         .nav-menu a.active {
