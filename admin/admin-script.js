@@ -696,10 +696,8 @@ class CVDashboard {
             return;
         }
         
-        if (!this.isValidImageUrl(imageUrl)) {
-            this.showToast('Please enter a valid image URL', 'error');
-            return;
-        }
+        // Always try to load the image, regardless of URL validation
+        this.showToast('Testing image...', 'info');
         
         // Test if the image loads
         const testImg = new Image();
@@ -708,7 +706,7 @@ class CVDashboard {
             this.showToast('Profile image updated successfully! The main site will open in a new tab.');
         };
         testImg.onerror = () => {
-            this.showToast('Could not load image. Please check the URL.', 'error');
+            this.showToast('Could not load image. Please check the URL and make sure it\'s a direct link to an image.', 'error');
         };
         testImg.src = imageUrl;
     }
@@ -718,7 +716,7 @@ class CVDashboard {
         if (urlInput) {
             urlInput.addEventListener('input', (e) => {
                 const imageUrl = e.target.value.trim();
-                if (imageUrl && this.isValidImageUrl(imageUrl)) {
+                if (imageUrl) {
                     const preview = document.getElementById('profilePreview');
                     if (preview) {
                         preview.onload = () => {
@@ -726,6 +724,7 @@ class CVDashboard {
                         };
                         preview.onerror = () => {
                             // Image failed to load, keep default
+                            preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
                         };
                         preview.src = imageUrl;
                     }
@@ -775,10 +774,41 @@ class CVDashboard {
     isValidImageUrl(url) {
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
         const lowerUrl = url.toLowerCase();
-        return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
-               lowerUrl.includes('imgur.com') || 
-               lowerUrl.includes('drive.google.com') ||
-               lowerUrl.includes('data:image/');
+        
+        // Check for direct image extensions
+        if (imageExtensions.some(ext => lowerUrl.includes(ext))) {
+            return true;
+        }
+        
+        // Check for known image hosting services
+        const imageServices = [
+            'imgur.com',
+            'drive.google.com',
+            'suar.me',
+            'postimages.org',
+            'imgbb.com',
+            'tinypic.com',
+            'photobucket.com',
+            'flickr.com',
+            'imageshack.us',
+            'picasaweb.google.com',
+            'dropbox.com',
+            'box.com',
+            'onedrive.live.com',
+            'icloud.com'
+        ];
+        
+        if (imageServices.some(service => lowerUrl.includes(service))) {
+            return true;
+        }
+        
+        // Check for data URLs
+        if (lowerUrl.includes('data:image/')) {
+            return true;
+        }
+        
+        // If none of the above, still allow it but show a warning
+        return true;
     }
 
     setAsProfileImage(imageSrc) {
@@ -835,8 +865,14 @@ class CVDashboard {
     showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
+        
+        let icon = 'check';
+        if (type === 'error') icon = 'times';
+        else if (type === 'info') icon = 'info-circle';
+        else if (type === 'warning') icon = 'exclamation';
+        
         toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'exclamation'}"></i>
+            <i class="fas fa-${icon}"></i>
             <span>${message}</span>
         `;
 
