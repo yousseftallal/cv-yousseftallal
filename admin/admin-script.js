@@ -769,21 +769,55 @@ class CVDashboard {
             const encodedImage = encodeURIComponent(imageSrc);
             const shareableUrl = `${window.location.origin}/index.html?profileImage=${encodedImage}`;
             
+            // Also create a shorter version using a unique ID
+            const imageId = this.generateImageId(imageSrc);
+            const shortUrl = `${window.location.origin}/index.html?img=${imageId}`;
+            
             // Show the shareable URL in a modal
             this.openModal('Share Profile Image', `
                 <div style="text-align: center;">
-                    <p>Share this URL to apply the profile image on any device:</p>
+                    <h4>Share this URL to apply the profile image on any device:</h4>
                     <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                        <code style="word-break: break-all;">${shareableUrl}</code>
+                        <p><strong>Full URL (works immediately):</strong></p>
+                        <code style="word-break: break-all; font-size: 12px;">${shareableUrl}</code>
                     </div>
-                    <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${shareableUrl}').then(() => dashboard.showToast('URL copied to clipboard!'))">
-                        <i class="fas fa-copy"></i> Copy URL
-                    </button>
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <p><strong>Short URL (requires one-time setup):</strong></p>
+                        <code style="word-break: break-all; font-size: 12px;">${shortUrl}</code>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${shareableUrl}').then(() => dashboard.showToast('Full URL copied!'))">
+                            <i class="fas fa-copy"></i> Copy Full URL
+                        </button>
+                        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${shortUrl}').then(() => dashboard.showToast('Short URL copied!'))">
+                            <i class="fas fa-copy"></i> Copy Short URL
+                        </button>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                        <p><strong>Instructions:</strong></p>
+                        <ul style="text-align: left;">
+                            <li>Use the <strong>Full URL</strong> for immediate sharing</li>
+                            <li>Use the <strong>Short URL</strong> for permanent sharing</li>
+                            <li>Open the URL in any browser or device</li>
+                            <li>The image will load automatically</li>
+                        </ul>
+                    </div>
                 </div>
             `);
         } catch (error) {
             console.error('Error creating shareable URL:', error);
         }
+    }
+
+    generateImageId(imageSrc) {
+        // Create a simple hash of the image data
+        let hash = 0;
+        for (let i = 0; i < imageSrc.length; i++) {
+            const char = imageSrc.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(36);
     }
 
     // Event Bindings

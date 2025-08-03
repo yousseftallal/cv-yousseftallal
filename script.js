@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkUrlForImageData() {
     const urlParams = new URLSearchParams(window.location.search);
     const imageData = urlParams.get('profileImage');
+    const imageId = urlParams.get('img');
     
     if (imageData && window.imageStorage) {
         // Decode the image data
@@ -110,11 +111,86 @@ function checkUrlForImageData() {
                 const newUrl = new URL(window.location);
                 newUrl.searchParams.delete('profileImage');
                 window.history.replaceState({}, '', newUrl);
+                
+                // Show success message
+                showImageLoadMessage('Profile image loaded successfully!');
             }
         } catch (error) {
             console.error('Error processing URL image data:', error);
         }
     }
+    
+    if (imageId && window.imageStorage) {
+        // Load image by ID
+        try {
+            const imageData = window.imageStorage.getImageById(imageId);
+            if (imageData) {
+                window.imageStorage.saveProfileImage(imageData);
+                loadProfileImage();
+                
+                // Remove the parameter from URL
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('img');
+                window.history.replaceState({}, '', newUrl);
+                
+                // Show success message
+                showImageLoadMessage('Profile image loaded from shared link!');
+            } else {
+                showImageLoadMessage('Image not found. Please check the link.', 'error');
+            }
+        } catch (error) {
+            console.error('Error processing image ID:', error);
+            showImageLoadMessage('Error loading image. Please try again.', 'error');
+        }
+    }
+}
+
+// Show image load message
+function showImageLoadMessage(message, type = 'success') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `image-load-message ${type}`;
+    messageDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    // Add styles
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+        color: ${type === 'success' ? '#155724' : '#721c24'};
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 300px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(messageDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
+        }
+    }, 5000);
 }
 
 // Load profile image from localStorage
@@ -188,6 +264,55 @@ function forceRefreshProfileImage() {
         setTimeout(() => {
             loadProfileImage();
         }, 100);
+    }
+}
+
+// Test image sharing functionality
+function testImageSharing() {
+    if (window.imageStorage) {
+        const currentImage = window.imageStorage.loadProfileImage();
+        if (currentImage) {
+            // Create a test URL
+            const imageId = window.imageStorage.generateImageId(currentImage);
+            const testUrl = `${window.location.origin}${window.location.pathname}?img=${imageId}`;
+            
+            // Show the test URL
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; text-align: center;">
+                    <h3>Test Image Sharing</h3>
+                    <p>Copy this URL and open it in a new browser or incognito window:</p>
+                    <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <code style="word-break: break-all;">${testUrl}</code>
+                    </div>
+                    <button onclick="navigator.clipboard.writeText('${testUrl}').then(() => alert('URL copied!'))" style="margin: 0.5rem;">
+                        Copy URL
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="margin: 0.5rem;">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        } else {
+            alert('No profile image found. Please set a profile image first from the admin dashboard.');
+        }
+    } else {
+        alert('Image storage system not loaded.');
     }
 }
 

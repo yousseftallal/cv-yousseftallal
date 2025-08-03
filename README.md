@@ -29,10 +29,13 @@ This update resolves the issue where profile images changed in the admin dashboa
 5. **Copy URL**: Copy the URL and share it with others or use it on different devices
 
 #### Cross-Browser/Device Sharing:
-1. After setting a profile image, a shareable URL is generated
-2. Copy this URL and open it in any browser or device
+1. After setting a profile image, two shareable URLs are generated:
+   - **Full URL**: Contains the complete image data (works immediately)
+   - **Short URL**: Contains only the image ID (requires one-time setup)
+2. Copy either URL and open it in any browser or device
 3. The profile image will automatically load on that device
 4. The image is stored locally on that device for future visits
+5. Use the "Test Image" link in the navigation to test sharing functionality
 
 ### Technical Details:
 
