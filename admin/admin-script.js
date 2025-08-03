@@ -758,10 +758,6 @@ class CVDashboard {
         this.data.profileImage = null;
         this.saveData();
         
-        if (window.imageStorage) {
-            window.imageStorage.clearProfileImage();
-        }
-        
         const urlInput = document.getElementById('profileImageUrl');
         const preview = document.getElementById('profilePreview');
         
@@ -821,14 +817,9 @@ class CVDashboard {
     }
 
     setAsProfileImage(imageSrc) {
-        // Save to both localStorage and the new image storage system
+        // Save to localStorage only (for admin dashboard)
         this.data.profileImage = imageSrc;
         this.saveData();
-        
-        // Use the new image storage system
-        if (window.imageStorage) {
-            window.imageStorage.saveProfileImage(imageSrc);
-        }
         
         this.showToast('Profile image updated successfully!');
         

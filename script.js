@@ -101,21 +101,17 @@ function checkUrlForImageData() {
         try {
             const decodedData = decodeURIComponent(imageData);
             if (decodedData.startsWith('http') || decodedData.startsWith('https')) {
-                // Save the image to localStorage
-                if (window.imageStorage) {
-                    window.imageStorage.saveProfileImage(decodedData);
+                // Load the image directly without saving
+                const profileImg = document.querySelector('.profile-img');
+                if (profileImg) {
+                    profileImg.src = decodedData;
+                    showSuccessMessage('Profile image loaded from URL!');
                 }
-                
-                // Load the image
-                loadProfileImage();
                 
                 // Remove the parameter from URL
                 const newUrl = new URL(window.location);
                 newUrl.searchParams.delete('profileImage');
                 window.history.replaceState({}, '', newUrl);
-                
-                // Show success message
-                showSuccessMessage('Profile image loaded successfully!');
             }
         } catch (error) {
             console.error('Error processing URL image data:', error);
@@ -171,25 +167,18 @@ function showSuccessMessage(message) {
 
 
 
-// Load profile image from localStorage
+// Load profile image from localStorage (only for admin dashboard)
 function loadProfileImage() {
+    // Only load from localStorage if we're in admin mode or if there's a saved image
+    const savedData = localStorage.getItem('cvDashboardData');
     let imageData = null;
     
-    // Try the new image storage system first
-    if (window.imageStorage) {
-        imageData = window.imageStorage.loadProfileImage();
-    }
-    
-    // Fallback to old localStorage method
-    if (!imageData) {
-        const savedData = localStorage.getItem('cvDashboardData');
-        if (savedData) {
-            try {
-                const data = JSON.parse(savedData);
-                imageData = data.profileImage;
-            } catch (error) {
-                console.error('Error loading profile image from localStorage:', error);
-            }
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            imageData = data.profileImage;
+        } catch (error) {
+            console.error('Error loading profile image from localStorage:', error);
         }
     }
     
