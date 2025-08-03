@@ -136,26 +136,7 @@ function forceRefresh() {
     }
 }
 
-// Scroll skills function
-function scrollSkills(direction) {
-    const skillsGrid = document.getElementById('skillsGrid');
-    if (!skillsGrid) return;
-    
-    const scrollAmount = 300; // Scroll by 300px
-    const currentScroll = skillsGrid.scrollLeft;
-    
-    if (direction === 'left') {
-        skillsGrid.scrollTo({
-            left: currentScroll - scrollAmount,
-            behavior: 'smooth'
-        });
-    } else if (direction === 'right') {
-        skillsGrid.scrollTo({
-            left: currentScroll + scrollAmount,
-            behavior: 'smooth'
-        });
-    }
-}
+
 
 // Check URL for image data (for sharing)
 function checkUrlForImageData() {
@@ -411,10 +392,44 @@ function initializeSkills() {
     skillsGrid.innerHTML = '';
     
     const currentSkillsData = window.skillsData || skillsData;
+    
+    // Create skill cards
     currentSkillsData.forEach(skill => {
         const skillCard = createSkillCard(skill);
         skillsGrid.appendChild(skillCard);
     });
+    
+    // Duplicate skills for infinite scroll effect
+    currentSkillsData.forEach(skill => {
+        const skillCard = createSkillCard(skill);
+        skillsGrid.appendChild(skillCard);
+    });
+    
+    // Start auto-scroll animation
+    startAutoScroll();
+}
+
+// Auto-scroll function
+function startAutoScroll() {
+    const skillsGrid = document.getElementById('skillsGrid');
+    if (!skillsGrid) return;
+    
+    let scrollPosition = 0;
+    const scrollSpeed = 1; // pixels per frame
+    
+    function animate() {
+        scrollPosition += scrollSpeed;
+        
+        // Reset position when half of the content has scrolled
+        if (scrollPosition >= skillsGrid.scrollWidth / 2) {
+            scrollPosition = 0;
+        }
+        
+        skillsGrid.style.transform = `translateX(-${scrollPosition}px)`;
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
 }
 
 // Create skill card element
