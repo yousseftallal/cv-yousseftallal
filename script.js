@@ -400,32 +400,33 @@ function initializeSkills() {
 function createSkillCard(skill) {
     const card = document.createElement('div');
     card.className = 'skill-card';
-    card.dataset.skillId = skill.id;
+    card.dataset.skillId = skill.id || 'skill-' + Math.random().toString(36).substr(2, 9);
+    
+    // Handle null/undefined values
+    const skillName = skill.name || 'Unnamed Skill';
+    const skillIcon = skill.icon || 'https://via.placeholder.com/80x80/2563eb/FFFFFF?text=?';
+    const skillDescription = skill.description || 'No description available';
+    const skillLevel = skill.level || 'Beginner';
+    const skillExperience = skill.experience || '0 years';
     
     card.innerHTML = `
-        <img src="${skill.icon}" alt="${skill.name}" class="skill-icon" onerror="this.src='https://via.placeholder.com/80x80/2563eb/FFFFFF?text=${skill.name.charAt(0)}'">
-        <h3>${skill.name}</h3>
-        <p>${skill.description}</p>
+        <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/80x80/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
+        <h3>${skillName}</h3>
+        <p>${skillDescription}</p>
         <div class="skill-level">
-            <span>${skill.level}</span>
+            <span>${skillLevel}</span>
             <span>•</span>
-            <span>${skill.experience}</span>
+            <span>${skillExperience}</span>
         </div>
     `;
     
-    // Add hover effect with cursor following
+    // Add hover effect
     card.addEventListener('mouseenter', function(e) {
         this.style.transform = 'translateY(-10px) scale(1.02)';
-        showSkillPreview(skill, e);
     });
     
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0) scale(1)';
-        hideSkillPreview();
-    });
-    
-    card.addEventListener('mousemove', function(e) {
-        updateSkillPreview(e);
     });
     
     // Add click event to open modal
@@ -436,65 +437,35 @@ function createSkillCard(skill) {
     return card;
 }
 
-// Show skill preview on hover
-function showSkillPreview(skill, event) {
-    let preview = document.getElementById('skillPreview');
-    if (!preview) {
-        preview = document.createElement('div');
-        preview.id = 'skillPreview';
-        preview.className = 'skill-preview';
-        document.body.appendChild(preview);
-    }
-    
-    preview.innerHTML = `
-        <div class="preview-content">
-            <img src="${skill.icon}" alt="${skill.name}" class="preview-icon">
-            <h4>${skill.name}</h4>
-            <p>Click for more details</p>
-        </div>
-    `;
-    
-    preview.style.display = 'block';
-    updateSkillPreview(event);
-}
-
-// Update skill preview position
-function updateSkillPreview(event) {
-    const preview = document.getElementById('skillPreview');
-    if (preview) {
-        preview.style.left = (event.pageX + 20) + 'px';
-        preview.style.top = (event.pageY - 50) + 'px';
-    }
-}
-
-// Hide skill preview
-function hideSkillPreview() {
-    const preview = document.getElementById('skillPreview');
-    if (preview) {
-        preview.style.display = 'none';
-    }
-}
+// Skill preview functions removed to fix overlay issue
 
 // Open skill modal
 function openSkillModal(skill) {
     if (!modal) return;
     
-    modalIcon.src = skill.icon;
+    // Handle null/undefined values
+    const skillName = skill.name || 'Unnamed Skill';
+    const skillIcon = skill.icon || 'https://via.placeholder.com/80x80/2563eb/FFFFFF?text=?';
+    const skillDescription = skill.description || 'No description available';
+    const skillFeatures = skill.features || ['No features listed'];
+    const skillProjects = skill.projects || 'No project information available';
+    
+    modalIcon.src = skillIcon;
     modalIcon.onerror = function() {
-        this.src = `https://via.placeholder.com/80x80/2563eb/FFFFFF?text=${skill.name.charAt(0)}`;
+        this.src = `https://via.placeholder.com/80x80/2563eb/FFFFFF?text=${skillName.charAt(0)}`;
     };
-    modalTitle.textContent = skill.name;
-    modalDescription.textContent = skill.description;
+    modalTitle.textContent = skillName;
+    modalDescription.textContent = skillDescription;
     
     // Populate features list
     modalFeatures.innerHTML = '';
-    skill.features.forEach(feature => {
+    skillFeatures.forEach(feature => {
         const li = document.createElement('li');
         li.textContent = feature;
         modalFeatures.appendChild(li);
     });
     
-    modalProjects.textContent = skill.projects;
+    modalProjects.textContent = skillProjects;
     
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
