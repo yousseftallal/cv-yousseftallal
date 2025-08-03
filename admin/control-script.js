@@ -14,15 +14,21 @@ class ContentController {
 
     async init() {
         await this.loadData();
+        console.log('Initial data loaded:', this.data);
         this.setupEventListeners();
         this.renderAllLists();
     }
 
     async loadData() {
         try {
+            console.log('Loading data from database...');
             const response = await fetch('/.netlify/functions/admin-control');
+            console.log('Load response status:', response.status);
+            
             if (response.ok) {
                 const result = await response.json();
+                console.log('Load response:', result);
+                
                 if (result.success && result.data) {
                     this.data = {
                         keyFeatures: result.data.keyFeatures || [],
@@ -426,7 +432,7 @@ class ContentController {
     }
 
     // Jobs Methods
-    addJob() {
+    async addJob() {
         const title = document.getElementById('jobTitle').value.trim();
         const company = document.getElementById('jobCompany').value.trim();
         const period = document.getElementById('jobPeriod').value.trim();
@@ -440,35 +446,109 @@ class ContentController {
         
         const job = {
             id: Date.now(),
-            title,
-            company,
-            period,
-            description,
-            technologies: technologies ? technologies.split(',').map(t => t.trim()) : []
+            title: title || '',
+            company: company || '',
+            period: period || '',
+            description: description || '',
+            technologies: technologies ? technologies.split(',').map(t => t.trim()).filter(t => t) : []
         };
         
+        // Add to local data
         this.data.jobs.push(job);
         this.renderJobsList();
         this.clearJobForm();
+        
+        // Save to database immediately
+        try {
+            console.log('Saving job to database with data:', this.data);
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            console.log('Database response status:', response.status);
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Database response:', result);
+                if (result.success) {
+                    console.log('Job saved to database successfully!');
+                    this.showSuccessMessage('Job added and saved successfully!');
+                } else {
+                    console.error('Error saving job to database:', result.error);
+                    this.showErrorMessage('Job added locally but failed to save to database');
+                }
+            } else {
+                console.error('Error saving job to database');
+                this.showErrorMessage('Job added locally but failed to save to database');
+            }
+        } catch (error) {
+            console.error('Error saving job to database:', error);
+            this.showErrorMessage('Job added locally but failed to save to database');
+        }
     }
 
-    removeJob(id) {
+    async removeJob(id) {
         this.data.jobs = this.data.jobs.filter(j => j.id !== id);
         this.renderJobsList();
+        
+        // Save to database immediately
+        try {
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Job removed from database successfully!');
+                    this.showSuccessMessage('Job removed successfully!');
+                } else {
+                    console.error('Error removing job from database:', result.error);
+                    this.showErrorMessage('Job removed locally but failed to update database');
+                }
+            } else {
+                console.error('Error removing job from database');
+                this.showErrorMessage('Job removed locally but failed to update database');
+            }
+        } catch (error) {
+            console.error('Error removing job from database:', error);
+            this.showErrorMessage('Job removed locally but failed to update database');
+        }
     }
 
     renderJobsList() {
         const list = document.getElementById('jobsList');
+        console.log('Rendering jobs list with data:', this.data.jobs);
+        
+        if (!this.data.jobs || this.data.jobs.length === 0) {
+            list.innerHTML = '<div class="no-data">No jobs added yet. Add your first job above!</div>';
+            return;
+        }
+        
         list.innerHTML = this.data.jobs.map(job => `
             <div class="item-card">
                 <div class="item-content">
-                    <h4>${job.title}</h4>
-                    <p class="job-company">${job.company}</p>
-                    <p class="job-period">${job.period}</p>
-                    <p>${job.description}</p>
-                    ${job.technologies.length > 0 ? `<div class="tech-tags">${job.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}</div>` : ''}
+                    <h4>${job.title || 'Unnamed Job'}</h4>
+                    <p class="job-company">${job.company || 'Unknown Company'}</p>
+                    <p class="job-period">${job.period || 'No period specified'}</p>
+                    ${job.description ? `<p>${job.description}</p>` : ''}
+                    ${job.technologies && job.technologies.length > 0 ? `<div class="tech-tags">${job.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}</div>` : ''}
                 </div>
-                <button class="btn btn-danger" onclick="controller.removeJob(${job.id})">
+                <button class="btn btn-danger" onclick="removeJob(${job.id})">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -484,7 +564,7 @@ class ContentController {
     }
 
     // Education Methods
-    addEducation() {
+    async addEducation() {
         const degree = document.getElementById('educationDegree').value.trim();
         const institution = document.getElementById('educationInstitution').value.trim();
         const period = document.getElementById('educationPeriod').value.trim();
@@ -497,33 +577,107 @@ class ContentController {
         
         const education = {
             id: Date.now(),
-            degree,
-            institution,
-            period,
-            description
+            degree: degree || '',
+            institution: institution || '',
+            period: period || '',
+            description: description || ''
         };
         
+        // Add to local data
         this.data.education.push(education);
         this.renderEducationList();
         this.clearEducationForm();
+        
+        // Save to database immediately
+        try {
+            console.log('Saving education to database with data:', this.data);
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            console.log('Database response status:', response.status);
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Database response:', result);
+                if (result.success) {
+                    console.log('Education saved to database successfully!');
+                    this.showSuccessMessage('Education added and saved successfully!');
+                } else {
+                    console.error('Error saving education to database:', result.error);
+                    this.showErrorMessage('Education added locally but failed to save to database');
+                }
+            } else {
+                console.error('Error saving education to database');
+                this.showErrorMessage('Education added locally but failed to save to database');
+            }
+        } catch (error) {
+            console.error('Error saving education to database:', error);
+            this.showErrorMessage('Education added locally but failed to save to database');
+        }
     }
 
-    removeEducation(id) {
+    async removeEducation(id) {
         this.data.education = this.data.education.filter(e => e.id !== id);
         this.renderEducationList();
+        
+        // Save to database immediately
+        try {
+            const response = await fetch('/.netlify/functions/admin-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    section: 'all',
+                    data: this.data
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Education removed from database successfully!');
+                    this.showSuccessMessage('Education removed successfully!');
+                } else {
+                    console.error('Error removing education from database:', result.error);
+                    this.showErrorMessage('Education removed locally but failed to update database');
+                }
+            } else {
+                console.error('Error removing education from database');
+                this.showErrorMessage('Education removed locally but failed to update database');
+            }
+        } catch (error) {
+            console.error('Error removing education from database:', error);
+            this.showErrorMessage('Education removed locally but failed to update database');
+        }
     }
 
     renderEducationList() {
         const list = document.getElementById('educationList');
+        console.log('Rendering education list with data:', this.data.education);
+        
+        if (!this.data.education || this.data.education.length === 0) {
+            list.innerHTML = '<div class="no-data">No education items added yet. Add your first education above!</div>';
+            return;
+        }
+        
         list.innerHTML = this.data.education.map(edu => `
             <div class="item-card">
                 <div class="item-content">
-                    <h4>${edu.degree}</h4>
-                    <p class="education-institution">${edu.institution}</p>
-                    <p class="education-period">${edu.period}</p>
+                    <h4>${edu.degree || 'Unnamed Degree'}</h4>
+                    <p class="education-institution">${edu.institution || 'Unknown Institution'}</p>
+                    <p class="education-period">${edu.period || 'No period specified'}</p>
                     ${edu.description ? `<p>${edu.description}</p>` : ''}
                 </div>
-                <button class="btn btn-danger" onclick="controller.removeEducation(${edu.id})">
+                <button class="btn btn-danger" onclick="removeEducation(${edu.id})">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -574,6 +728,11 @@ class ContentController {
     }
 
     renderAllLists() {
+        console.log('Rendering all lists with data:', this.data);
+        console.log('Skills count:', this.data.skills?.length || 0);
+        console.log('Jobs count:', this.data.jobs?.length || 0);
+        console.log('Education count:', this.data.education?.length || 0);
+        
         this.renderFeaturesList();
         this.renderProjectsList();
         this.renderContactLinksList();
@@ -670,11 +829,13 @@ function addFeature() { controller.addFeature(); }
 function addProject() { controller.addProject(); }
 function addContactLink() { controller.addContactLink(); }
 async function addSkill() { await controller.addSkill(); }
-function addJob() { controller.addJob(); }
-function addEducation() { controller.addEducation(); }
+async function addJob() { await controller.addJob(); }
+async function addEducation() { await controller.addEducation(); }
 function saveAllChanges() { controller.saveAllChanges(); }
 function refreshContent() { controller.refreshContent(); }
 async function removeSkill(id) { await controller.removeSkill(id); }
+async function removeJob(id) { await controller.removeJob(id); }
+async function removeEducation(id) { await controller.removeEducation(id); }
 
 // Initialize controller
 let controller;
