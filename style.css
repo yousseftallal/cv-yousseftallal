@@ -122,7 +122,7 @@ body {
 /* Skill Preview Overlay */
 .skill-preview {
     position: fixed;
-    z-index: 3000;
+    z-index: 9999;
     background: white;
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -384,7 +384,7 @@ section {
 .skills {
     background: #f8fafc;
     position: relative;
-    z-index: 5;
+    z-index: 1;
     display: block;
     visibility: visible;
     opacity: 1;
@@ -434,17 +434,19 @@ section {
 }
 
 .skills-grid {
-    display: flex;
+    display: flex !important;
     gap: 2rem;
     margin-top: 2rem;
     position: relative;
-    z-index: 5;
-    visibility: visible;
-    opacity: 1;
+    z-index: 1;
+    visibility: visible !important;
+    opacity: 1 !important;
     overflow-x: auto;
     padding: 1rem 0;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    min-height: 200px;
+    border: 1px solid #e2e8f0;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -467,7 +469,7 @@ section {
 }
 
 .skill-card {
-    background: white;
+    background: white !important;
     border-radius: 1rem;
     padding: 2rem;
     text-align: center;
@@ -476,12 +478,13 @@ section {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    z-index: 10;
-    display: block;
-    visibility: visible;
-    opacity: 1;
+    z-index: 1;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     min-width: 280px;
     flex-shrink: 0;
+    border: 2px solid #e2e8f0;
 }
 
 .skill-card::before {
@@ -522,7 +525,6 @@ section {
     margin-bottom: 1rem;
     display: block;
     visibility: visible;
-}
 }
 
 .skill-card p {
