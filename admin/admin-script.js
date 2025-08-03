@@ -73,7 +73,8 @@ class CVDashboard {
                 email: 'yousef.talal@email.com',
                 phone: '+123 456 7890',
                 location: 'City, Country',
-                aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.'
+                aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.',
+                profileImage: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT'
             },
             skills: [
                 {
@@ -230,6 +231,12 @@ class CVDashboard {
         document.getElementById('phone').value = personal.phone;
         document.getElementById('location').value = personal.location;
         document.getElementById('aboutText').value = personal.aboutText;
+        
+        // Load profile image
+        const previewImg = document.querySelector('#uploadArea img');
+        if (previewImg && personal.profileImage) {
+            previewImg.src = personal.profileImage;
+        }
     }
 
     savePersonalInfo() {
@@ -239,7 +246,8 @@ class CVDashboard {
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
             location: document.getElementById('location').value,
-            aboutText: document.getElementById('aboutText').value
+            aboutText: document.getElementById('aboutText').value,
+            profileImage: this.data.personal.profileImage // Keep existing profile image
         };
         this.saveData();
     }
@@ -674,6 +682,12 @@ class CVDashboard {
     }
 
     handleFileUpload(files) {
+        // Clear existing previews
+        const imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) {
+            imagePreview.innerHTML = '';
+        }
+        
         Array.from(files).forEach(file => {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -692,12 +706,71 @@ class CVDashboard {
         imageItem.innerHTML = `
             <img src="${src}" alt="${name}">
             <div class="image-actions">
-                <button class="btn btn-sm btn-primary">Set as Profile</button>
+                <button class="btn btn-sm btn-primary" onclick="dashboard.setProfileImage('${src}')">Set as Profile</button>
                 <button class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">Delete</button>
             </div>
             <p>${name}</p>
         `;
         imagePreview.appendChild(imageItem);
+        
+        // Add a "Clear Profile Image" option
+        const clearButton = document.createElement('div');
+        clearButton.className = 'image-item';
+        clearButton.innerHTML = `
+            <div class="image-actions">
+                <button class="btn btn-sm btn-warning" onclick="dashboard.clearProfileImage()">Clear Profile Image</button>
+            </div>
+            <p>Reset to default</p>
+        `;
+        imagePreview.appendChild(clearButton);
+    }
+
+    setProfileImage(imageSrc) {
+        this.data.personal.profileImage = imageSrc;
+        this.saveData();
+        this.showToast('Profile image updated successfully!');
+        
+        // Update the preview image in the admin
+        const previewImg = document.querySelector('#uploadArea img');
+        if (previewImg) {
+            previewImg.src = imageSrc;
+        }
+        
+        // Update the main site preview if it's open
+        if (window.opener && !window.opener.closed) {
+            try {
+                const mainSiteProfileImg = window.opener.document.querySelector('.profile-img');
+                if (mainSiteProfileImg) {
+                    mainSiteProfileImg.src = imageSrc;
+                }
+            } catch (e) {
+                // Cross-origin restrictions might prevent this
+            }
+        }
+    }
+
+    clearProfileImage() {
+        this.data.personal.profileImage = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+        this.saveData();
+        this.showToast('Profile image cleared successfully!');
+        
+        // Update the preview image in the admin
+        const previewImg = document.querySelector('#uploadArea img');
+        if (previewImg) {
+            previewImg.src = this.data.personal.profileImage;
+        }
+        
+        // Update the main site preview if it's open
+        if (window.opener && !window.opener.closed) {
+            try {
+                const mainSiteProfileImg = window.opener.document.querySelector('.profile-img');
+                if (mainSiteProfileImg) {
+                    mainSiteProfileImg.src = this.data.personal.profileImage;
+                }
+            } catch (e) {
+                // Cross-origin restrictions might prevent this
+            }
+        }
     }
 
     // Event Bindings

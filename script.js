@@ -84,11 +84,55 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    loadProfileData();
     initializeSkills();
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
 });
+
+// Load profile data from localStorage
+function loadProfileData() {
+    const savedData = localStorage.getItem('cvDashboardData');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.personal) {
+            // Load profile image
+            if (data.personal.profileImage) {
+                const profileImg = document.querySelector('.profile-img');
+                if (profileImg) {
+                    profileImg.src = data.personal.profileImage;
+                    // Add error handling for image loading
+                    profileImg.onerror = function() {
+                        this.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                    };
+                }
+            }
+            
+            // Load personal information
+            if (data.personal.fullName) {
+                const nameElement = document.querySelector('.hero h1');
+                if (nameElement) {
+                    nameElement.textContent = data.personal.fullName;
+                }
+            }
+            
+            if (data.personal.jobTitle) {
+                const jobTitleElement = document.querySelector('.hero-subtitle');
+                if (jobTitleElement) {
+                    jobTitleElement.textContent = data.personal.jobTitle;
+                }
+            }
+            
+            if (data.personal.aboutText) {
+                const aboutElement = document.querySelector('.about-text p');
+                if (aboutElement) {
+                    aboutElement.textContent = data.personal.aboutText;
+                }
+            }
+        }
+    }
+}
 
 // Initialize skills grid
 function initializeSkills() {
@@ -96,7 +140,18 @@ function initializeSkills() {
     
     skillsGrid.innerHTML = '';
     
-    skillsData.forEach(skill => {
+    // Load skills from localStorage or use default
+    const savedData = localStorage.getItem('cvDashboardData');
+    let skillsToDisplay = skillsData; // Default fallback
+    
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.skills && data.skills.length > 0) {
+            skillsToDisplay = data.skills;
+        }
+    }
+    
+    skillsToDisplay.forEach(skill => {
         const skillCard = createSkillCard(skill);
         skillsGrid.appendChild(skillCard);
     });
