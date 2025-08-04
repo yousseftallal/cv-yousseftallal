@@ -580,6 +580,7 @@ class CVDashboard {
     // Skills Management
     loadSkillsList() {
         console.log('Loading skills list...');
+        console.log('Current data object:', this.data);
         const skillsList = document.getElementById('skills-list');
         console.log('Skills list element:', skillsList);
         if (!skillsList) {
@@ -590,7 +591,7 @@ class CVDashboard {
         skillsList.innerHTML = '';
         console.log('Skills data:', this.data.skills);
         
-        if (this.data.skills.length === 0) {
+        if (!this.data.skills || this.data.skills.length === 0) {
             const emptyState = document.createElement('div');
             emptyState.className = 'empty-state';
             emptyState.innerHTML = `
