@@ -450,37 +450,108 @@ function initializeSkills() {
         skillsGrid.appendChild(skillCard);
     });
     
-    // Duplicate skills for infinite scroll effect
-    currentSkillsData.forEach(skill => {
-        const skillCard = createSkillCard(skill);
-        skillsGrid.appendChild(skillCard);
-    });
-    
-    // Start auto-scroll animation
-    startAutoScroll();
+    // Start carousel animation
+    startCarousel();
 }
 
-// Auto-scroll function
-function startAutoScroll() {
+// Carousel function
+function startCarousel() {
     const skillsGrid = document.getElementById('skillsGrid');
     if (!skillsGrid) return;
     
-    let scrollPosition = 0;
-    const scrollSpeed = 1; // pixels per frame
+    const cards = skillsGrid.querySelectorAll('.skill-card');
+    if (cards.length === 0) return;
     
-    function animate() {
-        scrollPosition += scrollSpeed;
-        
-        // Reset position when half of the content has scrolled
-        if (scrollPosition >= skillsGrid.scrollWidth / 2) {
-            scrollPosition = 0;
-        }
-        
-        skillsGrid.style.transform = `translateX(-${scrollPosition}px)`;
-        requestAnimationFrame(animate);
+    let currentIndex = 0;
+    const totalCards = cards.length;
+    const autoRotateSpeed = 3000; // 3 seconds per card
+    
+    function updateCarousel() {
+        cards.forEach((card, index) => {
+            const angle = (360 / totalCards) * (index - currentIndex);
+            const radius = 400; // Distance from center
+            const rotateY = angle;
+            const translateZ = Math.cos((angle * Math.PI) / 180) * radius;
+            const opacity = Math.cos((angle * Math.PI) / 180) > 0 ? 1 : 0.3;
+            const scale = Math.cos((angle * Math.PI) / 180) > 0 ? 1 : 0.8;
+            
+            card.style.transform = `
+                rotateY(${rotateY}deg) 
+                translateZ(${translateZ}px) 
+                scale(${scale})
+            `;
+            card.style.opacity = opacity;
+            card.style.zIndex = Math.cos((angle * Math.PI) / 180) > 0 ? 10 : 1;
+        });
     }
     
-    animate();
+    function nextCard() {
+        currentIndex = (currentIndex + 1) % totalCards;
+        updateCarousel();
+    }
+    
+    // Initial setup
+    updateCarousel();
+    
+    // Auto-rotate
+    setInterval(nextCard, autoRotateSpeed);
+    
+    // Add navigation controls
+    const skillsContainer = skillsGrid.parentElement;
+    const navContainer = document.createElement('div');
+    navContainer.className = 'carousel-nav';
+    navContainer.innerHTML = `
+        <button class="carousel-btn prev-btn" onclick="prevSkill()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="carousel-indicators">
+            ${cards.length > 0 ? Array.from(cards).map((_, index) => 
+                `<span class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></span>`
+            ).join('') : ''}
+        </div>
+        <button class="carousel-btn next-btn" onclick="nextSkill()">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+    skillsContainer.appendChild(navContainer);
+    
+    // Add click handlers for indicators
+    const indicators = navContainer.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            currentIndex = index;
+            updateCarousel();
+            updateIndicators();
+        });
+    });
+    
+    function updateIndicators() {
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // Global functions for navigation buttons
+    window.nextSkill = () => {
+        currentIndex = (currentIndex + 1) % totalCards;
+        updateCarousel();
+        updateIndicators();
+    };
+    
+    window.prevSkill = () => {
+        currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+        updateCarousel();
+        updateIndicators();
+    };
+    
+    // Add click handlers for manual navigation
+    cards.forEach((card, index) => {
+        card.addEventListener('click', () => {
+            currentIndex = index;
+            updateCarousel();
+            updateIndicators();
+        });
+    });
 }
 
 // Create skill card element
