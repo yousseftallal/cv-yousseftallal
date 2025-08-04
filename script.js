@@ -395,9 +395,13 @@ function updateExperience(experience) {
     if (timeline && experience.length > 0) {
         let experienceHTML = '';
         experience.forEach((exp, index) => {
+            const isEven = index % 2 === 0;
+            const sideClass = isEven ? 'timeline-left' : 'timeline-right';
+            
             experienceHTML += `
-                <div class="timeline-item" style="animation-delay: ${index * 0.2}s">
+                <div class="timeline-item ${sideClass}" style="animation-delay: ${index * 0.2}s" data-index="${index}">
                     <div class="timeline-content">
+                        <div class="timeline-number">${index + 1}</div>
                         <div class="timeline-header">
                             <div class="timeline-title-group">
                                 <h3>${exp.title || 'Experience'}</h3>
