@@ -1059,7 +1059,7 @@ function openSkillModal(skill) {
     const skillIcon = skill.icon || 'https://via.placeholder.com/80x80/2563eb/FFFFFF?text=?';
     const skillDescription = skill.description || 'No description available';
     const skillFeatures = skill.features || ['No features listed'];
-    const skillProjects = skill.projects || 'No project information available';
+    const skillProjects = skill.projects || ['No project information available'];
     
     modalIcon.src = skillIcon;
     modalIcon.onerror = function() {
@@ -1070,13 +1070,31 @@ function openSkillModal(skill) {
     
     // Populate features list
     modalFeatures.innerHTML = '';
-    skillFeatures.forEach(feature => {
+    if (Array.isArray(skillFeatures)) {
+        skillFeatures.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            modalFeatures.appendChild(li);
+        });
+    } else {
         const li = document.createElement('li');
-        li.textContent = feature;
+        li.textContent = skillFeatures;
         modalFeatures.appendChild(li);
-    });
+    }
     
-    modalProjects.textContent = skillProjects;
+    // Populate projects list (same format as features)
+    modalProjects.innerHTML = '';
+    if (Array.isArray(skillProjects)) {
+        skillProjects.forEach(project => {
+            const li = document.createElement('li');
+            li.textContent = project;
+            modalProjects.appendChild(li);
+        });
+    } else {
+        const li = document.createElement('li');
+        li.textContent = skillProjects;
+        modalProjects.appendChild(li);
+    }
     
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
