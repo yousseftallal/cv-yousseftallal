@@ -27,10 +27,13 @@ class CVDashboard {
     // Navigation
     setupNavigation() {
         const navLinks = document.querySelectorAll('.nav-link');
+        console.log('Setting up navigation for links:', navLinks.length);
+        
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = link.getAttribute('href').substring(1);
+                console.log('Navigation clicked:', section);
                 this.showSection(section);
                 this.updateActiveNav(link);
             });
@@ -38,6 +41,8 @@ class CVDashboard {
     }
 
     showSection(sectionName) {
+        console.log('Showing section:', sectionName);
+        
         // Hide all sections
         document.querySelectorAll('.content-section').forEach(section => {
             section.classList.remove('active');
@@ -45,11 +50,16 @@ class CVDashboard {
 
         // Show target section
         const targetSection = document.getElementById(`${sectionName}-section`);
+        console.log('Target section element:', targetSection);
+        
         if (targetSection) {
             targetSection.classList.add('active');
             this.currentSection = sectionName;
             this.updatePageTitle(sectionName);
             this.loadSectionData(sectionName);
+            console.log('Section activated successfully');
+        } else {
+            console.error('Section not found:', `${sectionName}-section`);
         }
     }
 
@@ -569,10 +579,16 @@ class CVDashboard {
 
     // Skills Management
     loadSkillsList() {
+        console.log('Loading skills list...');
         const skillsList = document.getElementById('skills-list');
-        if (!skillsList) return;
+        console.log('Skills list element:', skillsList);
+        if (!skillsList) {
+            console.error('Skills list element not found!');
+            return;
+        }
 
         skillsList.innerHTML = '';
+        console.log('Skills data:', this.data.skills);
         
         if (this.data.skills.length === 0) {
             const emptyState = document.createElement('div');
@@ -589,25 +605,43 @@ class CVDashboard {
         }
         
         this.data.skills.forEach((skill, index) => {
-            const skillCard = this.createSkillCard(skill);
-            skillCard.style.animationDelay = `${index * 0.1}s`;
-            skillsList.appendChild(skillCard);
+            console.log(`Creating skill card ${index}:`, skill);
+            try {
+                const skillCard = this.createSkillCard(skill);
+                skillCard.style.animationDelay = `${index * 0.1}s`;
+                skillsList.appendChild(skillCard);
+                console.log(`Skill card ${index} added successfully`);
+            } catch (error) {
+                console.error(`Error creating skill card ${index}:`, error);
+            }
         });
     }
 
     createSkillCard(skill) {
+        console.log('Creating skill card for:', skill);
+        
         const card = document.createElement('div');
         card.className = 'item-card skill-card';
+        
+        // Handle undefined/null values safely
+        const skillName = skill.name || 'Unnamed Skill';
+        const skillIcon = skill.icon || 'https://via.placeholder.com/60x60/3b82f6/FFFFFF?text=S';
+        const skillLevel = skill.level || 'Beginner';
+        const skillExperience = skill.experience || '0 years';
+        const skillDescription = skill.description || 'No description available';
+        const skillFeatures = Array.isArray(skill.features) ? skill.features : [];
+        const skillProjects = Array.isArray(skill.projects) ? skill.projects : [];
+        
         card.innerHTML = `
             <div class="card-header">
                 <div class="card-icon">
-                    <img src="${skill.icon}" alt="${skill.name}" onerror="this.style.display='none'">
+                    <img src="${skillIcon}" alt="${skillName}" onerror="this.style.display='none'">
                 </div>
                 <div class="card-info">
-                    <div class="card-title">${skill.name}</div>
+                    <div class="card-title">${skillName}</div>
                     <div class="card-subtitle">
-                        <span class="level-badge ${skill.level.toLowerCase()}">${skill.level}</span>
-                        <span class="experience-text">${skill.experience}</span>
+                        <span class="level-badge ${skillLevel.toLowerCase()}">${skillLevel}</span>
+                        <span class="experience-text">${skillExperience}</span>
                     </div>
                 </div>
                 <div class="card-actions">
@@ -622,21 +656,21 @@ class CVDashboard {
             <div class="card-content">
                 <div class="content-section">
                     <h5><i class="fas fa-info-circle"></i> Description</h5>
-                    <p>${skill.description}</p>
+                    <p>${skillDescription}</p>
                 </div>
-                ${skill.features && skill.features.length > 0 ? `
+                ${skillFeatures.length > 0 ? `
                 <div class="content-section">
                     <h5><i class="fas fa-star"></i> Key Features</h5>
                     <ul class="features-list">
-                        ${skill.features.map(feature => `<li>${feature}</li>`).join('')}
+                        ${skillFeatures.map(feature => `<li>${feature}</li>`).join('')}
                     </ul>
                 </div>
                 ` : ''}
-                ${skill.projects && skill.projects.length > 0 ? `
+                ${skillProjects.length > 0 ? `
                 <div class="content-section">
                     <h5><i class="fas fa-project-diagram"></i> Projects & Experience</h5>
                     <ul class="features-list">
-                        ${skill.projects.map(project => `<li>${project}</li>`).join('')}
+                        ${skillProjects.map(project => `<li>${project}</li>`).join('')}
                     </ul>
                 </div>
                 ` : ''}
