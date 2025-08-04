@@ -394,21 +394,40 @@ function updateExperience(experience) {
     const timeline = document.querySelector('.timeline');
     if (timeline && experience.length > 0) {
         let experienceHTML = '';
-        experience.forEach(exp => {
+        experience.forEach((exp, index) => {
             experienceHTML += `
-                <div class="timeline-item">
+                <div class="timeline-item" style="animation-delay: ${index * 0.2}s">
                     <div class="timeline-content">
-                        <h3>${exp.title || 'Experience'}</h3>
-                        <span class="timeline-date">${exp.period || 'Period'}</span>
-                        <p>${exp.description || 'No description available'}</p>
-                        <div class="tech-stack">
-                            ${exp.technologies ? exp.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('') : ''}
+                        <div class="timeline-header">
+                            <div class="timeline-title-group">
+                                <h3>${exp.title || 'Experience'}</h3>
+                            </div>
+                            <span class="timeline-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                ${exp.period || 'Period'}
+                            </span>
                         </div>
+                        <p>${exp.description || 'No description available'}</p>
+                        ${exp.technologies && exp.technologies.length > 0 ? `
+                            <div class="tech-stack">
+                                <i class="fas fa-code" style="color: #2563eb; margin-right: 0.5rem; font-size: 0.9rem;"></i>
+                                ${exp.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
         });
         timeline.innerHTML = experienceHTML;
+        
+        // Trigger animations after a short delay
+        setTimeout(() => {
+            document.querySelectorAll('.timeline-item').forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('animate-in');
+                }, index * 200);
+            });
+        }, 100);
     }
 }
 
@@ -888,6 +907,22 @@ function initializeScrollEffects() {
                 console.log('Fallback: Added animate-in class to:', el.className);
             }
         }, 1000);
+    });
+    
+    // Special handling for timeline items with staggered animation
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach((item, index) => {
+        const timelineObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('animate-in');
+                    }, index * 150); // Staggered animation
+                }
+            });
+        }, { threshold: 0.2 });
+        
+        timelineObserver.observe(item);
     });
 }
 
