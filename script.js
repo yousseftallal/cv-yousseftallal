@@ -472,9 +472,6 @@ function updateEducation(education) {
     }
 }
 
-
-}
-
 // Initialize skills grid
 function initializeSkills() {
     if (!skillsGrid) return;
