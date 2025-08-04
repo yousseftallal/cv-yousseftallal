@@ -85,7 +85,8 @@ class CVDashboard {
                 aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.',
                 brandIcon: 'YT',
                 brandTitle: 'Yousef Talal',
-                brandSubtitle: 'Developer'
+                brandSubtitle: 'Developer',
+                brandImage: ''
             },
             skills: [
                 {
@@ -314,6 +315,16 @@ class CVDashboard {
         if (document.getElementById('brandSubtitle')) {
             document.getElementById('brandSubtitle').value = personal.brandSubtitle || '';
         }
+        
+        // Load brand image
+        if (personal.brandImage) {
+            const preview = document.getElementById('brandImagePreview');
+            const previewImg = document.getElementById('brandImagePreviewImg');
+            if (preview && previewImg) {
+                previewImg.src = personal.brandImage;
+                preview.style.display = 'flex';
+            }
+        }
     }
 
     async savePersonalInfo() {
@@ -326,7 +337,8 @@ class CVDashboard {
             aboutText: document.getElementById('aboutText').value,
             brandIcon: document.getElementById('brandIcon')?.value || '',
             brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName').value,
-            brandSubtitle: document.getElementById('brandSubtitle')?.value || ''
+            brandSubtitle: document.getElementById('brandSubtitle')?.value || '',
+            brandImage: this.data.personal.brandImage || '' // Keep existing brand image
         };
         this.saveData();
         
@@ -1104,6 +1116,9 @@ class CVDashboard {
         // Social links
         document.getElementById('addSocialLink')?.addEventListener('click', () => this.addSocialLink());
         
+        // Brand image upload
+        document.getElementById('brandImageUpload')?.addEventListener('change', (e) => this.handleBrandImageUpload(e));
+        
         // Logout
         document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
     }
@@ -1188,9 +1203,87 @@ class CVDashboard {
         container.insertBefore(newLinkItem, addButton);
     }
 
+    // Brand Image Management
+    handleBrandImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.includes('png')) {
+            this.showToast('Please select a PNG image file only', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            this.showToast('Image size must be less than 2MB', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64Image = e.target.result;
+            
+            // Update preview
+            const preview = document.getElementById('brandImagePreview');
+            const previewImg = document.getElementById('brandImagePreviewImg');
+            if (preview && previewImg) {
+                previewImg.src = base64Image;
+                preview.style.display = 'flex';
+            }
+
+            // Save to data
+            this.data.personal.brandImage = base64Image;
+            this.saveData();
+            
+            // Save to database
+            this.saveDataToDatabase().then(success => {
+                if (success) {
+                    this.showToast('Brand logo uploaded and saved to database!', 'success');
+                } else {
+                    this.showToast('Logo uploaded locally, but failed to save to database', 'warning');
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
     logout() {
         // Clear any server-side session if needed
         window.location.href = 'login.html';
+    }
+}
+
+// Global function for removing brand image
+function removeBrandImage() {
+    const dashboard = window.cvDashboard;
+    if (dashboard) {
+        dashboard.data.personal.brandImage = '';
+        
+        // Hide preview
+        const preview = document.getElementById('brandImagePreview');
+        if (preview) {
+            preview.style.display = 'none';
+        }
+        
+        // Clear file input
+        const fileInput = document.getElementById('brandImageUpload');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        dashboard.saveData();
+        
+        // Save to database
+        dashboard.saveDataToDatabase().then(success => {
+            if (success) {
+                dashboard.showToast('Brand logo removed from database!', 'success');
+            } else {
+                dashboard.showToast('Logo removed locally, but failed to update database', 'warning');
+            }
+        });
     }
 }
 
@@ -1198,6 +1291,7 @@ class CVDashboard {
 let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
     dashboard = new CVDashboard();
+    window.cvDashboard = dashboard; // Make it globally accessible
 });
 
 // Make functions available globally for onclick handlers

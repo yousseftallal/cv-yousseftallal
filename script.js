@@ -313,12 +313,20 @@ function updatePersonalInfo(personal) {
     console.log('Updating personal info with:', personal);
     
     // Update navbar
-    const navBrandIcon = document.getElementById('navBrandIcon');
+    const navBrandImage = document.getElementById('navBrandImage');
+    const navBrandText = document.getElementById('navBrandText');
     const navBrandTitle = document.getElementById('navBrandTitle');
     const navBrandSubtitle = document.getElementById('navBrandSubtitle');
     
-    if (navBrandIcon && personal.brandIcon) {
-        navBrandIcon.textContent = personal.brandIcon;
+    // Update brand icon/image
+    if (personal.brandImage) {
+        navBrandImage.src = personal.brandImage;
+        navBrandImage.style.display = 'block';
+        navBrandText.style.display = 'none';
+    } else if (personal.brandIcon) {
+        navBrandImage.style.display = 'none';
+        navBrandText.style.display = 'block';
+        navBrandText.textContent = personal.brandIcon;
     }
     
     if (navBrandTitle && personal.brandTitle) {
