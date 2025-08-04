@@ -495,18 +495,56 @@ function createSkillCard(skill) {
     const skillDescription = skill.description || 'No description available';
     const skillLevel = skill.level || 'Beginner';
     const skillExperience = skill.experience || '0 years';
+    const skillFeatures = skill.features || [];
+    const skillProjects = skill.projects || '';
+    
+    // Create level badge color based on level
+    const levelColors = {
+        'Beginner': 'linear-gradient(135deg, #10b981, #059669)',
+        'Intermediate': 'linear-gradient(135deg, #f59e0b, #d97706)', 
+        'Advanced': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'Expert': 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+    };
+    
+    const levelColor = levelColors[skillLevel] || levelColors['Beginner'];
     
     card.innerHTML = `
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
-            <div>
-                <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/70x70/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
-                <h3>${skillName}</h3>
-                <p>${skillDescription}</p>
+        <div class="skill-card-inner">
+            <div class="skill-header">
+                <div class="skill-icon-wrapper">
+                    <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/60x60/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
+                    <div class="skill-level-badge" style="background: ${levelColor}">
+                        ${skillLevel}
+                    </div>
+                </div>
+                <div class="skill-info">
+                    <h3 class="skill-title">${skillName}</h3>
+                    <div class="skill-experience">
+                        <i class="fas fa-clock"></i>
+                        <span>${skillExperience}</span>
+                    </div>
+                </div>
             </div>
-            <div class="skill-level">
-                <span>${skillLevel}</span>
-                <span>•</span>
-                <span>${skillExperience}</span>
+            <div class="skill-body">
+                <p class="skill-description">${skillDescription}</p>
+                ${skillFeatures.length > 0 ? `
+                    <div class="skill-features">
+                        <div class="features-preview">
+                            ${skillFeatures.slice(0, 2).map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                            ${skillFeatures.length > 2 ? `<span class="feature-more">+${skillFeatures.length - 2} more</span>` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="skill-footer">
+                <div class="skill-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" data-level="${skillLevel}"></div>
+                    </div>
+                </div>
+                <div class="skill-action">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
             </div>
         </div>
     `;
