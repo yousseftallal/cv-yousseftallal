@@ -86,6 +86,38 @@ const navMenu = document.querySelector('.nav-menu');
 document.addEventListener('DOMContentLoaded', function() {
     // Force reload to prevent caching issues - no localStorage to clear
     
+    // Initialize About section with default data immediately
+    const defaultAbout = {
+        title: 'About Me',
+        paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
+        paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I am committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
+        stats: [
+            {
+                id: 'languages',
+                icon: 'fas fa-code',
+                title: '4+',
+                description: 'Programming Languages'
+            },
+            {
+                id: 'platforms',
+                icon: 'fas fa-mobile-alt',
+                title: 'Multi-Platform',
+                description: 'Development Experience'
+            },
+            {
+                id: 'education',
+                icon: 'fas fa-graduation-cap',
+                title: 'Computer Science',
+                description: 'Student'
+            }
+        ]
+    };
+    // Initialize About section with delay to ensure DOM is ready
+    setTimeout(() => {
+        console.log('Initializing About section with default data');
+        updateAboutSection(defaultAbout);
+    }, 100);
+    
     loadCVDataFromDatabase();
     initializeNavigation();
     initializeScrollEffects();
@@ -311,6 +343,35 @@ async function loadCVDataFromDatabase() {
     
     // Fallback to default data
     console.log('Using default CV data');
+    
+    // Default about data as fallback
+    const defaultAbout = {
+        title: 'About Me',
+        paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
+        paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I am committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
+        stats: [
+            {
+                id: 'languages',
+                icon: 'fas fa-code',
+                title: '4+',
+                description: 'Programming Languages'
+            },
+            {
+                id: 'platforms',
+                icon: 'fas fa-mobile-alt',
+                title: 'Multi-Platform',
+                description: 'Development Experience'
+            },
+            {
+                id: 'education',
+                icon: 'fas fa-graduation-cap',
+                title: 'Computer Science',
+                description: 'Student'
+            }
+        ]
+    };
+    
+    updateAboutSection(defaultAbout);
     initializeSkills();
 }
 
@@ -383,12 +444,7 @@ function updatePersonalInfo(personal) {
     
     // Update contact section with clickable links
     updateContactSection(personal);
-    
-    // Update about section - update all paragraphs
-    const aboutElements = document.querySelectorAll('.about-text p');
-    if (aboutElements.length > 0 && personal.aboutText) {
-        aboutElements[0].textContent = personal.aboutText;
-    }
+
     
     // Update contact information
     const emailElement = document.querySelector('.contact-item:nth-child(1) p');
@@ -517,48 +573,89 @@ function updateContactSection(personal) {
 function updateAboutSection(about) {
     console.log('Updating about section with:', about);
     
-    // Update section title
-    const sectionTitle = document.querySelector('#about .section-title');
-    if (sectionTitle && about.title) {
-        sectionTitle.textContent = about.title;
-    }
-    
-    // Update paragraphs
-    const aboutTextDiv = document.querySelector('.about-text');
-    if (aboutTextDiv && (about.paragraph1 || about.paragraph2)) {
-        aboutTextDiv.innerHTML = '';
+    // Wait a bit for DOM to be ready
+    setTimeout(() => {
+        console.log('DOM should be ready now, updating about section...');
         
-        if (about.paragraph1) {
-            const p1 = document.createElement('p');
-            p1.textContent = about.paragraph1;
-            aboutTextDiv.appendChild(p1);
+        // Check if about section exists
+        const aboutSection = document.querySelector('#about');
+        console.log('About section found:', !!aboutSection);
+        
+        // Update section title
+        const sectionTitle = document.querySelector('#about .section-title');
+        console.log('Section title element:', sectionTitle);
+        if (sectionTitle && about && about.title) {
+            sectionTitle.textContent = about.title;
+            console.log('Updated section title to:', about.title);
         }
         
-        if (about.paragraph2) {
-            const p2 = document.createElement('p');
-            p2.textContent = about.paragraph2;
-            aboutTextDiv.appendChild(p2);
-        }
-    }
-    
-    // Update stats
-    const statsContainer = document.querySelector('.about-stats');
-    if (statsContainer && about.stats && about.stats.length > 0) {
-        statsContainer.innerHTML = '';
+        // Update paragraphs
+        const aboutTextDiv = document.querySelector('.about-text');
+        console.log('About text div:', aboutTextDiv);
+        console.log('About paragraphs:', about?.paragraph1, about?.paragraph2);
         
-        about.stats.forEach(stat => {
-            const statDiv = document.createElement('div');
-            statDiv.className = 'stat';
-            statDiv.innerHTML = `
-                <i class="${stat.icon}"></i>
-                <h3>${stat.title}</h3>
-                <p>${stat.description}</p>
-            `;
-            statsContainer.appendChild(statDiv);
-        });
-    }
-    
-    console.log('About section updated successfully');
+        if (aboutTextDiv) {
+            aboutTextDiv.innerHTML = '';
+            
+            if (about && about.paragraph1) {
+                const p1 = document.createElement('p');
+                p1.textContent = about.paragraph1;
+                aboutTextDiv.appendChild(p1);
+                console.log('Added paragraph 1');
+            }
+            
+            if (about && about.paragraph2) {
+                const p2 = document.createElement('p');
+                p2.textContent = about.paragraph2;
+                aboutTextDiv.appendChild(p2);
+                console.log('Added paragraph 2');
+            }
+            
+            // If no paragraphs, show default message
+            if (!about || (!about.paragraph1 && !about.paragraph2)) {
+                const defaultP = document.createElement('p');
+                defaultP.textContent = 'No content available. Please update from dashboard.';
+                aboutTextDiv.appendChild(defaultP);
+                console.log('Added default message');
+            }
+        }
+        
+        // Update stats
+        const statsContainer = document.querySelector('.about-stats');
+        console.log('Stats container:', statsContainer);
+        console.log('About stats:', about?.stats);
+        
+        if (statsContainer) {
+            statsContainer.innerHTML = '';
+            
+            if (about && about.stats && about.stats.length > 0) {
+                about.stats.forEach((stat, index) => {
+                    const statDiv = document.createElement('div');
+                    statDiv.className = 'stat';
+                    statDiv.innerHTML = `
+                        <i class="${stat.icon}"></i>
+                        <h3>${stat.title}</h3>
+                        <p>${stat.description}</p>
+                    `;
+                    statsContainer.appendChild(statDiv);
+                    console.log(`Added stat ${index + 1}:`, stat);
+                });
+            } else {
+                // Show default loading stat if no data
+                const loadingStat = document.createElement('div');
+                loadingStat.className = 'stat';
+                loadingStat.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>No Data</h3>
+                    <p>Please update from dashboard</p>
+                `;
+                statsContainer.appendChild(loadingStat);
+                console.log('Added no data message');
+            }
+        }
+        
+        console.log('About section updated successfully');
+    }, 50); // Small delay to ensure DOM is ready
 }
 
 // Update experience section

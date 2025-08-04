@@ -350,7 +350,6 @@ class CVDashboard {
         document.getElementById('email').value = personal.email;
         document.getElementById('phone').value = personal.phone;
         document.getElementById('location').value = personal.location;
-        document.getElementById('aboutText').value = personal.aboutText;
         
         // Load navbar brand fields
         if (document.getElementById('brandIcon')) {
@@ -487,7 +486,6 @@ class CVDashboard {
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
             location: document.getElementById('location').value,
-            aboutText: document.getElementById('aboutText').value,
             brandIcon: document.getElementById('brandIcon')?.value || '',
             brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName').value,
             brandSubtitle: document.getElementById('brandSubtitle')?.value || '',

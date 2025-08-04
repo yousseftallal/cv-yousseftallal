@@ -597,6 +597,7 @@ section {
     position: relative;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: fadeInUp 0.8s ease-out;
 }
 
 .about-text:hover {
@@ -623,6 +624,17 @@ section {
     50% { background-position: 100% 50%; }
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .about-text p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
@@ -631,13 +643,17 @@ section {
     font-weight: 400;
     text-align: justify;
     text-justify: inter-word;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: all 0.3s ease;
 }
 
 .about-text p:last-child {
     margin-bottom: 0;
 }
 
-.about-text p::first-letter {
+.about-text p:first-child::first-letter {
     font-size: 1.4em;
     font-weight: 700;
     color: #3b82f6;
@@ -652,6 +668,8 @@ section {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2.5rem;
     margin-top: 2rem;
+    opacity: 1;
+    visibility: visible;
 }
 
 .stat {
@@ -665,7 +683,14 @@ section {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     position: relative;
     overflow: hidden;
+    animation: fadeInUp 1s ease-out;
+    animation-fill-mode: both;
 }
+
+.stat:nth-child(1) { animation-delay: 0.2s; }
+.stat:nth-child(2) { animation-delay: 0.4s; }
+.stat:nth-child(3) { animation-delay: 0.6s; }
+.stat:nth-child(4) { animation-delay: 0.8s; }
 
 .stat::before {
     content: '';

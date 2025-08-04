@@ -56,6 +56,31 @@ async function initializeDatabase() {
                     location: "Cairo, Egypt",
                     about: "Passionate full stack developer with experience in modern web technologies."
                 },
+                about: {
+                    title: 'About Me',
+                    paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
+                    paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I am committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
+                    stats: [
+                        {
+                            id: 'languages',
+                            icon: 'fas fa-code',
+                            title: '4+',
+                            description: 'Programming Languages'
+                        },
+                        {
+                            id: 'platforms',
+                            icon: 'fas fa-mobile-alt',
+                            title: 'Multi-Platform',
+                            description: 'Development Experience'
+                        },
+                        {
+                            id: 'education',
+                            icon: 'fas fa-graduation-cap',
+                            title: 'Computer Science',
+                            description: 'Student'
+                        }
+                    ]
+                },
                 skills: [
                     { name: "JavaScript", icon: "fab fa-js", level: 90 },
                     { name: "React", icon: "fab fa-react", level: 85 },
