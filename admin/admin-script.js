@@ -427,6 +427,14 @@ class CVDashboard {
                     <label for="skill-description">Description</label>
                     <textarea id="skill-description" name="skill-description" rows="3" required>${skill.description || ''}</textarea>
                 </div>
+                <div class="form-group">
+                    <label for="skill-features">Key Features & Capabilities:</label>
+                    <textarea id="skill-features" name="skill-features" rows="4" placeholder="Enter key features separated by new lines">${skill.features?.join('\n') || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="skill-projects">Projects & Experience:</label>
+                    <textarea id="skill-projects" name="skill-projects" rows="4" placeholder="Describe your projects and experience with this skill">${skill.projects || ''}</textarea>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="skill-level">Level</label>
@@ -452,11 +460,16 @@ class CVDashboard {
 
     async saveSkill(formData) {
         const skillId = formData.get('skill-id') || this.generateId();
+        const featuresText = formData.get('skill-features');
+        const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
+        
         const skillData = {
             id: skillId,
             name: formData.get('skill-name'),
             icon: formData.get('skill-icon'),
             description: formData.get('skill-description'),
+            features: features,
+            projects: formData.get('skill-projects'),
             level: formData.get('skill-level'),
             experience: formData.get('skill-experience')
         };
