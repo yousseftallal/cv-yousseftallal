@@ -803,6 +803,44 @@ section {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
     }
+    
+    /* Education Responsive */
+    .education-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 0 0.5rem;
+    }
+    
+    .education-item {
+        padding: 2rem;
+    }
+    
+    .education-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .education-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+        align-self: center;
+    }
+    
+    .education-content h3 {
+        font-size: 1.4rem;
+    }
+    
+    .institution {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+    }
+    
+    .duration {
+        font-size: 0.9rem;
+        justify-content: center;
+    }
 }
 
 .skill-level span {
@@ -1054,62 +1092,159 @@ section {
 
 /* Education Section */
 .education {
-    background: #f8fafc;
+    background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.education::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    pointer-events: none;
 }
 
 .education-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 3rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
 }
 
 .education-item {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    padding: 3rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.education-item.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.education-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+    transition: left 0.8s ease;
+}
+
+.education-item:hover::before {
+    left: 100%;
+}
+
+.education-item:hover {
+    transform: translateY(-15px) scale(1.03);
+    box-shadow: 0 30px 60px rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.education-header {
     display: flex;
-    gap: 1.5rem;
     align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .education-icon {
-    background: #2563eb;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
     color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2rem;
     flex-shrink: 0;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    transition: all 0.4s ease;
+}
+
+.education-item:hover .education-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+}
+
+.education-info {
+    flex: 1;
 }
 
 .education-content h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
     color: #1e293b;
+    background: linear-gradient(135deg, #1e293b, #475569);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .institution {
-    color: #2563eb;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 .duration {
     color: #64748b;
-    font-size: 0.9rem;
-    display: block;
-    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.duration::before {
+    content: '📅';
+    font-size: 1.1rem;
 }
 
 .description {
     color: #64748b;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 1rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.description::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 4px;
+    height: calc(100% - 1rem);
+    background: linear-gradient(180deg, #2563eb, #3b82f6);
+    border-radius: 2px;
 }
 
 /* Contact Section */

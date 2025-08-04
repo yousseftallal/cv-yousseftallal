@@ -440,22 +440,35 @@ function updateEducation(education) {
     const educationGrid = document.querySelector('.education-grid');
     if (educationGrid && education.length > 0) {
         let educationHTML = '';
-        education.forEach(edu => {
+        education.forEach((edu, index) => {
             educationHTML += `
-                <div class="education-item">
-                    <div class="education-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                <div class="education-item" style="animation-delay: ${index * 0.3}s">
+                    <div class="education-header">
+                        <div class="education-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="education-info">
+                            <h3>${edu.title || 'Education'}</h3>
+                            <div class="institution">${edu.institution || 'Institution'}</div>
+                            <div class="duration">${edu.period || 'Period'}</div>
+                        </div>
                     </div>
                     <div class="education-content">
-                        <h3>${edu.title || 'Education'}</h3>
-                        <div class="institution">${edu.institution || 'Institution'}</div>
-                        <div class="duration">${edu.period || 'Period'}</div>
                         <div class="description">${edu.description || 'No description available'}</div>
                     </div>
                 </div>
             `;
         });
         educationGrid.innerHTML = educationHTML;
+        
+        // Trigger animations after a short delay
+        setTimeout(() => {
+            document.querySelectorAll('.education-item').forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('animate-in');
+                }, index * 300);
+            });
+        }, 100);
     }
 }
 
@@ -560,24 +573,28 @@ function startCarousel() {
     // Auto-rotate
     setInterval(nextCard, autoRotateSpeed);
     
-    // Add navigation controls
+    // Add navigation controls (only if not already exists)
     const skillsContainer = skillsGrid.parentElement;
-    const navContainer = document.createElement('div');
-    navContainer.className = 'carousel-nav';
-    navContainer.innerHTML = `
-        <button class="carousel-btn prev-btn" onclick="prevSkill()">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <div class="carousel-indicators">
-            ${cards.length > 0 ? Array.from(cards).map((_, index) => 
-                `<span class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></span>`
-            ).join('') : ''}
-        </div>
-        <button class="carousel-btn next-btn" onclick="nextSkill()">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    `;
-    skillsContainer.appendChild(navContainer);
+    let navContainer = skillsContainer.querySelector('.carousel-nav');
+    
+    if (!navContainer) {
+        navContainer = document.createElement('div');
+        navContainer.className = 'carousel-nav';
+        navContainer.innerHTML = `
+            <button class="carousel-btn prev-btn" onclick="prevSkill()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="carousel-indicators">
+                ${cards.length > 0 ? Array.from(cards).map((_, index) => 
+                    `<span class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></span>`
+                ).join('') : ''}
+            </div>
+            <button class="carousel-btn next-btn" onclick="nextSkill()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        skillsContainer.appendChild(navContainer);
+    }
     
     // Add click handlers for indicators
     const indicators = navContainer.querySelectorAll('.indicator');
