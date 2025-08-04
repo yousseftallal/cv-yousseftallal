@@ -447,7 +447,20 @@ class CVDashboard {
                     </div>
                     <div class="form-group">
                         <label for="skill-experience">Experience</label>
-                        <input type="text" id="skill-experience" name="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
+                        <select id="skill-experience" name="skill-experience" required>
+                            <option value="">Select experience level</option>
+                            <option value="Less than 1 year" ${skill.experience === 'Less than 1 year' ? 'selected' : ''}>Less than 1 year</option>
+                            <option value="1 year" ${skill.experience === '1 year' ? 'selected' : ''}>1 year</option>
+                            <option value="2 years" ${skill.experience === '2 years' ? 'selected' : ''}>2 years</option>
+                            <option value="3 years" ${skill.experience === '3 years' ? 'selected' : ''}>3 years</option>
+                            <option value="4 years" ${skill.experience === '4 years' ? 'selected' : ''}>4 years</option>
+                            <option value="5 years" ${skill.experience === '5 years' ? 'selected' : ''}>5 years</option>
+                            <option value="6 years" ${skill.experience === '6 years' ? 'selected' : ''}>6 years</option>
+                            <option value="7 years" ${skill.experience === '7 years' ? 'selected' : ''}>7 years</option>
+                            <option value="8 years" ${skill.experience === '8 years' ? 'selected' : ''}>8 years</option>
+                            <option value="9 years" ${skill.experience === '9 years' ? 'selected' : ''}>9 years</option>
+                            <option value="10+ years" ${skill.experience === '10+ years' ? 'selected' : ''}>10+ years</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-actions">
