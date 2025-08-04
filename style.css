@@ -408,8 +408,12 @@ section {
     z-index: 1;
     visibility: visible !important;
     opacity: 1 !important;
-    min-height: 400px;
-    perspective: 1200px;
+    min-height: 350px;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    perspective: 1000px;
     transform-style: preserve-3d;
 }
 
@@ -429,7 +433,7 @@ section {
     border-radius: 20px;
     padding: 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     cursor: pointer;
     position: absolute;
     overflow: hidden;
@@ -686,6 +690,44 @@ section {
 .indicator:hover {
     background: rgba(37, 99, 235, 0.6);
     transform: scale(1.1);
+}
+
+/* Responsive Design for Skills Carousel */
+@media (max-width: 768px) {
+    .skills-grid {
+        min-height: 300px;
+        perspective: 800px;
+    }
+    
+    .skill-card {
+        width: 280px;
+        height: 240px;
+    }
+    
+    .carousel-nav {
+        gap: 1rem;
+    }
+    
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .skills-grid {
+        min-height: 250px;
+    }
+    
+    .skill-card {
+        width: 260px;
+        height: 220px;
+    }
+    
+    .skill-card-inner {
+        padding: 1rem;
+    }
 }
 
 .skill-level span {

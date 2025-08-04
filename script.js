@@ -464,24 +464,65 @@ function startCarousel() {
     
     let currentIndex = 0;
     const totalCards = cards.length;
-    const autoRotateSpeed = 3000; // 3 seconds per card
+    const autoRotateSpeed = 4000; // 4 seconds per card
     
     function updateCarousel() {
         cards.forEach((card, index) => {
-            const angle = (360 / totalCards) * (index - currentIndex);
-            const radius = 400; // Distance from center
-            const rotateY = angle;
-            const translateZ = Math.cos((angle * Math.PI) / 180) * radius;
-            const opacity = Math.cos((angle * Math.PI) / 180) > 0 ? 1 : 0.3;
-            const scale = Math.cos((angle * Math.PI) / 180) > 0 ? 1 : 0.8;
+            const position = index - currentIndex;
+            let translateX = 0;
+            let translateZ = 0;
+            let rotateY = 0;
+            let opacity = 0;
+            let scale = 0.8;
+            let zIndex = 1;
+            
+            // Show 3 cards: center, left, right
+            if (position === 0) {
+                // Center card (main focus)
+                translateX = 0;
+                translateZ = 0;
+                rotateY = 0;
+                opacity = 1;
+                scale = 1;
+                zIndex = 10;
+            } else if (position === 1 || (position === -(totalCards - 1))) {
+                // Right card
+                translateX = 280;
+                translateZ = -100;
+                rotateY = -25;
+                opacity = 0.7;
+                scale = 0.85;
+                zIndex = 5;
+            } else if (position === -1 || (position === totalCards - 1)) {
+                // Left card
+                translateX = -280;
+                translateZ = -100;
+                rotateY = 25;
+                opacity = 0.7;
+                scale = 0.85;
+                zIndex = 5;
+            } else {
+                // Hidden cards
+                opacity = 0;
+                scale = 0.6;
+                zIndex = 1;
+                if (position > 0) {
+                    translateX = 400;
+                    rotateY = -45;
+                } else {
+                    translateX = -400;
+                    rotateY = 45;
+                }
+            }
             
             card.style.transform = `
-                rotateY(${rotateY}deg) 
+                translateX(${translateX}px) 
                 translateZ(${translateZ}px) 
+                rotateY(${rotateY}deg) 
                 scale(${scale})
             `;
             card.style.opacity = opacity;
-            card.style.zIndex = Math.cos((angle * Math.PI) / 180) > 0 ? 10 : 1;
+            card.style.zIndex = zIndex;
         });
     }
     
@@ -550,6 +591,18 @@ function startCarousel() {
             currentIndex = index;
             updateCarousel();
             updateIndicators();
+        });
+        
+        // Add hover effect for side cards
+        card.addEventListener('mouseenter', () => {
+            const position = index - currentIndex;
+            if (position === 1 || position === -(totalCards - 1) || position === -1 || position === totalCards - 1) {
+                card.style.transform = card.style.transform.replace(/scale\([^)]*\)/, 'scale(0.9)');
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            updateCarousel(); // Reset to original position
         });
     });
 }
