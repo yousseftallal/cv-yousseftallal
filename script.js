@@ -312,6 +312,35 @@ async function loadCVDataFromDatabase() {
 function updatePersonalInfo(personal) {
     console.log('Updating personal info with:', personal);
     
+    // Update navbar
+    const navBrandIcon = document.getElementById('navBrandIcon');
+    const navBrandTitle = document.getElementById('navBrandTitle');
+    const navBrandSubtitle = document.getElementById('navBrandSubtitle');
+    
+    if (navBrandIcon && personal.brandIcon) {
+        navBrandIcon.textContent = personal.brandIcon;
+    }
+    
+    if (navBrandTitle && personal.brandTitle) {
+        navBrandTitle.textContent = personal.brandTitle;
+        // Add Arabic text class if contains Arabic characters
+        if (/[\u0600-\u06FF]/.test(personal.brandTitle)) {
+            navBrandTitle.classList.add('arabic-text');
+        } else {
+            navBrandTitle.classList.add('english-text');
+        }
+    }
+    
+    if (navBrandSubtitle && personal.brandSubtitle) {
+        navBrandSubtitle.textContent = personal.brandSubtitle;
+        // Add Arabic text class if contains Arabic characters
+        if (/[\u0600-\u06FF]/.test(personal.brandSubtitle)) {
+            navBrandSubtitle.classList.add('arabic-text');
+        } else {
+            navBrandSubtitle.classList.add('english-text');
+        }
+    }
+    
     // Update hero section
     const nameElement = document.querySelector('.hero-text h1');
     const subtitleElement = document.querySelector('.hero-subtitle');

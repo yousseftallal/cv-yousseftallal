@@ -82,7 +82,10 @@ class CVDashboard {
                 email: 'yousef.talal@email.com',
                 phone: '+123 456 7890',
                 location: 'City, Country',
-                aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.'
+                aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.',
+                brandIcon: 'YT',
+                brandTitle: 'Yousef Talal',
+                brandSubtitle: 'Developer'
             },
             skills: [
                 {
@@ -300,6 +303,17 @@ class CVDashboard {
         document.getElementById('phone').value = personal.phone;
         document.getElementById('location').value = personal.location;
         document.getElementById('aboutText').value = personal.aboutText;
+        
+        // Load navbar brand fields
+        if (document.getElementById('brandIcon')) {
+            document.getElementById('brandIcon').value = personal.brandIcon || '';
+        }
+        if (document.getElementById('brandTitle')) {
+            document.getElementById('brandTitle').value = personal.brandTitle || personal.fullName || '';
+        }
+        if (document.getElementById('brandSubtitle')) {
+            document.getElementById('brandSubtitle').value = personal.brandSubtitle || '';
+        }
     }
 
     async savePersonalInfo() {
@@ -309,7 +323,10 @@ class CVDashboard {
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
             location: document.getElementById('location').value,
-            aboutText: document.getElementById('aboutText').value
+            aboutText: document.getElementById('aboutText').value,
+            brandIcon: document.getElementById('brandIcon')?.value || '',
+            brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName').value,
+            brandSubtitle: document.getElementById('brandSubtitle')?.value || ''
         };
         this.saveData();
         
