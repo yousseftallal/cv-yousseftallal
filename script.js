@@ -375,6 +375,9 @@ function updatePersonalInfo(personal) {
         console.log('Updated description to:', personal.aboutText);
     }
     
+    // Update contact section with clickable links
+    updateContactSection(personal);
+    
     // Update about section - update all paragraphs
     const aboutElements = document.querySelectorAll('.about-text p');
     if (aboutElements.length > 0 && personal.aboutText) {
@@ -424,6 +427,84 @@ function updatePersonalInfo(personal) {
             statsContainer.innerHTML = statsHTML;
         }
     }
+}
+
+// Update contact section with clickable links
+function updateContactSection(personal) {
+    console.log('Updating contact section with:', personal);
+    
+    // Update contact items with clickable functionality
+    const contactItems = document.querySelectorAll('.contact-item');
+    
+    contactItems.forEach(item => {
+        const icon = item.querySelector('i');
+        const h4 = item.querySelector('h4');
+        const p = item.querySelector('p');
+        
+        if (!icon || !h4 || !p) return;
+        
+        // Remove existing click handlers and styles
+        item.style.cursor = 'default';
+        item.onclick = null;
+        item.title = '';
+        item.classList.remove('clickable');
+        
+        // Email contact item
+        if (icon.classList.contains('fa-envelope') && personal.emailLink) {
+            item.style.cursor = 'pointer';
+            item.classList.add('clickable');
+            item.onclick = () => window.open(personal.emailLink, '_blank');
+            item.title = 'Click to contact via email';
+        }
+        
+        // Phone contact item
+        if (icon.classList.contains('fa-phone') && personal.phoneLink) {
+            item.style.cursor = 'pointer';
+            item.classList.add('clickable');
+            item.onclick = () => window.open(personal.phoneLink, '_blank');
+            item.title = 'Click to call or message';
+        }
+        
+        // Location contact item
+        if (icon.classList.contains('fa-map-marker-alt') && personal.locationLink) {
+            item.style.cursor = 'pointer';
+            item.classList.add('clickable');
+            item.onclick = () => window.open(personal.locationLink, '_blank');
+            item.title = 'Click to view location';
+        }
+    });
+    
+    // Update social media links
+    const socialLinks = document.querySelectorAll('.social-link');
+    const socialUrls = [
+        personal.linkedinUrl,
+        personal.githubUrl, 
+        personal.twitterUrl,
+        personal.websiteUrl
+    ];
+    
+    const socialNames = ['LinkedIn', 'GitHub', 'Twitter', 'Website'];
+    
+    socialLinks.forEach((link, index) => {
+        if (socialUrls[index]) {
+            link.href = socialUrls[index];
+            link.target = '_blank';
+            link.style.opacity = '1';
+            link.style.pointerEvents = 'auto';
+            link.classList.remove('disabled');
+            link.title = `Visit my ${socialNames[index]} profile`;
+        } else {
+            link.href = '#';
+            link.target = '';
+            link.style.opacity = '0.5';
+            link.style.pointerEvents = 'none';
+            link.classList.add('disabled');
+            link.title = `${socialNames[index]} link not configured`;
+            link.onclick = (e) => e.preventDefault();
+        }
+    });
+    
+    console.log('Contact section updated with links');
 }
 
 // Update experience section

@@ -1500,6 +1500,7 @@ section {
     gap: 1rem;
     min-width: 150px;
     text-align: center;
+    position: relative;
 }
 
 .contact-item i {
@@ -1520,6 +1521,36 @@ section {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
     background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.contact-item.clickable {
+    transition: all 0.3s ease;
+}
+
+.contact-item.clickable:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15);
+}
+
+.contact-item.clickable:active {
+    transform: translateY(-2px);
+}
+
+.contact-item.clickable::after {
+    content: '↗';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1rem;
+    color: #3b82f6;
+    opacity: 0;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.contact-item.clickable:hover::after {
+    opacity: 1;
+    transform: translate(2px, -2px);
 }
 
 .contact-item h4 {
@@ -1557,6 +1588,16 @@ section {
 .social-link:hover {
     background: #1d4ed8;
     transform: translateY(-3px);
+}
+
+.social-link.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.social-link.disabled:hover {
+    background: #2563eb;
+    transform: none;
 }
 
 /* Footer */

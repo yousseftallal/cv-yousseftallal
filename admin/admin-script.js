@@ -86,7 +86,16 @@ class CVDashboard {
                 brandIcon: 'YT',
                 brandTitle: 'Yousef Talal',
                 brandSubtitle: 'Developer',
-                brandImage: ''
+                brandImage: '',
+                // Contact links
+                emailLink: 'mailto:yousef.talal@email.com',
+                phoneLink: 'tel:+1234567890',
+                locationLink: '',
+                // Social media links
+                linkedinUrl: '',
+                githubUrl: '',
+                twitterUrl: '',
+                websiteUrl: ''
             },
             skills: [
                 {
@@ -325,6 +334,31 @@ class CVDashboard {
                 preview.style.display = 'flex';
             }
         }
+        
+        // Load contact links
+        if (document.getElementById('emailLink')) {
+            document.getElementById('emailLink').value = personal.emailLink || '';
+        }
+        if (document.getElementById('phoneLink')) {
+            document.getElementById('phoneLink').value = personal.phoneLink || '';
+        }
+        if (document.getElementById('locationLink')) {
+            document.getElementById('locationLink').value = personal.locationLink || '';
+        }
+        
+        // Load social media links
+        if (document.getElementById('linkedinUrl')) {
+            document.getElementById('linkedinUrl').value = personal.linkedinUrl || '';
+        }
+        if (document.getElementById('githubUrl')) {
+            document.getElementById('githubUrl').value = personal.githubUrl || '';
+        }
+        if (document.getElementById('twitterUrl')) {
+            document.getElementById('twitterUrl').value = personal.twitterUrl || '';
+        }
+        if (document.getElementById('websiteUrl')) {
+            document.getElementById('websiteUrl').value = personal.websiteUrl || '';
+        }
     }
 
     async savePersonalInfo() {
@@ -338,7 +372,16 @@ class CVDashboard {
             brandIcon: document.getElementById('brandIcon')?.value || '',
             brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName').value,
             brandSubtitle: document.getElementById('brandSubtitle')?.value || '',
-            brandImage: this.data.personal.brandImage || '' // Keep existing brand image
+            brandImage: this.data.personal.brandImage || '', // Keep existing brand image
+            // Contact links
+            emailLink: document.getElementById('emailLink')?.value || '',
+            phoneLink: document.getElementById('phoneLink')?.value || '',
+            locationLink: document.getElementById('locationLink')?.value || '',
+            // Social media links
+            linkedinUrl: document.getElementById('linkedinUrl')?.value || '',
+            githubUrl: document.getElementById('githubUrl')?.value || '',
+            twitterUrl: document.getElementById('twitterUrl')?.value || '',
+            websiteUrl: document.getElementById('websiteUrl')?.value || ''
         };
         this.saveData();
         
