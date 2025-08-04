@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
-    initializeContactAnimations();
     loadProfileImage();
     checkUrlForImageData();
     addRefreshButton();
@@ -473,16 +472,7 @@ function updateEducation(education) {
     }
 }
 
-// Initialize contact animations
-function initializeContactAnimations() {
-    setTimeout(() => {
-        document.querySelectorAll('.contact-item').forEach((item, index) => {
-            setTimeout(() => {
-                item.classList.add('animate-in');
-            }, index * 200);
-        });
-    }, 500);
-    }
+
 }
 
 // Initialize skills grid
