@@ -414,23 +414,23 @@ class CVDashboard {
     getSkillForm(skill = {}) {
         return `
             <form id="skill-form" class="admin-form">
-                <input type="hidden" id="skill-id" value="${skill.id || ''}">
+                <input type="hidden" id="skill-id" name="skill-id" value="${skill.id || ''}">
                 <div class="form-group">
                     <label for="skill-name">Skill Name</label>
-                    <input type="text" id="skill-name" value="${skill.name || ''}" required>
+                    <input type="text" id="skill-name" name="skill-name" value="${skill.name || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="skill-icon">Icon URL</label>
-                    <input type="url" id="skill-icon" value="${skill.icon || ''}" required>
+                    <input type="url" id="skill-icon" name="skill-icon" value="${skill.icon || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="skill-description">Description</label>
-                    <textarea id="skill-description" rows="3" required>${skill.description || ''}</textarea>
+                    <textarea id="skill-description" name="skill-description" rows="3" required>${skill.description || ''}</textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="skill-level">Level</label>
-                        <select id="skill-level" required>
+                        <select id="skill-level" name="skill-level" required>
                             <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
                             <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
                             <option value="Advanced" ${skill.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
@@ -439,7 +439,7 @@ class CVDashboard {
                     </div>
                     <div class="form-group">
                         <label for="skill-experience">Experience</label>
-                        <input type="text" id="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
+                        <input type="text" id="skill-experience" name="skill-experience" value="${skill.experience || ''}" placeholder="e.g., 2+ years" required>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -553,22 +553,22 @@ class CVDashboard {
     getExperienceForm(experience = {}) {
         return `
             <form id="experience-form" class="admin-form">
-                <input type="hidden" id="experience-id" value="${experience.id || ''}">
+                <input type="hidden" id="experience-id" name="experience-id" value="${experience.id || ''}">
                 <div class="form-group">
                     <label for="experience-title">Title</label>
-                    <input type="text" id="experience-title" value="${experience.title || ''}" required>
+                    <input type="text" id="experience-title" name="experience-title" value="${experience.title || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="experience-period">Period</label>
-                    <input type="text" id="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
+                    <input type="text" id="experience-period" name="experience-period" value="${experience.period || ''}" placeholder="e.g., 2023 - Present" required>
                 </div>
                 <div class="form-group">
                     <label for="experience-description">Description</label>
-                    <textarea id="experience-description" rows="4" required>${experience.description || ''}</textarea>
+                    <textarea id="experience-description" name="experience-description" rows="4" required>${experience.description || ''}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="experience-technologies">Technologies (comma-separated)</label>
-                    <input type="text" id="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
+                    <input type="text" id="experience-technologies" name="experience-technologies" value="${experience.technologies?.join(', ') || ''}" placeholder="e.g., Flutter, Dart, Firebase" required>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Experience</button>
@@ -677,22 +677,22 @@ class CVDashboard {
     getEducationForm(education = {}) {
         return `
             <form id="education-form" class="admin-form">
-                <input type="hidden" id="education-id" value="${education.id || ''}">
+                <input type="hidden" id="education-id" name="education-id" value="${education.id || ''}">
                 <div class="form-group">
                     <label for="education-title">Degree/Title</label>
-                    <input type="text" id="education-title" value="${education.title || ''}" required>
+                    <input type="text" id="education-title" name="education-title" value="${education.title || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="education-institution">Institution</label>
-                    <input type="text" id="education-institution" value="${education.institution || ''}" required>
+                    <input type="text" id="education-institution" name="education-institution" value="${education.institution || ''}" required>
                 </div>
                 <div class="form-group">
                     <label for="education-period">Period</label>
-                    <input type="text" id="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
+                    <input type="text" id="education-period" name="education-period" value="${education.period || ''}" placeholder="e.g., 2021 - 2025" required>
                 </div>
                 <div class="form-group">
                     <label for="education-description">Description</label>
-                    <textarea id="education-description" rows="3" required>${education.description || ''}</textarea>
+                    <textarea id="education-description" name="education-description" rows="3" required>${education.description || ''}</textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Education</button>
