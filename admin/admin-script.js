@@ -542,31 +542,72 @@ class CVDashboard {
         if (!skillsList) return;
 
         skillsList.innerHTML = '';
-        this.data.skills.forEach(skill => {
+        
+        if (this.data.skills.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h4>No Skills Added Yet</h4>
+                <p>Click "Add New Skill" to get started</p>
+            `;
+            skillsList.appendChild(emptyState);
+            return;
+        }
+        
+        this.data.skills.forEach((skill, index) => {
             const skillCard = this.createSkillCard(skill);
+            skillCard.style.animationDelay = `${index * 0.1}s`;
             skillsList.appendChild(skillCard);
         });
     }
 
     createSkillCard(skill) {
         const card = document.createElement('div');
-        card.className = 'item-card';
+        card.className = 'item-card skill-card';
         card.innerHTML = `
-            <div class="item-header">
-                <div>
-                    <div class="item-title">${skill.name}</div>
-                    <div class="item-subtitle">${skill.level} • ${skill.experience}</div>
+            <div class="card-header">
+                <div class="card-icon">
+                    <img src="${skill.icon}" alt="${skill.name}" onerror="this.style.display='none'">
                 </div>
-                <div class="item-actions">
-                    <button class="btn btn-sm btn-primary" onclick="dashboard.editSkill('${skill.id}')">
-                        <i class="fas fa-edit"></i> Edit
+                <div class="card-info">
+                    <div class="card-title">${skill.name}</div>
+                    <div class="card-subtitle">
+                        <span class="level-badge ${skill.level.toLowerCase()}">${skill.level}</span>
+                        <span class="experience-text">${skill.experience}</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-primary" onclick="dashboard.editSkill('${skill.id}')" title="Edit Skill">
+                        <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteSkill('${skill.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteSkill('${skill.id}')" title="Delete Skill">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-            <div class="item-content">${skill.description}</div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h5><i class="fas fa-info-circle"></i> Description</h5>
+                    <p>${skill.description}</p>
+                </div>
+                ${skill.features && skill.features.length > 0 ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-star"></i> Key Features</h5>
+                    <ul class="features-list">
+                        ${skill.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                ${skill.projects ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-project-diagram"></i> Projects & Experience</h5>
+                    <p>${skill.projects}</p>
+                </div>
+                ` : ''}
+            </div>
         `;
         return card;
     }
@@ -704,33 +745,79 @@ class CVDashboard {
         if (!experienceList) return;
 
         experienceList.innerHTML = '';
-        this.data.experience.forEach(exp => {
+        
+        if (this.data.experience.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h4>No Experience Added Yet</h4>
+                <p>Click "Add New Experience" to get started</p>
+            `;
+            experienceList.appendChild(emptyState);
+            return;
+        }
+        
+        this.data.experience.forEach((exp, index) => {
             const expCard = this.createExperienceCard(exp);
+            expCard.style.animationDelay = `${index * 0.1}s`;
             experienceList.appendChild(expCard);
         });
     }
 
     createExperienceCard(experience) {
         const card = document.createElement('div');
-        card.className = 'item-card';
+        card.className = 'item-card experience-card';
         card.innerHTML = `
-            <div class="item-header">
-                <div>
-                    <div class="item-title">${experience.title}</div>
-                    <div class="item-subtitle">${experience.period}</div>
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-briefcase"></i>
                 </div>
-                <div class="item-actions">
-                    <button class="btn btn-sm btn-primary" onclick="dashboard.editExperience('${experience.id}')">
-                        <i class="fas fa-edit"></i> Edit
+                <div class="card-info">
+                    <div class="card-title">${experience.title}</div>
+                    <div class="card-subtitle">
+                        <span class="period-badge">${experience.period}</span>
+                        ${experience.company ? `<span class="company-text">${experience.company}</span>` : ''}
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-primary" onclick="dashboard.editExperience('${experience.id}')" title="Edit Experience">
+                        <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteExperience('${experience.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteExperience('${experience.id}')" title="Delete Experience">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-            <div class="item-content">${experience.description}</div>
-            <div class="item-tags">
-                ${experience.technologies.map(tech => `<span class="tag">${tech}</span>`).join('')}
+            <div class="card-content">
+                <div class="content-section">
+                    <h5><i class="fas fa-align-left"></i> Description</h5>
+                    <p>${experience.description}</p>
+                </div>
+                ${experience.technologies && experience.technologies.length > 0 ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-tools"></i> Technologies Used</h5>
+                    <div class="tech-tags">
+                        ${experience.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                ${experience.features && experience.features.length > 0 ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-star"></i> Key Features & Capabilities</h5>
+                    <ul class="features-list">
+                        ${experience.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                ${experience.projects ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-project-diagram"></i> Projects & Experience Details</h5>
+                    <p>${experience.projects}</p>
+                </div>
+                ` : ''}
             </div>
         `;
         return card;
@@ -831,31 +918,72 @@ class CVDashboard {
         if (!educationList) return;
 
         educationList.innerHTML = '';
-        this.data.education.forEach(edu => {
+        
+        if (this.data.education.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h4>No Education Added Yet</h4>
+                <p>Click "Add New Education" to get started</p>
+            `;
+            educationList.appendChild(emptyState);
+            return;
+        }
+        
+        this.data.education.forEach((edu, index) => {
             const eduCard = this.createEducationCard(edu);
+            eduCard.style.animationDelay = `${index * 0.1}s`;
             educationList.appendChild(eduCard);
         });
     }
 
     createEducationCard(education) {
         const card = document.createElement('div');
-        card.className = 'item-card';
+        card.className = 'item-card education-card';
         card.innerHTML = `
-            <div class="item-header">
-                <div>
-                    <div class="item-title">${education.title}</div>
-                    <div class="item-subtitle">${education.institution} • ${education.period}</div>
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
-                <div class="item-actions">
-                    <button class="btn btn-sm btn-primary" onclick="dashboard.editEducation('${education.id}')">
-                        <i class="fas fa-edit"></i> Edit
+                <div class="card-info">
+                    <div class="card-title">${education.title}</div>
+                    <div class="card-subtitle">
+                        <span class="institution-badge">${education.institution}</span>
+                        <span class="period-text">${education.period}</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-primary" onclick="dashboard.editEducation('${education.id}')" title="Edit Education">
+                        <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteEducation('${education.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteEducation('${education.id}')" title="Delete Education">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-            <div class="item-content">${education.description}</div>
+            <div class="card-content">
+                <div class="content-section">
+                    <h5><i class="fas fa-info-circle"></i> Description</h5>
+                    <p>${education.description}</p>
+                </div>
+                ${education.gpa ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-chart-line"></i> Academic Performance</h5>
+                    <p><strong>GPA:</strong> ${education.gpa}</p>
+                </div>
+                ` : ''}
+                ${education.achievements && education.achievements.length > 0 ? `
+                <div class="content-section">
+                    <h5><i class="fas fa-trophy"></i> Achievements</h5>
+                    <ul class="achievements-list">
+                        ${education.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            </div>
         `;
         return card;
     }
