@@ -128,6 +128,17 @@ class CVDashboard {
                     name: 'Flutter Mobile Development',
                     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg',
                     description: 'Cross-platform mobile application development using Flutter framework.',
+                    features: [
+                        'Cross-platform app development',
+                        'Native performance',
+                        'Hot reload for fast development',
+                        'Rich UI components and widgets'
+                    ],
+                    projects: [
+                        'E-commerce mobile app with payment integration',
+                        'Social media app with real-time messaging',
+                        'Fitness tracking app with GPS integration'
+                    ],
                     level: 'Advanced',
                     experience: '2+ years'
                 },
@@ -136,6 +147,15 @@ class CVDashboard {
                     name: 'Flutter Web Development',
                     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg',
                     description: 'Web application development using Flutter for web.',
+                    features: [
+                        'Responsive web applications',
+                        'Progressive Web Apps (PWA)',
+                        'Code sharing between mobile and web'
+                    ],
+                    projects: [
+                        'Portfolio website with Flutter',
+                        'Dashboard application for data visualization'
+                    ],
                     level: 'Intermediate',
                     experience: '1.5+ years'
                 },
@@ -144,6 +164,17 @@ class CVDashboard {
                     name: 'Swift iOS Development',
                     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg',
                     description: 'Native iOS application development using Swift.',
+                    features: [
+                        'Native iOS app development',
+                        'Core Data for data persistence',
+                        'UIKit and SwiftUI frameworks',
+                        'App Store optimization'
+                    ],
+                    projects: [
+                        'Task management iOS app',
+                        'Weather app with location services',
+                        'Photo editing app with Core Image'
+                    ],
                     level: 'Intermediate',
                     experience: '1+ years'
                 },
@@ -601,10 +632,12 @@ class CVDashboard {
                     </ul>
                 </div>
                 ` : ''}
-                ${skill.projects ? `
+                ${skill.projects && skill.projects.length > 0 ? `
                 <div class="content-section">
                     <h5><i class="fas fa-project-diagram"></i> Projects & Experience</h5>
-                    <p>${skill.projects}</p>
+                    <ul class="features-list">
+                        ${skill.projects.map(project => `<li>${project}</li>`).join('')}
+                    </ul>
                 </div>
                 ` : ''}
             </div>
@@ -663,7 +696,7 @@ class CVDashboard {
                 </div>
                 <div class="form-group">
                     <label for="skill-projects">Projects & Experience:</label>
-                    <textarea id="skill-projects" name="skill-projects" rows="4" placeholder="Describe your projects and experience with this skill">${skill.projects || ''}</textarea>
+                    <textarea id="skill-projects" name="skill-projects" rows="4" placeholder="Enter projects and experience separated by new lines">${skill.projects?.join('\n') || ''}</textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -706,13 +739,16 @@ class CVDashboard {
         const featuresText = formData.get('skill-features');
         const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
         
+        const projectsText = formData.get('skill-projects');
+        const projects = projectsText ? projectsText.split('\n').filter(p => p.trim()) : [];
+        
         const skillData = {
             id: skillId,
             name: formData.get('skill-name'),
             icon: formData.get('skill-icon'),
             description: formData.get('skill-description'),
             features: features,
-            projects: formData.get('skill-projects'),
+            projects: projects,
             level: formData.get('skill-level'),
             experience: formData.get('skill-experience')
         };

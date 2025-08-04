@@ -82,11 +82,44 @@ async function initializeDatabase() {
                     ]
                 },
                 skills: [
-                    { name: "JavaScript", icon: "fab fa-js", level: 90 },
-                    { name: "React", icon: "fab fa-react", level: 85 },
-                    { name: "Node.js", icon: "fab fa-node-js", level: 80 },
-                    { name: "Python", icon: "fab fa-python", level: 75 },
-                    { name: "HTML/CSS", icon: "fab fa-html5", level: 95 }
+                    {
+                        id: 'javascript',
+                        name: "JavaScript",
+                        icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+                        description: "Modern JavaScript development for web and mobile applications.",
+                        features: [
+                            "ES6+ syntax and features",
+                            "Async/await programming",
+                            "DOM manipulation",
+                            "API integration"
+                        ],
+                        projects: [
+                            "Interactive web applications",
+                            "RESTful API development",
+                            "Single Page Applications (SPA)"
+                        ],
+                        level: "Advanced",
+                        experience: "3+ years"
+                    },
+                    {
+                        id: 'react',
+                        name: "React",
+                        icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+                        description: "Building modern user interfaces with React framework.",
+                        features: [
+                            "Component-based architecture",
+                            "State management with hooks",
+                            "Virtual DOM optimization",
+                            "JSX templating"
+                        ],
+                        projects: [
+                            "E-commerce frontend application",
+                            "Dashboard with real-time data",
+                            "Portfolio website"
+                        ],
+                        level: "Advanced",
+                        experience: "2+ years"
+                    }
                 ],
                 experience: [
                     {
