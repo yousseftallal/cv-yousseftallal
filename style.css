@@ -811,12 +811,7 @@ section {
         padding: 0.3rem 0.6rem;
     }
     
-    .timeline-number {
-        width: 22px;
-        height: 22px;
-        font-size: 0.7rem;
-        top: -10px;
-    }
+
     
     /* Education Responsive */
     .education-grid {
@@ -929,9 +924,9 @@ section {
 .timeline-item.timeline-left .timeline-content {
     left: 2rem;
     right: 50%;
-    margin-right: 3rem;
+    margin-right: 2rem;
     transform-origin: right center;
-    max-width: 450px;
+    max-width: 520px;
 }
 
 .timeline-item.timeline-left .timeline-content:hover {
@@ -941,9 +936,9 @@ section {
 .timeline-item.timeline-right .timeline-content {
     right: 2rem;
     left: 50%;
-    margin-left: 3rem;
+    margin-left: 2rem;
     transform-origin: left center;
-    max-width: 450px;
+    max-width: 520px;
 }
 
 .timeline-item.timeline-right .timeline-content:hover {
@@ -963,28 +958,7 @@ section {
     z-index: 2;
 }
 
-.timeline-number {
-    position: absolute;
-    top: -12px;
-    right: 16px;
-    width: 26px;
-    height: 26px;
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.8rem;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-    z-index: 20;
-}
 
-.timeline-item.timeline-right .timeline-number {
-    right: auto;
-    left: 16px;
-}
 
 .timeline-content::after {
     content: '';

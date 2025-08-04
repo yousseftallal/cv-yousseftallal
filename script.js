@@ -401,7 +401,7 @@ function updateExperience(experience) {
             experienceHTML += `
                 <div class="timeline-item ${sideClass}" style="animation-delay: ${index * 0.2}s" data-index="${index}">
                     <div class="timeline-content">
-                        <div class="timeline-number">${index + 1}</div>
+        
                         <div class="timeline-header">
                             <div class="timeline-title-group">
                                 <h3>${exp.title || 'Experience'}</h3>
