@@ -716,7 +716,7 @@ section {
     
     /* Timeline Responsive */
     .timeline {
-        padding: 2rem 0.5rem;
+        padding: 2rem 1rem;
     }
     
     .timeline::before {
@@ -730,12 +730,13 @@ section {
         right: 1rem;
         margin-left: 0;
         margin-right: 0;
+        max-width: none;
         transform-origin: left center;
     }
     
     .timeline-item.timeline-left .timeline-content::before,
     .timeline-item.timeline-right .timeline-content::before {
-        left: -46px;
+        left: -41px;
         right: auto;
     }
     
@@ -766,7 +767,7 @@ section {
     
     /* Timeline Mobile */
     .timeline {
-        padding: 1rem 0.5rem;
+        padding: 1.5rem 0.75rem;
     }
     
     .timeline::before {
@@ -776,32 +777,45 @@ section {
     .timeline-item.timeline-left .timeline-content,
     .timeline-item.timeline-right .timeline-content {
         left: 65px;
-        right: 0.5rem;
+        right: 0.75rem;
         margin-left: 0;
         margin-right: 0;
+        max-width: none;
     }
     
     .timeline-content {
         padding: 1.5rem;
-        border-radius: 15px;
+        border-radius: 12px;
     }
     
     .timeline-title-group h3 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
     
     .timeline-date {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.7rem;
+    }
+    
+    .timeline-content p {
+        font-size: 0.9rem;
     }
     
     .tech-stack {
-        gap: 0.5rem;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
     }
     
     .tech-tag {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    .timeline-number {
+        width: 22px;
+        height: 22px;
+        font-size: 0.7rem;
+        top: -10px;
     }
     
     /* Education Responsive */
@@ -874,8 +888,9 @@ section {
 
 .timeline {
     position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 2rem 1rem;
     overflow: hidden;
 }
@@ -910,10 +925,11 @@ section {
 }
 
 .timeline-item.timeline-left .timeline-content {
-    left: 0;
+    left: 2rem;
     right: 50%;
-    margin-right: 2rem;
+    margin-right: 3rem;
     transform-origin: right center;
+    max-width: 450px;
 }
 
 .timeline-item.timeline-left .timeline-content:hover {
@@ -921,10 +937,11 @@ section {
 }
 
 .timeline-item.timeline-right .timeline-content {
-    right: 0;
+    right: 2rem;
     left: 50%;
-    margin-left: 2rem;
+    margin-left: 3rem;
     transform-origin: left center;
+    max-width: 450px;
 }
 
 .timeline-item.timeline-right .timeline-content:hover {
@@ -935,9 +952,9 @@ section {
     position: relative;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    padding: 2.5rem;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     overflow: hidden;
@@ -946,10 +963,10 @@ section {
 
 .timeline-number {
     position: absolute;
-    top: -15px;
-    right: 20px;
-    width: 30px;
-    height: 30px;
+    top: -12px;
+    right: 16px;
+    width: 26px;
+    height: 26px;
     background: linear-gradient(135deg, #2563eb, #3b82f6);
     color: white;
     border-radius: 50%;
@@ -957,14 +974,14 @@ section {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     z-index: 20;
 }
 
 .timeline-item.timeline-right .timeline-number {
     right: auto;
-    left: 20px;
+    left: 16px;
 }
 
 .timeline-content::after {
@@ -991,35 +1008,35 @@ section {
 .timeline-content::before {
     content: '';
     position: absolute;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background: linear-gradient(135deg, #2563eb, #3b82f6);
     border-radius: 50%;
-    top: 2.5rem;
-    border: 4px solid white;
+    top: 2rem;
+    border: 3px solid white;
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     z-index: 15;
 }
 
 .timeline-item.timeline-left .timeline-content::before {
-    right: -46px;
+    right: -41px;
 }
 
 .timeline-item.timeline-right .timeline-content::before {
-    left: -46px;
+    left: -41px;
 }
 
 .timeline-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .timeline-title-group h3 {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: #1e293b;
@@ -1027,15 +1044,16 @@ section {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    line-height: 1.3;
 }
 
 .timeline-date {
     background: linear-gradient(135deg, #2563eb, #3b82f6);
     color: white;
     font-weight: 600;
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
     display: inline-block;
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     white-space: nowrap;
@@ -1043,24 +1061,24 @@ section {
 
 .timeline-content p {
     color: #64748b;
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
 }
 
 .tech-stack {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
 }
 
 .tech-tag {
     background: linear-gradient(135deg, #eff6ff, #dbeafe);
     color: #2563eb;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 600;
     border: 1px solid rgba(37, 99, 235, 0.2);
     transition: all 0.3s ease;
