@@ -579,7 +579,7 @@ section {
 }
 
 .about-content {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
     text-align: center;
     position: relative;
@@ -624,11 +624,13 @@ section {
 }
 
 .about-text p {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     margin-bottom: 2rem;
     color: #475569;
-    line-height: 1.9;
+    line-height: 1.8;
     font-weight: 400;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .about-text p:last-child {
@@ -2082,6 +2084,11 @@ section {
     }
     
     /* About Responsive */
+    .about-content {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+    
     .about-text {
         padding: 2rem;
         border-radius: 20px;

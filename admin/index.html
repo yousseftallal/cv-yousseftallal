@@ -18,6 +18,7 @@
             <ul>
                 <li><a href="#overview" class="nav-link active"><i class="fas fa-dashboard"></i> Overview</a></li>
                 <li><a href="#personal" class="nav-link"><i class="fas fa-user"></i> Personal Info</a></li>
+                <li><a href="#about" class="nav-link"><i class="fas fa-info-circle"></i> About Me</a></li>
                 <li><a href="#skills" class="nav-link"><i class="fas fa-code"></i> Skills</a></li>
                 <li><a href="#experience" class="nav-link"><i class="fas fa-briefcase"></i> Experience</a></li>
                 <li><a href="#education" class="nav-link"><i class="fas fa-graduation-cap"></i> Education</a></li>
@@ -242,6 +243,43 @@
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Save Personal Info</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section id="about-section" class="content-section">
+            <div class="form-container">
+                <h3>About Me Content</h3>
+                <form id="about-form" class="admin-form">
+                    <div class="form-group">
+                        <label for="aboutTitle">Section Title</label>
+                        <input type="text" id="aboutTitle" name="aboutTitle" placeholder="About Me" maxlength="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="aboutParagraph1">First Paragraph</label>
+                        <textarea id="aboutParagraph1" name="aboutParagraph1" rows="4" placeholder="Write the first paragraph about yourself..." maxlength="500"></textarea>
+                        <small class="form-help">Maximum 500 characters</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="aboutParagraph2">Second Paragraph</label>
+                        <textarea id="aboutParagraph2" name="aboutParagraph2" rows="4" placeholder="Write the second paragraph about yourself..." maxlength="500"></textarea>
+                        <small class="form-help">Maximum 500 characters</small>
+                    </div>
+                    
+                    <h4>Statistics Cards</h4>
+                    <div id="stats-list">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="addStat">
+                            <i class="fas fa-plus"></i> Add New Statistic
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save About Me</button>
                     </div>
                 </form>
             </div>

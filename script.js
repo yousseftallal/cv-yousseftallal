@@ -292,6 +292,12 @@ async function loadCVDataFromDatabase() {
                     console.log('Education updated');
                 }
                 
+                // Update about section
+                if (result.data.about) {
+                    updateAboutSection(result.data.about);
+                    console.log('About section updated');
+                }
+                
                 // Initialize skills with new data
                 initializeSkills();
                 
@@ -505,6 +511,54 @@ function updateContactSection(personal) {
     });
     
     console.log('Contact section updated with links');
+}
+
+// Update About Me section
+function updateAboutSection(about) {
+    console.log('Updating about section with:', about);
+    
+    // Update section title
+    const sectionTitle = document.querySelector('#about .section-title');
+    if (sectionTitle && about.title) {
+        sectionTitle.textContent = about.title;
+    }
+    
+    // Update paragraphs
+    const aboutTextDiv = document.querySelector('.about-text');
+    if (aboutTextDiv && (about.paragraph1 || about.paragraph2)) {
+        aboutTextDiv.innerHTML = '';
+        
+        if (about.paragraph1) {
+            const p1 = document.createElement('p');
+            p1.textContent = about.paragraph1;
+            aboutTextDiv.appendChild(p1);
+        }
+        
+        if (about.paragraph2) {
+            const p2 = document.createElement('p');
+            p2.textContent = about.paragraph2;
+            aboutTextDiv.appendChild(p2);
+        }
+    }
+    
+    // Update stats
+    const statsContainer = document.querySelector('.about-stats');
+    if (statsContainer && about.stats && about.stats.length > 0) {
+        statsContainer.innerHTML = '';
+        
+        about.stats.forEach(stat => {
+            const statDiv = document.createElement('div');
+            statDiv.className = 'stat';
+            statDiv.innerHTML = `
+                <i class="${stat.icon}"></i>
+                <h3>${stat.title}</h3>
+                <p>${stat.description}</p>
+            `;
+            statsContainer.appendChild(statDiv);
+        });
+    }
+    
+    console.log('About section updated successfully');
 }
 
 // Update experience section

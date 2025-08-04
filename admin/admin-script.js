@@ -97,6 +97,31 @@ class CVDashboard {
                 twitterUrl: '',
                 websiteUrl: ''
             },
+            about: {
+                title: 'About Me',
+                paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
+                paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I\'m committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
+                stats: [
+                    {
+                        id: 'languages',
+                        icon: 'fas fa-code',
+                        title: '4+',
+                        description: 'Programming Languages'
+                    },
+                    {
+                        id: 'platforms',
+                        icon: 'fas fa-mobile-alt',
+                        title: 'Multi-Platform',
+                        description: 'Development Experience'
+                    },
+                    {
+                        id: 'education',
+                        icon: 'fas fa-graduation-cap',
+                        title: 'Computer Science',
+                        description: 'Student'
+                    }
+                ]
+            },
             skills: [
                 {
                     id: 'flutter-mobile',
@@ -237,6 +262,7 @@ class CVDashboard {
     loadDashboardData() {
         this.updateStats();
         this.loadPersonalForm();
+        this.loadAboutForm();
         this.loadSkillsList();
         this.loadExperienceList();
         this.loadEducationList();
@@ -271,6 +297,9 @@ class CVDashboard {
             case 'education':
                 this.loadEducationList();
                 break;
+            case 'about':
+                this.loadAboutForm();
+                break;
             case 'profile-image':
                 this.loadProfileImagePreview();
                 break;
@@ -292,6 +321,15 @@ class CVDashboard {
             personalForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.savePersonalInfo();
+            });
+        }
+
+        // About Me Form
+        const aboutForm = document.getElementById('about-form');
+        if (aboutForm) {
+            aboutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveAboutMe();
             });
         }
 
@@ -359,6 +397,87 @@ class CVDashboard {
         if (document.getElementById('websiteUrl')) {
             document.getElementById('websiteUrl').value = personal.websiteUrl || '';
         }
+    }
+
+    loadAboutForm() {
+        const about = this.data.about;
+        if (document.getElementById('aboutTitle')) {
+            document.getElementById('aboutTitle').value = about.title || 'About Me';
+        }
+        if (document.getElementById('aboutParagraph1')) {
+            document.getElementById('aboutParagraph1').value = about.paragraph1 || '';
+        }
+        if (document.getElementById('aboutParagraph2')) {
+            document.getElementById('aboutParagraph2').value = about.paragraph2 || '';
+        }
+        
+        // Load stats
+        this.renderStatsList();
+    }
+
+    renderStatsList() {
+        const statsList = document.getElementById('stats-list');
+        if (!statsList) return;
+
+        statsList.innerHTML = '';
+        
+        this.data.about.stats.forEach((stat, index) => {
+            const statItem = document.createElement('div');
+            statItem.className = 'stat-item';
+            statItem.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Icon Class</label>
+                        <input type="text" value="${stat.icon}" onchange="cvDashboard.updateStat(${index}, 'icon', this.value)" placeholder="fas fa-code">
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" value="${stat.title}" onchange="cvDashboard.updateStat(${index}, 'title', this.value)" placeholder="4+">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" value="${stat.description}" onchange="cvDashboard.updateStat(${index}, 'description', this.value)" placeholder="Programming Languages">
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="cvDashboard.removeStat(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            statsList.appendChild(statItem);
+        });
+    }
+
+    updateStat(index, field, value) {
+        if (this.data.about.stats[index]) {
+            this.data.about.stats[index][field] = value;
+        }
+    }
+
+    removeStat(index) {
+        this.data.about.stats.splice(index, 1);
+        this.renderStatsList();
+    }
+
+    addNewStat() {
+        const newStat = {
+            id: 'stat-' + Date.now(),
+            icon: 'fas fa-star',
+            title: 'New Stat',
+            description: 'Description'
+        };
+        this.data.about.stats.push(newStat);
+        this.renderStatsList();
+    }
+
+    async saveAboutMe() {
+        this.data.about = {
+            title: document.getElementById('aboutTitle').value || 'About Me',
+            paragraph1: document.getElementById('aboutParagraph1').value || '',
+            paragraph2: document.getElementById('aboutParagraph2').value || '',
+            stats: this.data.about.stats
+        };
+        this.saveData();
+        this.showNotification('About Me information saved successfully!', 'success');
     }
 
     async savePersonalInfo() {
@@ -1161,6 +1280,9 @@ class CVDashboard {
         
         // Brand image upload
         document.getElementById('brandImageUpload')?.addEventListener('change', (e) => this.handleBrandImageUpload(e));
+        
+        // About Me
+        document.getElementById('addStat')?.addEventListener('click', () => this.addNewStat());
         
         // Logout
         document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
