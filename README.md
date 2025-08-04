@@ -8,7 +8,7 @@ This update integrates Neon PostgreSQL database for persistent profile image sto
 
 1. **Neon Database Integration**: Profile images are now stored in Neon PostgreSQL database
 2. **Automatic Loading**: Images load automatically from database on all devices
-3. **No Local Storage**: No need for localStorage or URL parameters
+3. **Database Only**: All data stored in Neon database, no localStorage
 4. **Real-time Updates**: Changes appear immediately across all devices
 5. **Admin Authentication**: Secure login system for dashboard access
 6. **API Endpoints**: RESTful API for image management
@@ -53,7 +53,7 @@ npm install
 - **API**: Netlify Functions for database operations
 - **Authentication**: Client-side login with 24-hour session
 - **Caching**: Cache-busting mechanisms for reliable image loading
-- **Fallback**: localStorage backup for admin dashboard
+- **Database Only**: All data stored in Neon PostgreSQL
 
 ### Files Structure:
 

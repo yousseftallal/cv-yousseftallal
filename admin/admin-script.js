@@ -10,25 +10,8 @@ class CVDashboard {
     }
 
     checkAuthentication() {
-        const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
-        if (!isAuthenticated) {
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        // Check if login is still valid (24 hours)
-        const loginTime = localStorage.getItem('adminLoginTime');
-        if (loginTime) {
-            const currentTime = new Date().getTime();
-            const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
-            
-            if (hoursSinceLogin >= 24) {
-                localStorage.removeItem('adminAuthenticated');
-                localStorage.removeItem('adminLoginTime');
-                window.location.href = 'login.html';
-                return;
-            }
-        }
+        // Authentication handled by server session only - no client-side check needed
+        // If needed, add server-side session validation here
     }
 
     init() {
@@ -185,13 +168,13 @@ class CVDashboard {
             }
         };
 
-        const savedData = localStorage.getItem('cvDashboardData');
-        return savedData ? { ...defaultData, ...JSON.parse(savedData) } : defaultData;
+        // Load data from database only, no localStorage fallback
+        return defaultData;
     }
 
     saveData() {
-        localStorage.setItem('cvDashboardData', JSON.stringify(this.data));
-        this.showToast('Data saved successfully!', 'success');
+        // Save to database only, no localStorage
+        this.saveDataToDatabase();
     }
 
     // Save data to database
@@ -227,9 +210,8 @@ class CVDashboard {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success && result.data) {
-                    // Merge database data with local data
+                    // Load database data
                     this.data = { ...this.data, ...result.data };
-                    this.saveData(); // Save merged data to localStorage
                     this.loadDashboardData(); // Refresh dashboard
                     console.log('Data loaded from database successfully');
                 }
@@ -913,9 +895,8 @@ class CVDashboard {
             const data = await response.json();
             
             if (data.success) {
-                // Clear localStorage
+                // Clear profile image data
                 this.data.profileImage = null;
-                this.saveData();
                 
                 const urlInput = document.getElementById('profileImageUrl');
                 const preview = document.getElementById('profilePreview');
@@ -998,9 +979,8 @@ class CVDashboard {
             const data = await response.json();
             
             if (data.success) {
-                // Also save to localStorage for admin dashboard
+                // Update profile image data
                 this.data.profileImage = imageSrc;
-                this.saveData();
                 
                 this.showToast('Profile image updated successfully in database!');
                 
@@ -1166,8 +1146,7 @@ class CVDashboard {
     }
 
     logout() {
-        localStorage.removeItem('adminAuthenticated');
-        localStorage.removeItem('adminLoginTime');
+        // Clear any server-side session if needed
         window.location.href = 'login.html';
     }
 }

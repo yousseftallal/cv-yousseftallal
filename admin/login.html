@@ -157,8 +157,7 @@
             
             if (username === LOGIN_CREDENTIALS.username && password === LOGIN_CREDENTIALS.password) {
                 // Set authentication flag
-                localStorage.setItem('adminAuthenticated', 'true');
-                localStorage.setItem('adminLoginTime', new Date().getTime());
+                                    // Authentication handled by server session only
                 
                 // Redirect to dashboard
                 window.location.href = 'index.html';
@@ -168,20 +167,7 @@
             }
         });
 
-        // Check if already authenticated
-        if (localStorage.getItem('adminAuthenticated') === 'true') {
-            const loginTime = localStorage.getItem('adminLoginTime');
-            const currentTime = new Date().getTime();
-            const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
-            
-            // Auto-login if less than 24 hours
-            if (hoursSinceLogin < 24) {
-                window.location.href = 'index.html';
-            } else {
-                localStorage.removeItem('adminAuthenticated');
-                localStorage.removeItem('adminLoginTime');
-            }
-        }
+        // Authentication handled by server session only - no client-side check needed
     </script>
 </body>
 </html>

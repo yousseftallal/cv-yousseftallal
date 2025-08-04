@@ -84,11 +84,7 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    // Force reload to prevent caching issues
-    if (performance.navigation.type === 1) {
-        // Page was reloaded, clear any cached data
-        localStorage.removeItem('cvDashboardData');
-    }
+    // Force reload to prevent caching issues - no localStorage to clear
     
     loadCVDataFromDatabase();
     initializeNavigation();
@@ -122,7 +118,7 @@ function addRefreshButton() {
 // Force refresh function
 function forceRefresh() {
     console.log('Force refreshing data...');
-    localStorage.removeItem('cvDashboardData');
+    // No localStorage to clear - data comes from database only
     loadCVDataFromDatabase();
     loadProfileImage();
     
@@ -244,33 +240,7 @@ async function loadProfileImage() {
         console.error('Error loading profile image from database:', error);
     }
     
-    // Fallback to localStorage (for admin dashboard)
-    const savedData = localStorage.getItem('cvDashboardData');
-    if (savedData) {
-        try {
-            const data = JSON.parse(savedData);
-            if (data.profileImage) {
-                const imageData = data.profileImage;
-                
-                if (imageData.startsWith('http') || imageData.startsWith('https')) {
-                    const cacheBuster = new Date().getTime();
-                    const imageUrl = `${imageData}${imageData.includes('?') ? '&' : '?'}t=${cacheBuster}`;
-                    
-                    profileImg.onload = () => {
-                        console.log('Profile image loaded from localStorage:', imageData);
-                    };
-                    profileImg.onerror = () => {
-                        console.error('Failed to load image from localStorage URL:', imageData);
-                        profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
-                    };
-                    profileImg.src = imageUrl;
-                    return;
-                }
-            }
-        } catch (error) {
-            console.error('Error loading profile image from localStorage:', error);
-        }
-    }
+    // No localStorage fallback - data comes from database only
     
     // Default placeholder
     profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
