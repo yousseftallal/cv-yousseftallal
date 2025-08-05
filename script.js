@@ -428,8 +428,20 @@ function updatePersonalInfo(personal) {
     });
     
     if (nameElement && personal.fullName) {
-        nameElement.textContent = personal.fullName;
-        console.log('Updated name to:', personal.fullName);
+        // Clear any existing content and start typing animation
+        nameElement.textContent = '';
+        
+        // Add appropriate text direction class
+        if (/[\u0600-\u06FF]/.test(personal.fullName)) {
+            nameElement.classList.add('arabic-text');
+            nameElement.classList.remove('english-text');
+        } else {
+            nameElement.classList.add('english-text');
+            nameElement.classList.remove('arabic-text');
+        }
+        
+        console.log('Starting typing animation for name:', personal.fullName);
+        typeWriter(nameElement, personal.fullName, 100);
     }
     
     if (subtitleElement && personal.jobTitle) {
@@ -1344,30 +1356,49 @@ window.addEventListener('scroll', function() {
 
 // Typing effect for hero title
 function typeWriter(element, text, speed = 100) {
-    if (!element) return;
+    if (!element || !text) {
+        console.log('TypeWriter: Missing element or text');
+        return;
+    }
     
-    let i = 0;
+    // Clear any existing content and reset
     element.innerHTML = '';
+    let i = 0;
+    let isTyping = false;
+    
+    // Store the typing state to prevent multiple simultaneous animations
+    if (element.isTyping) {
+        console.log('TypeWriter: Already typing, skipping');
+        return;
+    }
+    
+    element.isTyping = true;
+    console.log('TypeWriter: Starting animation for text:', text);
     
     function type() {
-        if (i < text.length) {
+        if (i < text.length && element.isTyping) {
             element.innerHTML += text.charAt(i);
             i++;
             setTimeout(type, speed);
+        } else {
+            // Animation completed
+            element.isTyping = false;
+            console.log('TypeWriter: Animation completed');
         }
     }
     
     type();
 }
 
-// Initialize typing effect on page load
-window.addEventListener('load', function() {
+// Fallback typing effect if data doesn't load from database
+setTimeout(() => {
     const heroTitle = document.querySelector('.hero-text h1');
-    if (heroTitle) {
-        const originalText = heroTitle.textContent;
-        typeWriter(heroTitle, originalText, 100);
+    if (heroTitle && !heroTitle.isTyping && heroTitle.textContent.trim()) {
+        const currentText = heroTitle.textContent.trim();
+        console.log('Fallback typing animation for:', currentText);
+        typeWriter(heroTitle, currentText, 100);
     }
-});
+}, 2000); // Wait 2 seconds for database data to load
 
 // Smooth reveal animations for sections
 function revealOnScroll() {
