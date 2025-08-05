@@ -365,18 +365,11 @@ function updateEducationGallery(gallery) {
         cylinderGallery = [...cylinderGallery, ...cylinderGallery];
     }
     
-    // Calculate rotation angle for even distribution
-    const angleStep = 360 / Math.max(6, cylinderGallery.length);
-    
-    // Create 3D gallery HTML
-    const galleryHTML = cylinderGallery.map((image, index) => {
-        const rotationAngle = index * angleStep;
-        const translateZ = Math.max(250, cylinderGallery.length * 40); // Dynamic radius
-        
+    // Create 3D gallery HTML with CSS-controlled positioning
+    const galleryHTML = cylinderGallery.slice(0, 6).map((image, index) => {
         return `
             <div class="gallery-image" 
-                 onclick="openImageModal('${image.url}', '${image.title}')"
-                 style="transform: rotateY(${rotationAngle}deg) translateZ(${translateZ}px);">
+                 onclick="openImageModal('${image.url}', '${image.title}')">
                 <img src="${image.url}" alt="${image.title}" loading="lazy">
                 <div class="gallery-image-overlay">
                     <div class="gallery-image-title">${image.title}</div>
