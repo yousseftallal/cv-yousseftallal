@@ -376,14 +376,26 @@ class CVDashboard {
     }
 
     loadProfileImagePreview() {
+        console.log('Loading profile image preview, data:', this.data.profileImage);
+        
+        const profilePreview = document.getElementById('profilePreview');
+        const urlInput = document.getElementById('profileImageUrl');
+        
         if (this.data.profileImage) {
-            const profilePreview = document.getElementById('profilePreview');
-            const urlInput = document.getElementById('profileImageUrl');
+            console.log('Setting profile image to:', this.data.profileImage);
             if (profilePreview) {
                 profilePreview.src = this.data.profileImage;
             }
             if (urlInput) {
                 urlInput.value = this.data.profileImage;
+            }
+        } else {
+            console.log('No profile image data, using default');
+            if (profilePreview) {
+                profilePreview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+            }
+            if (urlInput) {
+                urlInput.value = '';
             }
         }
     }
@@ -1259,6 +1271,26 @@ class CVDashboard {
         
         try {
             // Save to database directly
+            this.data.profileImage = imageUrl;
+            const success = await this.saveDataToDatabase();
+            
+            if (success) {
+                // Update preview
+                const preview = document.getElementById('profilePreview');
+                if (preview) {
+                    preview.src = imageUrl;
+                }
+                
+                this.showToast('Profile image updated successfully in database!', 'success');
+                
+                // Open main site to show the updated image
+                setTimeout(() => {
+                    window.open('../index.html', '_blank');
+                }, 1000);
+                return;
+            }
+            
+            // Fallback: try specific profile image endpoint
             const response = await fetch('/.netlify/functions/profile-image', {
                 method: 'POST',
                 headers: {
@@ -1298,24 +1330,34 @@ class CVDashboard {
     }
 
     setupProfileImagePreview() {
+        console.log('Setting up profile image preview');
+        
         const urlInput = document.getElementById('profileImageUrl');
         if (urlInput) {
+            console.log('Profile image URL input found, adding event listener');
+            
             urlInput.addEventListener('input', (e) => {
                 const imageUrl = e.target.value.trim();
-                if (imageUrl) {
-                    const preview = document.getElementById('profilePreview');
-                    if (preview) {
+                console.log('Profile image URL changed to:', imageUrl);
+                
+                const preview = document.getElementById('profilePreview');
+                if (preview) {
+                    if (imageUrl) {
                         preview.onload = () => {
-                            // Image loaded successfully
+                            console.log('Profile image loaded successfully');
                         };
                         preview.onerror = () => {
-                            // Image failed to load, keep default
+                            console.log('Profile image failed to load, using default');
                             preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
                         };
                         preview.src = imageUrl;
+                    } else {
+                        preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
                     }
                 }
             });
+        } else {
+            console.error('Profile image URL input not found');
         }
     }
 
@@ -1342,32 +1384,29 @@ class CVDashboard {
 
     async clearProfileImage() {
         try {
-            // Reset to default image in database
-            const response = await fetch('/.netlify/functions/profile-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    imageUrl: 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT'
-                })
-            });
+            // Clear profile image data
+            this.data.profileImage = null;
             
-            const data = await response.json();
+            // Save to database
+            const success = await this.saveDataToDatabase();
             
-            if (data.success) {
-                // Clear profile image data
-                this.data.profileImage = null;
-                
+            if (success) {
                 const urlInput = document.getElementById('profileImageUrl');
                 const preview = document.getElementById('profilePreview');
                 
                 if (urlInput) urlInput.value = '';
                 if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
                 
-                this.showToast('Profile image cleared successfully!');
+                this.showToast('Profile image cleared successfully!', 'success');
             } else {
-                this.showToast('Error: ' + (data.error || 'Failed to clear image'), 'error');
+                this.showToast('Profile image cleared locally, but failed to sync with database', 'warning');
+                
+                // Still update UI
+                const urlInput = document.getElementById('profileImageUrl');
+                const preview = document.getElementById('profilePreview');
+                
+                if (urlInput) urlInput.value = '';
+                if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
             }
         } catch (error) {
             console.error('Error clearing profile image:', error);
