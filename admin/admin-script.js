@@ -19,6 +19,7 @@ class CVDashboard {
         this.setupForms();
         this.setupModals();
         this.setupProfileImagePreview();
+        this.setupGalleryManagement();
         this.loadDashboardData();
         this.bindEvents();
         this.loadDataFromDatabase();
@@ -313,6 +314,10 @@ class CVDashboard {
                     period: '2021 - 2025 (Expected)',
                     description: 'Specialized in software engineering and mobile application development.'
                 }
+            ],
+            educationGallery: [
+                // Education gallery images will be stored here
+                // Each item: { id, url, title, timestamp }
             ]
         };
 
@@ -453,9 +458,10 @@ class CVDashboard {
                 case 'experience':
                     this.loadExperienceList();
                     break;
-                case 'education':
-                    this.loadEducationList();
-                    break;
+                            case 'education':
+                this.loadEducationList();
+                this.loadGalleryImages();
+                break;
                 case 'about':
                     this.loadAboutForm();
                     break;
@@ -1840,6 +1846,188 @@ function removeBrandImage() {
                 dashboard.showToast('Logo removed locally, but failed to update database', 'warning');
             }
         });
+    }
+
+    // Education Gallery Management
+    setupGalleryManagement() {
+        console.log('🖼️ Setting up Education Gallery Management');
+        
+        const addGalleryImageBtn = document.getElementById('addGalleryImage');
+        const galleryImageUpload = document.getElementById('galleryImageUpload');
+        
+        if (addGalleryImageBtn) {
+            addGalleryImageBtn.addEventListener('click', () => this.addGalleryImage());
+        }
+        
+        if (galleryImageUpload) {
+            galleryImageUpload.addEventListener('change', (e) => this.handleGalleryImageUpload(e));
+        }
+    }
+
+    async addGalleryImage() {
+        const urlInput = document.getElementById('galleryImageUrl');
+        const titleInput = document.getElementById('galleryImageTitle');
+        
+        const imageUrl = urlInput.value.trim();
+        const imageTitle = titleInput.value.trim() || 'Education Image';
+        
+        if (!imageUrl) {
+            this.showToast('Please enter an image URL or upload an image', 'error');
+            return;
+        }
+        
+        // Validate image URL
+        if (!this.isValidImageUrl(imageUrl)) {
+            this.showToast('Please enter a valid image URL (JPG, PNG, WEBP)', 'error');
+            return;
+        }
+        
+        const newImage = {
+            id: Date.now().toString(),
+            url: imageUrl,
+            title: imageTitle,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Add to gallery data
+        if (!this.data.educationGallery) {
+            this.data.educationGallery = [];
+        }
+        
+        this.data.educationGallery.push(newImage);
+        
+        // Clear inputs
+        urlInput.value = '';
+        titleInput.value = '';
+        
+        // Update display
+        this.renderGalleryImages();
+        
+        // Save to database
+        const success = await this.saveDataToDatabase();
+        if (success) {
+            this.showToast('Image added to gallery successfully!', 'success');
+        } else {
+            this.showToast('Image added locally, but failed to sync with database', 'warning');
+        }
+        
+        console.log('✅ Gallery image added:', newImage);
+    }
+
+    async handleGalleryImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            this.showToast('Please select a valid image file', 'error');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            this.showToast('Image size must be less than 5MB', 'error');
+            return;
+        }
+        
+        this.showToast('Converting image...', 'info');
+        
+        try {
+            // Convert to base64
+            const base64 = await this.fileToBase64(file);
+            
+            // Set the URL input with base64 data
+            document.getElementById('galleryImageUrl').value = base64;
+            
+            this.showToast('Image uploaded! Click "Add to Gallery" to save.', 'success');
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            this.showToast('Failed to upload image', 'error');
+        }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    isValidImageUrl(url) {
+        // Check if it's a base64 image
+        if (url.startsWith('data:image/')) {
+            return true;
+        }
+        
+        // Check if it's a valid URL with image extension
+        try {
+            const urlObj = new URL(url);
+            const path = urlObj.pathname.toLowerCase();
+            return path.match(/\.(jpg|jpeg|png|gif|webp|svg)$/);
+        } catch {
+            return false;
+        }
+    }
+
+    renderGalleryImages() {
+        const container = document.getElementById('galleryImagesList');
+        if (!container) return;
+        
+        const gallery = this.data.educationGallery || [];
+        
+        if (gallery.length === 0) {
+            container.innerHTML = `
+                <div class="gallery-empty-state">
+                    <i class="fas fa-images" style="font-size: 2rem; margin-bottom: 1rem; color: #9ca3af;"></i>
+                    <p>No images in gallery yet. Add some images to get started!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = gallery.map(image => `
+            <div class="gallery-image-item" data-id="${image.id}">
+                <img src="${image.url}" alt="${image.title}" loading="lazy">
+                <div class="gallery-image-overlay">
+                    <div class="gallery-image-title">${image.title}</div>
+                    <div class="gallery-image-actions">
+                        <button class="btn btn-danger" onclick="window.cvDashboard.removeGalleryImage('${image.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        console.log('✅ Gallery images rendered:', gallery.length);
+    }
+
+    async removeGalleryImage(imageId) {
+        if (!confirm('Are you sure you want to remove this image from the gallery?')) {
+            return;
+        }
+        
+        // Remove from data
+        this.data.educationGallery = (this.data.educationGallery || []).filter(img => img.id !== imageId);
+        
+        // Update display
+        this.renderGalleryImages();
+        
+        // Save to database
+        const success = await this.saveDataToDatabase();
+        if (success) {
+            this.showToast('Image removed from gallery', 'success');
+        } else {
+            this.showToast('Image removed locally, but failed to sync with database', 'warning');
+        }
+        
+        console.log('✅ Gallery image removed:', imageId);
+    }
+
+    loadGalleryImages() {
+        this.renderGalleryImages();
     }
 }
 

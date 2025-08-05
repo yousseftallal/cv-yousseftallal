@@ -330,6 +330,175 @@ function updateOpenGraphTags(personal) {
     console.log('✅ Updated Open Graph tags');
 }
 
+// Update Education Gallery
+function updateEducationGallery(gallery) {
+    console.log('🖼️ Updating Education Gallery:', gallery);
+    
+    const galleryContainer = document.getElementById('educationGallery');
+    const galleryTrack = document.getElementById('galleryTrack');
+    
+    if (!galleryContainer || !galleryTrack) {
+        console.log('Gallery containers not found');
+        return;
+    }
+    
+    // Hide gallery if no images
+    if (!gallery || gallery.length === 0) {
+        galleryContainer.style.display = 'none';
+        console.log('No gallery images, hiding gallery section');
+        return;
+    }
+    
+    // Show gallery
+    galleryContainer.style.display = 'block';
+    
+    // Duplicate images for seamless loop
+    const duplicatedGallery = [...gallery, ...gallery, ...gallery];
+    
+    // Create gallery HTML
+    const galleryHTML = duplicatedGallery.map(image => `
+        <div class="gallery-image" onclick="openImageModal('${image.url}', '${image.title}')">
+            <img src="${image.url}" alt="${image.title}" loading="lazy">
+            <div class="gallery-image-overlay">
+                <div class="gallery-image-title">${image.title}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    galleryTrack.innerHTML = galleryHTML;
+    
+    console.log('✅ Education Gallery updated with', gallery.length, 'images');
+}
+
+// Open image in modal (lightbox effect)
+function openImageModal(imageUrl, imageTitle) {
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.innerHTML = `
+        <div class="image-modal-backdrop" onclick="closeImageModal()">
+            <div class="image-modal-content" onclick="event.stopPropagation()">
+                <button class="image-modal-close" onclick="closeImageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img src="${imageUrl}" alt="${imageTitle}">
+                <div class="image-modal-title">${imageTitle}</div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal styles
+    const modalStyles = `
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .image-modal-backdrop {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        
+        .image-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .image-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 1;
+            transition: background 0.2s ease;
+        }
+        
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        
+        .image-modal img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .image-modal-title {
+            padding: 1rem;
+            background: white;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 500px) {
+            .image-modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+            }
+            
+            .image-modal-close {
+                top: 0.5rem;
+                right: 0.5rem;
+                width: 35px;
+                height: 35px;
+            }
+        }
+    `;
+    
+    // Add styles if not already added
+    if (!document.getElementById('image-modal-styles')) {
+        const styleSheet = document.createElement('style');
+        styleSheet.id = 'image-modal-styles';
+        styleSheet.textContent = modalStyles;
+        document.head.appendChild(styleSheet);
+    }
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+// Close image modal
+function closeImageModal() {
+    const modal = document.querySelector('.image-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
 
 // Load profile image from database - OPTIMIZED FOR SPEED
 async function loadProfileImage() {
@@ -447,6 +616,12 @@ async function loadCVDataFromDatabase() {
                 if (result.data.education) {
                     updateEducation(result.data.education);
                     console.log('Education updated');
+                }
+                
+                // Update education gallery
+                if (result.data.educationGallery) {
+                    updateEducationGallery(result.data.educationGallery);
+                    console.log('Education gallery updated');
                 }
                 
                 // Update about section

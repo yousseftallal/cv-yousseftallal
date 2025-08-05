@@ -383,6 +383,51 @@
                 <div id="education-list" class="items-list">
                     <!-- Education items will be populated by JavaScript -->
                 </div>
+                
+                <!-- Education Gallery Section -->
+                <div class="education-gallery-manager" style="margin-top: 2rem;">
+                    <h4 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-images" style="color: #8b5cf6;"></i>
+                        Education Gallery Images
+                    </h4>
+                    
+                    <div class="gallery-controls" style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 15px; margin-bottom: 1rem;">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 2;">
+                                <label for="galleryImageUrl">Add Image by URL</label>
+                                <input type="url" id="galleryImageUrl" placeholder="https://example.com/image.jpg">
+                                <small class="form-help">Enter image URL (JPG, PNG, WEBP)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="galleryImageUpload">Or Upload Image</label>
+                                <input type="file" id="galleryImageUpload" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('galleryImageUpload').click()">
+                                    <i class="fas fa-upload"></i> Upload
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="galleryImageTitle">Image Title (Optional)</label>
+                                <input type="text" id="galleryImageTitle" placeholder="Certificate, Graduation, etc.">
+                                <small class="form-help">Optional title for the image</small>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary" id="addGalleryImage">
+                                    <i class="fas fa-plus"></i> Add to Gallery
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-preview">
+                        <h5 style="color: #374151; margin-bottom: 1rem;">Current Gallery Images:</h5>
+                        <div id="galleryImagesList" class="gallery-images-grid">
+                            <!-- Gallery images will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
