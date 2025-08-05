@@ -1,8 +1,12 @@
 // Database configuration for Neon
 const { Pool } = require('pg');
 
-const DATABASE_URL = process.env.DATABASE_URL || 
-    "postgresql://neondb_owner:npg_wBxuRO8jN7KX@ep-wild-shadow-aej6461z-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (!DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is not set');
+    throw new Error('DATABASE_URL environment variable is required');
+}
 
 const pool = new Pool({
     connectionString: DATABASE_URL,
