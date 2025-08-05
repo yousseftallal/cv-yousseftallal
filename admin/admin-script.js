@@ -26,75 +26,112 @@ class CVDashboard {
 
     // Navigation
     setupNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        console.log('Setting up navigation for links:', navLinks.length);
+        console.log('=== SETTING UP NAVIGATION ===');
         
-        navLinks.forEach((link, index) => {
-            console.log(`Nav link ${index}:`, link.getAttribute('href'));
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
+        // Wait a bit for DOM to be fully ready
+        setTimeout(() => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            console.log('Found navigation links:', navLinks.length);
+            
+            if (navLinks.length === 0) {
+                console.error('No navigation links found! DOM might not be ready.');
+                return;
+            }
+            
+            navLinks.forEach((link, index) => {
                 const href = link.getAttribute('href');
-                const section = href ? href.substring(1) : 'overview';
-                console.log('Navigation clicked:', section);
+                console.log(`Nav link ${index}: ${href} - Text: "${link.textContent.trim()}"`);
                 
-                try {
-                    this.showSection(section);
-                    this.updateActiveNav(link);
-                } catch (error) {
-                    console.error('Error in navigation:', error);
-                }
+                // Remove any existing event listeners
+                link.removeEventListener('click', this.handleNavClick);
+                
+                // Add new event listener
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('=== NAVIGATION CLICKED ===');
+                    console.log('Clicked link:', link.textContent.trim());
+                    console.log('Href:', href);
+                    
+                    const section = href ? href.substring(1) : 'overview';
+                    console.log('Target section:', section);
+                    
+                    try {
+                        this.showSection(section);
+                        this.updateActiveNav(link);
+                    } catch (error) {
+                        console.error('Error in navigation click:', error);
+                    }
+                });
             });
-        });
-        
-        // Set up default active link
-        const firstLink = navLinks[0];
-        if (firstLink) {
-            firstLink.classList.add('active');
-        }
+            
+            console.log('Navigation setup completed');
+        }, 100);
     }
 
     showSection(sectionName) {
-        console.log('Showing section:', sectionName);
+        console.log('=== SHOW SECTION CALLED ===');
+        console.log('Section name:', sectionName);
         
         try {
-            // Hide all sections
+            // Hide all sections first
             const allSections = document.querySelectorAll('.content-section');
-            console.log('Found sections:', allSections.length);
+            console.log('Found total sections:', allSections.length);
             
-            allSections.forEach(section => {
+            // List all sections for debugging
+            allSections.forEach((section, index) => {
+                console.log(`Section ${index}: ${section.id}`);
                 section.classList.remove('active');
                 section.style.display = 'none';
+                section.style.opacity = '0';
             });
 
             // Show target section
-            const targetSection = document.getElementById(`${sectionName}-section`);
-            console.log('Target section element:', targetSection);
+            const targetSectionId = `${sectionName}-section`;
+            const targetSection = document.getElementById(targetSectionId);
+            console.log('Looking for section ID:', targetSectionId);
+            console.log('Target section found:', !!targetSection);
             
             if (targetSection) {
+                console.log('Activating section:', targetSectionId);
+                
+                // Force show the section
                 targetSection.style.display = 'block';
+                targetSection.style.opacity = '1';
+                targetSection.style.visibility = 'visible';
                 targetSection.classList.add('active');
+                
+                // Update current section
                 this.currentSection = sectionName;
+                
+                // Update page title
                 this.updatePageTitle(sectionName);
                 
-                // Load section data with a small delay
+                // Load section data
                 setTimeout(() => {
+                    console.log('Loading data for section:', sectionName);
                     this.loadSectionData(sectionName);
-                }, 50);
+                }, 100);
                 
-                console.log('Section activated successfully:', sectionName);
-            } else {
-                console.error('Section not found:', `${sectionName}-section`);
-                // Try to show overview as fallback
-                const overviewSection = document.getElementById('overview-section');
-                if (overviewSection) {
-                    overviewSection.style.display = 'block';
-                    overviewSection.classList.add('active');
-                    this.currentSection = 'overview';
-                    console.log('Fallback to overview section');
+                console.log('✅ Section activated successfully:', sectionName);
+                
+                // Scroll to top of main content
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.scrollTop = 0;
                 }
+                
+            } else {
+                console.error('❌ Section not found:', targetSectionId);
+                console.log('Available sections:');
+                allSections.forEach(section => {
+                    console.log(' - ', section.id);
+                });
             }
         } catch (error) {
-            console.error('Error in showSection:', error);
+            console.error('❌ Error in showSection:', error);
+            console.error('Error stack:', error.stack);
         }
     }
 
@@ -1863,22 +1900,64 @@ function removeBrandImage() {
 
 // Initialize Dashboard
 let dashboard;
+
+// Add some debugging info
+console.log('=== ADMIN SCRIPT LOADED ===');
+console.log('Document ready state:', document.readyState);
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded - Initializing Dashboard');
-    try {
-        dashboard = new CVDashboard();
-        window.cvDashboard = dashboard; // Make it globally accessible
-        window.dashboard = dashboard; // Make it globally accessible
+    console.log('=== DOM CONTENT LOADED ===');
+    console.log('Document ready state:', document.readyState);
+    
+    // Wait a bit more for everything to be ready
+    setTimeout(() => {
+        console.log('=== INITIALIZING DASHBOARD ===');
         
-        // Show overview section by default
+        try {
+            dashboard = new CVDashboard();
+            window.cvDashboard = dashboard; // Make it globally accessible
+            window.dashboard = dashboard; // Make it globally accessible
+            
+            console.log('Dashboard object created:', !!dashboard);
+            console.log('Dashboard methods available:', {
+                showSection: typeof dashboard.showSection,
+                setupNavigation: typeof dashboard.setupNavigation
+            });
+            
+            // Show overview section by default after everything is set up
+            setTimeout(() => {
+                console.log('=== SHOWING DEFAULT SECTION ===');
+                if (dashboard && dashboard.showSection) {
+                    dashboard.showSection('overview');
+                } else {
+                    console.error('Dashboard or showSection method not available');
+                }
+            }, 200);
+            
+            console.log('✅ Dashboard initialized successfully');
+        } catch (error) {
+            console.error('❌ Error initializing dashboard:', error);
+            console.error('Error stack:', error.stack);
+        }
+    }, 100);
+});
+
+// Also try to initialize when window loads (fallback)
+window.addEventListener('load', () => {
+    console.log('=== WINDOW LOADED ===');
+    if (!dashboard) {
+        console.log('Dashboard not initialized yet, trying again...');
         setTimeout(() => {
-            if (dashboard && dashboard.showSection) {
-                dashboard.showSection('overview');
+            if (!dashboard) {
+                try {
+                    dashboard = new CVDashboard();
+                    window.cvDashboard = dashboard;
+                    window.dashboard = dashboard;
+                    dashboard.showSection('overview');
+                } catch (error) {
+                    console.error('Fallback initialization failed:', error);
+                }
             }
         }, 100);
-        
-        console.log('Dashboard initialized successfully');
-    } catch (error) {
-        console.error('Error initializing dashboard:', error);
     }
 });

@@ -479,5 +479,33 @@
     <div id="toast-container" class="toast-container"></div>
 
     <script src="admin-script.js"></script>
+    
+    <!-- Debug Script -->
+    <script>
+        // Add manual test functions
+        window.testNavigation = function() {
+            console.log('=== MANUAL NAVIGATION TEST ===');
+            console.log('Dashboard object:', window.dashboard);
+            
+            if (window.dashboard) {
+                console.log('Testing showSection...');
+                window.dashboard.showSection('personal');
+            } else {
+                console.error('Dashboard not available');
+            }
+        };
+        
+        // Add click handlers for debugging
+        setTimeout(() => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            console.log('Adding debug click handlers to', navLinks.length, 'links');
+            
+            navLinks.forEach((link, index) => {
+                link.addEventListener('click', (e) => {
+                    console.log('DEBUG: Link clicked', index, link.textContent.trim());
+                }, true); // Use capture phase
+            });
+        }, 1000);
+    </script>
 </body>
 </html>
