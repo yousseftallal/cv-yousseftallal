@@ -376,38 +376,86 @@
         <!-- Settings Section -->
         <section id="settings-section" class="content-section">
             <div class="form-container">
-                <h3>Site Settings</h3>
+                <h3><i class="fas fa-cog"></i> Dashboard Settings</h3>
                 <form id="settings-form" class="admin-form">
-                    <div class="form-group">
-                        <label for="siteTitle">Site Title</label>
-                        <input type="text" id="siteTitle" name="siteTitle" value="Yousef Talal - CV & Resume">
-                    </div>
-                    <div class="form-group">
-                        <label for="metaDescription">Meta Description</label>
-                        <textarea id="metaDescription" name="metaDescription" rows="3">Computer Science Student & Application Developer specializing in Flutter, Swift, and Java development.</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="themeColor">Theme Color</label>
-                        <input type="color" id="themeColor" name="themeColor" value="#2563eb">
-                    </div>
-                    <div class="form-group">
-                        <label for="socialLinks">Social Links</label>
-                        <div class="social-links-editor">
-                            <div class="social-link-item">
-                                <input type="text" placeholder="LinkedIn URL" value="https://linkedin.com/in/yousef-talal">
-                                <button type="button" class="btn btn-sm btn-danger">Remove</button>
+                    
+                    <!-- Dashboard Branding -->
+                    <div class="settings-group">
+                        <h4><i class="fas fa-palette"></i> Dashboard Branding</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dashboardTitle">Dashboard Title</label>
+                                <input type="text" id="dashboardTitle" name="dashboardTitle" value="CV Dashboard" placeholder="Enter dashboard title">
                             </div>
-                            <div class="social-link-item">
-                                <input type="text" placeholder="GitHub URL" value="https://github.com/yousef-talal">
-                                <button type="button" class="btn btn-sm btn-danger">Remove</button>
+                            <div class="form-group">
+                                <label for="dashboardIcon">Dashboard Icon</label>
+                                <div class="icon-upload-container">
+                                    <input type="file" id="dashboardIcon" name="dashboardIcon" accept="image/*" class="file-input">
+                                    <div class="icon-preview" id="dashboardIconPreview">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Upload Icon</span>
+                                    </div>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-secondary" id="addSocialLink">Add Social Link</button>
                         </div>
                     </div>
+
+                    <!-- Theme Settings -->
+                    <div class="settings-group">
+                        <h4><i class="fas fa-paint-brush"></i> Theme Settings</h4>
+                        <div class="theme-controls">
+                            <div class="theme-section">
+                                <h5>Dashboard Theme</h5>
+                                <div class="theme-options">
+                                    <div class="theme-option" data-theme="dashboard-light">
+                                        <div class="theme-preview dashboard-light-preview">
+                                            <div class="preview-header"></div>
+                                            <div class="preview-content"></div>
+                                        </div>
+                                        <span>Light</span>
+                                    </div>
+                                    <div class="theme-option active" data-theme="dashboard-dark">
+                                        <div class="theme-preview dashboard-dark-preview">
+                                            <div class="preview-header"></div>
+                                            <div class="preview-content"></div>
+                                        </div>
+                                        <span>Dark</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="theme-section">
+                                <h5>CV Theme</h5>
+                                <div class="theme-options">
+                                    <div class="theme-option active" data-theme="cv-light">
+                                        <div class="theme-preview cv-light-preview">
+                                            <div class="preview-header"></div>
+                                            <div class="preview-content"></div>
+                                        </div>
+                                        <span>Light</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="cv-dark">
+                                        <div class="theme-preview cv-dark-preview">
+                                            <div class="preview-header"></div>
+                                            <div class="preview-content"></div>
+                                        </div>
+                                        <span>Dark</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Save Settings</button>
-                        <button type="button" class="btn btn-secondary" id="exportData">Export Data</button>
-                        <button type="button" class="btn btn-warning" id="importData">Import Data</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="exportData">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                        <button type="button" class="btn btn-warning" id="importData">
+                            <i class="fas fa-upload"></i> Import Data
+                        </button>
                     </div>
                 </form>
             </div>

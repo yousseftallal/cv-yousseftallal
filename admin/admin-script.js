@@ -344,6 +344,9 @@ class CVDashboard {
             case 'profile-image':
                 this.loadProfileImagePreview();
                 break;
+            case 'settings':
+                this.loadSettingsForm();
+                break;
         }
     }
 
@@ -382,6 +385,12 @@ class CVDashboard {
                 this.saveSettings();
             });
         }
+
+        // Setup theme selection
+        this.setupThemeSelection();
+        
+        // Setup icon upload
+        this.setupIconUpload();
     }
 
     loadPersonalForm() {
@@ -1646,6 +1655,162 @@ function removeBrandImage() {
                 dashboard.showToast('Logo removed locally, but failed to update database', 'warning');
             }
         });
+    }
+
+    // Settings Management
+    setupThemeSelection() {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const themeType = option.closest('.theme-section');
+                const siblings = themeType.querySelectorAll('.theme-option');
+                
+                // Remove active class from siblings
+                siblings.forEach(sibling => sibling.classList.remove('active'));
+                
+                // Add active class to clicked option
+                option.classList.add('active');
+                
+                const theme = option.getAttribute('data-theme');
+                this.applyTheme(theme);
+            });
+        });
+    }
+
+    setupIconUpload() {
+        const iconInput = document.getElementById('dashboardIcon');
+        const iconPreview = document.getElementById('dashboardIconPreview');
+        
+        if (iconInput && iconPreview) {
+            iconInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        iconPreview.innerHTML = `<img src="${e.target.result}" alt="Dashboard Icon">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+    applyTheme(theme) {
+        console.log('Applying theme:', theme);
+        
+        // Store theme preference
+        localStorage.setItem('selectedTheme', theme);
+        
+        // Apply theme based on type
+        if (theme.startsWith('dashboard-')) {
+            this.applyDashboardTheme(theme);
+        } else if (theme.startsWith('cv-')) {
+            this.applyCVTheme(theme);
+        }
+    }
+
+    applyDashboardTheme(theme) {
+        const body = document.body;
+        
+        // Remove existing dashboard theme classes
+        body.classList.remove('dashboard-light', 'dashboard-dark');
+        
+        if (theme === 'dashboard-light') {
+            body.classList.add('dashboard-light');
+            body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #ffffff 100%)';
+        } else if (theme === 'dashboard-dark') {
+            body.classList.add('dashboard-dark');
+            body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)';
+        }
+    }
+
+    applyCVTheme(theme) {
+        // This would be applied to the CV page
+        // For now, just store the preference
+        console.log('CV theme will be applied:', theme);
+        
+        // You could send this to the main CV page via postMessage or localStorage
+        localStorage.setItem('cvTheme', theme);
+    }
+
+    loadSettingsForm() {
+        const settings = this.data.settings || {};
+        
+        // Load dashboard title
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        if (dashboardTitle) {
+            dashboardTitle.value = settings.dashboardTitle || 'CV Dashboard';
+        }
+        
+        // Load saved themes
+        const savedDashboardTheme = localStorage.getItem('selectedTheme') || 'dashboard-dark';
+        const savedCVTheme = localStorage.getItem('cvTheme') || 'cv-light';
+        
+        // Apply saved theme selections
+        document.querySelectorAll('.theme-option').forEach(option => {
+            const theme = option.getAttribute('data-theme');
+            if (theme === savedDashboardTheme || theme === savedCVTheme) {
+                option.classList.add('active');
+            } else {
+                option.classList.remove('active');
+            }
+        });
+        
+        // Apply current dashboard theme
+        this.applyTheme(savedDashboardTheme);
+    }
+
+    saveSettings() {
+        const formData = new FormData(document.getElementById('settings-form'));
+        
+        const settings = {
+            dashboardTitle: formData.get('dashboardTitle'),
+            dashboardTheme: localStorage.getItem('selectedTheme'),
+            cvTheme: localStorage.getItem('cvTheme')
+        };
+        
+        // Handle icon upload if present
+        const iconFile = formData.get('dashboardIcon');
+        if (iconFile && iconFile.size > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                settings.dashboardIcon = e.target.result;
+                this.saveSettingsToDatabase(settings);
+            };
+            reader.readAsDataURL(iconFile);
+        } else {
+            this.saveSettingsToDatabase(settings);
+        }
+    }
+
+    async saveSettingsToDatabase(settings) {
+        try {
+            this.data.settings = settings;
+            
+            // Update dashboard title in navbar if present
+            const navTitle = document.querySelector('.nav-brand h2');
+            if (navTitle && settings.dashboardTitle) {
+                navTitle.textContent = settings.dashboardTitle;
+            }
+            
+            // Save to database
+            const response = await fetch('/api/cv-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.data)
+            });
+            
+            if (response.ok) {
+                this.showToast('Settings saved successfully!', 'success');
+            } else {
+                this.showToast('Settings saved locally, but failed to sync with database', 'warning');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            this.showToast('Settings saved locally, but failed to sync with database', 'warning');
+        }
     }
 }
 
