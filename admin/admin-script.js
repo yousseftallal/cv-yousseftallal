@@ -1319,42 +1319,94 @@ class CVDashboard {
                 console.log('Updated preview image');
             }
             
-            // Try to save to database
-            console.log('Attempting to save to database...');
-            const success = await this.saveDataToDatabase();
-            console.log('Database save result:', success);
-            
-            if (success) {
-                this.showToast('Profile image updated successfully in database!', 'success');
-            } else {
-                this.showToast('Profile image saved locally, will sync when database is available', 'warning');
-            }
-            
-            // Notify any open CV windows about the image update
+            // Notify any open CV windows IMMEDIATELY about the image update
             try {
-                // Send message to parent window if this is in iframe
+                // Send message to all possible windows
+                const message = {
+                    type: 'profile-image-updated',
+                    imageUrl: imageUrl,
+                    timestamp: Date.now()
+                };
+                
+                // Send to parent window
                 if (window.parent && window.parent !== window) {
-                    window.parent.postMessage({
-                        type: 'profile-image-updated',
-                        imageUrl: imageUrl
-                    }, '*');
+                    window.parent.postMessage(message, '*');
                 }
                 
-                // Send message to any other windows
+                // Send to opener window
                 if (window.opener) {
-                    window.opener.postMessage({
-                        type: 'profile-image-updated',
-                        imageUrl: imageUrl
-                    }, '*');
+                    window.opener.postMessage(message, '*');
                 }
+                
+                // Try to find and update any CV windows directly
+                if (typeof window.cvWindows !== 'undefined') {
+                    window.cvWindows.forEach(cvWindow => {
+                        if (cvWindow && !cvWindow.closed) {
+                            cvWindow.postMessage(message, '*');
+                        }
+                    });
+                }
+                
+                console.log('Sent immediate update message to CV windows');
+                
+                // Also use localStorage for cross-tab communication
+                localStorage.setItem('profileImageUpdate', JSON.stringify({
+                    imageUrl: imageUrl,
+                    timestamp: Date.now()
+                }));
+                
+                // Clear the storage item after a short delay
+                setTimeout(() => {
+                    localStorage.removeItem('profileImageUpdate');
+                }, 1000);
             } catch (error) {
                 console.log('Could not send message to other windows:', error);
             }
             
-            // Open main site to show the updated image
-            setTimeout(() => {
-                window.open('../index.html', '_blank');
-            }, 1000);
+            // Update main CV page immediately using direct DOM manipulation if possible
+            try {
+                // Try to access CV window if it's open
+                const cvWindows = window.open('', '_blank');
+                if (cvWindows) {
+                    const cvImg = cvWindows.document.querySelector('.profile-img');
+                    if (cvImg) {
+                        cvImg.src = imageUrl;
+                        console.log('Updated CV image directly');
+                    }
+                }
+            } catch (error) {
+                // Cross-origin restrictions, use postMessage instead
+            }
+            
+            // Save to database in background (non-blocking)
+            this.saveDataToDatabase().then(success => {
+                if (success) {
+                    this.showToast('Profile image synced to database!', 'success');
+                } else {
+                    this.showToast('Image updated locally, will sync when online', 'warning');
+                }
+            }).catch(error => {
+                console.log('Database save error:', error);
+                this.showToast('Image updated locally, database sync failed', 'warning');
+            });
+            
+            // Open main site immediately to show the updated image
+            const newWindow = window.open('../index.html', '_blank');
+            
+            // Try to update the image in the new window when it loads
+            if (newWindow) {
+                newWindow.addEventListener('load', () => {
+                    try {
+                        const cvImg = newWindow.document.querySelector('.profile-img');
+                        if (cvImg) {
+                            cvImg.src = imageUrl;
+                            console.log('Updated image in new CV window');
+                        }
+                    } catch (error) {
+                        console.log('Could not update image in new window:', error);
+                    }
+                });
+            }
             
         } catch (error) {
             console.error('Error updating profile image:', error);
@@ -1373,31 +1425,45 @@ class CVDashboard {
     }
 
     setupProfileImagePreview() {
-        console.log('Setting up profile image preview');
+        console.log('Setting up FAST profile image preview');
         
         const urlInput = document.getElementById('profileImageUrl');
         if (urlInput) {
             console.log('Profile image URL input found, adding event listener');
             
+            // Debounce function for better performance
+            let timeout;
             urlInput.addEventListener('input', (e) => {
                 const imageUrl = e.target.value.trim();
                 console.log('Profile image URL changed to:', imageUrl);
                 
-                const preview = document.getElementById('profilePreview');
-                if (preview) {
-                    if (imageUrl) {
-                        preview.onload = () => {
-                            console.log('Profile image loaded successfully');
-                        };
-                        preview.onerror = () => {
-                            console.log('Profile image failed to load, using default');
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    const preview = document.getElementById('profilePreview');
+                    if (preview) {
+                        if (imageUrl) {
+                            // Show loading state
+                            preview.style.opacity = '0.5';
+                            
+                            // Preload image for instant preview
+                            const img = new Image();
+                            img.onload = () => {
+                                preview.src = imageUrl;
+                                preview.style.opacity = '1';
+                                console.log('⚡ Profile image preview loaded instantly');
+                            };
+                            img.onerror = () => {
+                                console.log('Profile image failed to load, using default');
+                                preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+                                preview.style.opacity = '1';
+                            };
+                            img.src = imageUrl;
+                        } else {
                             preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
-                        };
-                        preview.src = imageUrl;
-                    } else {
-                        preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+                            preview.style.opacity = '1';
+                        }
                     }
-                }
+                }, 300); // 300ms debounce
             });
         } else {
             console.error('Profile image URL input not found');

@@ -252,58 +252,77 @@ function showSuccessMessage(message) {
 
 
 
-// Load profile image from database
+// Load profile image from database - OPTIMIZED FOR SPEED
 async function loadProfileImage() {
-    console.log('=== LOADING PROFILE IMAGE ===');
+    console.log('⚡ FAST LOADING PROFILE IMAGE ⚡');
     const profileImg = document.querySelector('.profile-img');
     if (!profileImg) {
         console.error('Profile image element not found');
         return;
     }
     
+    // Set loading state
+    profileImg.style.opacity = '0.5';
+    
     try {
-        // Load from main CV data endpoint with cache busting
-        const cacheBuster = new Date().getTime();
-        console.log('Fetching CV data for profile image...');
-        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`);
+        // Use fetch with shorter timeout for faster response
+        const cacheBuster = Date.now();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        console.log('🚀 Fast fetching CV data...');
+        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`, {
+            signal: controller.signal,
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        clearTimeout(timeoutId);
         
         if (response.ok) {
             const result = await response.json();
-            console.log('CV data response:', result);
             
             if (result.success && result.data && result.data.profileImage) {
                 const imageUrl = result.data.profileImage;
-                console.log('Found profile image in database:', imageUrl);
+                console.log('⚡ Found profile image, loading instantly:', imageUrl);
                 
-                // Add cache busting to image URL if it's not a placeholder
-                const finalImageUrl = imageUrl.includes('placeholder') ? 
-                    imageUrl : 
-                    `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`;
-                
-                profileImg.onload = () => {
-                    console.log('✅ Profile image loaded successfully:', imageUrl);
+                // Preload image for instant display
+                const img = new Image();
+                img.onload = () => {
+                    profileImg.src = imageUrl + '?t=' + cacheBuster;
+                    profileImg.style.opacity = '1';
+                    console.log('✅ Profile image loaded INSTANTLY!');
                 };
-                profileImg.onerror = () => {
-                    console.error('❌ Failed to load profile image:', imageUrl);
-                    // Fallback to default
-                    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+                img.onerror = () => {
+                    console.error('❌ Failed to preload image:', imageUrl);
+                    setDefaultImage();
                 };
-                
-                profileImg.src = finalImageUrl;
+                img.src = imageUrl + '?t=' + cacheBuster;
                 return;
             } else {
-                console.log('No profile image found in database data');
+                console.log('No profile image in database, using default');
+                setDefaultImage();
             }
         } else {
             console.error('Failed to fetch CV data:', response.status);
+            setDefaultImage();
         }
     } catch (error) {
-        console.error('❌ Error loading profile image from database:', error);
+        if (error.name === 'AbortError') {
+            console.log('Request timed out, using default image');
+        } else {
+            console.error('❌ Error loading profile image:', error);
+        }
+        setDefaultImage();
     }
     
-    // Fallback to default placeholder
-    console.log('Using default profile image placeholder');
-    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+    function setDefaultImage() {
+        profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+        profileImg.style.opacity = '1';
+        console.log('Using default profile image');
+    }
 }
 
 
@@ -1474,13 +1493,35 @@ function debounce(func, wait) {
 window.addEventListener('scroll', debounce(updateActiveNavigation, 10));
 window.addEventListener('scroll', debounce(revealOnScroll, 10));
 
-// Listen for profile image updates from dashboard
+// Listen for profile image updates from dashboard - IMMEDIATE UPDATE
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'profile-image-updated') {
-        console.log('Received profile image update from dashboard:', event.data.imageUrl);
+        console.log('🚀 IMMEDIATE profile image update from dashboard:', event.data.imageUrl);
         const profileImg = document.querySelector('.profile-img');
         if (profileImg && event.data.imageUrl) {
-            profileImg.src = event.data.imageUrl;
+            // Update immediately without any delay
+            profileImg.src = event.data.imageUrl + '?t=' + (event.data.timestamp || Date.now());
+            console.log('✅ Profile image updated instantly!');
+            
+            // Show visual feedback
+            profileImg.style.opacity = '0.7';
+            setTimeout(() => {
+                profileImg.style.opacity = '1';
+            }, 200);
+        }
+    }
+});
+
+// Also listen for storage events for cross-tab communication
+window.addEventListener('storage', (event) => {
+    if (event.key === 'profileImageUpdate') {
+        const data = JSON.parse(event.newValue || '{}');
+        if (data.imageUrl) {
+            console.log('🔄 Profile image update from storage:', data.imageUrl);
+            const profileImg = document.querySelector('.profile-img');
+            if (profileImg) {
+                profileImg.src = data.imageUrl + '?t=' + Date.now();
+            }
         }
     }
 });
