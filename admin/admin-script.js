@@ -29,37 +29,72 @@ class CVDashboard {
         const navLinks = document.querySelectorAll('.nav-link');
         console.log('Setting up navigation for links:', navLinks.length);
         
-        navLinks.forEach(link => {
+        navLinks.forEach((link, index) => {
+            console.log(`Nav link ${index}:`, link.getAttribute('href'));
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = link.getAttribute('href').substring(1);
+                const href = link.getAttribute('href');
+                const section = href ? href.substring(1) : 'overview';
                 console.log('Navigation clicked:', section);
-                this.showSection(section);
-                this.updateActiveNav(link);
+                
+                try {
+                    this.showSection(section);
+                    this.updateActiveNav(link);
+                } catch (error) {
+                    console.error('Error in navigation:', error);
+                }
             });
         });
+        
+        // Set up default active link
+        const firstLink = navLinks[0];
+        if (firstLink) {
+            firstLink.classList.add('active');
+        }
     }
 
     showSection(sectionName) {
         console.log('Showing section:', sectionName);
         
-        // Hide all sections
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.classList.remove('active');
-        });
+        try {
+            // Hide all sections
+            const allSections = document.querySelectorAll('.content-section');
+            console.log('Found sections:', allSections.length);
+            
+            allSections.forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
 
-        // Show target section
-        const targetSection = document.getElementById(`${sectionName}-section`);
-        console.log('Target section element:', targetSection);
-        
-        if (targetSection) {
-            targetSection.classList.add('active');
-            this.currentSection = sectionName;
-            this.updatePageTitle(sectionName);
-            this.loadSectionData(sectionName);
-            console.log('Section activated successfully');
-        } else {
-            console.error('Section not found:', `${sectionName}-section`);
+            // Show target section
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            console.log('Target section element:', targetSection);
+            
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                this.currentSection = sectionName;
+                this.updatePageTitle(sectionName);
+                
+                // Load section data with a small delay
+                setTimeout(() => {
+                    this.loadSectionData(sectionName);
+                }, 50);
+                
+                console.log('Section activated successfully:', sectionName);
+            } else {
+                console.error('Section not found:', `${sectionName}-section`);
+                // Try to show overview as fallback
+                const overviewSection = document.getElementById('overview-section');
+                if (overviewSection) {
+                    overviewSection.style.display = 'block';
+                    overviewSection.classList.add('active');
+                    this.currentSection = 'overview';
+                    console.log('Fallback to overview section');
+                }
+            }
+        } catch (error) {
+            console.error('Error in showSection:', error);
         }
     }
 
@@ -77,8 +112,9 @@ class CVDashboard {
             skills: 'Technical Skills',
             experience: 'Experience & Projects',
             education: 'Education',
+            about: 'About Me',
             'profile-image': 'Profile Image',
-            settings: 'Site Settings'
+            settings: 'Dashboard Settings'
         };
         document.getElementById('page-title').textContent = titles[section] || section;
     }
@@ -325,28 +361,39 @@ class CVDashboard {
     }
 
     loadSectionData(section) {
-        switch (section) {
-            case 'overview':
-                this.updateStats();
-                break;
-            case 'skills':
-                this.loadSkillsList();
-                break;
-            case 'experience':
-                this.loadExperienceList();
-                break;
-            case 'education':
-                this.loadEducationList();
-                break;
-            case 'about':
-                this.loadAboutForm();
-                break;
-            case 'profile-image':
-                this.loadProfileImagePreview();
-                break;
-            case 'settings':
-                this.loadSettingsForm();
-                break;
+        console.log('Loading section data for:', section);
+        
+        try {
+            switch (section) {
+                case 'overview':
+                    this.updateStats();
+                    break;
+                case 'personal':
+                    this.loadPersonalForm();
+                    break;
+                case 'skills':
+                    this.loadSkillsList();
+                    break;
+                case 'experience':
+                    this.loadExperienceList();
+                    break;
+                case 'education':
+                    this.loadEducationList();
+                    break;
+                case 'about':
+                    this.loadAboutForm();
+                    break;
+                case 'profile-image':
+                    this.loadProfileImagePreview();
+                    break;
+                case 'settings':
+                    this.loadSettingsForm();
+                    break;
+                default:
+                    console.log('No specific data loading for section:', section);
+            }
+        } catch (error) {
+            console.error('Error loading section data:', error);
         }
     }
 
@@ -1817,9 +1864,21 @@ function removeBrandImage() {
 // Initialize Dashboard
 let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
-    dashboard = new CVDashboard();
-    window.cvDashboard = dashboard; // Make it globally accessible
+    console.log('DOM Content Loaded - Initializing Dashboard');
+    try {
+        dashboard = new CVDashboard();
+        window.cvDashboard = dashboard; // Make it globally accessible
+        window.dashboard = dashboard; // Make it globally accessible
+        
+        // Show overview section by default
+        setTimeout(() => {
+            if (dashboard && dashboard.showSection) {
+                dashboard.showSection('overview');
+            }
+        }, 100);
+        
+        console.log('Dashboard initialized successfully');
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+    }
 });
-
-// Make functions available globally for onclick handlers
-window.dashboard = dashboard;
