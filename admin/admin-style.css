@@ -808,6 +808,12 @@ img, video, iframe {
     gap: 1.2rem;
 }
 
+/* Education specific grid - wider rectangular cards */
+#education-list {
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 1.5rem;
+}
+
 /* Staggered Animation for Grid Items */
 .skill-card:nth-child(1) { animation-delay: 0.1s; }
 .skill-card:nth-child(2) { animation-delay: 0.2s; }
@@ -815,6 +821,11 @@ img, video, iframe {
 .skill-card:nth-child(4) { animation-delay: 0.4s; }
 .skill-card:nth-child(5) { animation-delay: 0.5s; }
 .skill-card:nth-child(6) { animation-delay: 0.6s; }
+
+.education-card:nth-child(1) { animation-delay: 0.1s; }
+.education-card:nth-child(2) { animation-delay: 0.3s; }
+.education-card:nth-child(3) { animation-delay: 0.5s; }
+.education-card:nth-child(4) { animation-delay: 0.7s; }
 
 /* Responsive Grid Adjustments */
 @media (max-width: 1200px) {
@@ -826,6 +837,11 @@ img, video, iframe {
     #skills-list {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
+    }
+    
+    #education-list {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.2rem;
     }
 }
 
@@ -839,6 +855,11 @@ img, video, iframe {
     #skills-list {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+    
+    #education-list {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
     }
 }
 
@@ -1369,6 +1390,9 @@ img, video, iframe {
 
 .education-card {
     border-left: 4px solid #8b5cf6;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+    min-height: 160px; /* Shorter height for wider appearance */
+    border-radius: 20px; /* More rounded for elegant look */
 }
 
 .skill-card::before, .experience-card::before, .education-card::before {
@@ -1396,6 +1420,12 @@ img, video, iframe {
 .skill-card:hover {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
     box-shadow: 0 20px 50px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+.education-card:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.08));
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.3);
+    transform: translateY(-6px) scale(1.01); /* Slightly less scale for wider cards */
 }
 
 .card-header {
@@ -1570,6 +1600,47 @@ img, video, iframe {
     position: absolute;
     left: 0;
     top: 0;
+}
+
+/* Education Card Specific Layout - Utilize the wider space */
+.education-card .card-header {
+    background: rgba(139, 92, 246, 0.08);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.education-card .card-header::after {
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
+}
+
+.education-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.education-card .card-description {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.education-card .institution-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.education-card .degree-info {
+    flex: 1;
+    min-width: 150px;
+    text-align: right;
+}
+
+.education-card .period-badge {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    margin-top: 8px;
+    display: inline-block;
 }
 
 .card-actions {
