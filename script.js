@@ -352,18 +352,38 @@ function updateEducationGallery(gallery) {
     // Show gallery
     galleryContainer.style.display = 'block';
     
-    // Duplicate images for seamless loop
-    const duplicatedGallery = [...gallery, ...gallery, ...gallery];
+    // Create 3D cylinder - minimum 3 images for proper display
+    let cylinderGallery = [...gallery];
     
-    // Create gallery HTML
-    const galleryHTML = duplicatedGallery.map(image => `
-        <div class="gallery-image" onclick="openImageModal('${image.url}', '${image.title}')">
-            <img src="${image.url}" alt="${image.title}" loading="lazy">
-            <div class="gallery-image-overlay">
-                <div class="gallery-image-title">${image.title}</div>
+    // If less than 3 images, duplicate to fill the cylinder
+    while (cylinderGallery.length < 3) {
+        cylinderGallery = [...cylinderGallery, ...gallery];
+    }
+    
+    // For smooth rotation, duplicate images
+    if (cylinderGallery.length <= 6) {
+        cylinderGallery = [...cylinderGallery, ...cylinderGallery];
+    }
+    
+    // Calculate rotation angle for even distribution
+    const angleStep = 360 / Math.max(6, cylinderGallery.length);
+    
+    // Create 3D gallery HTML
+    const galleryHTML = cylinderGallery.map((image, index) => {
+        const rotationAngle = index * angleStep;
+        const translateZ = Math.max(250, cylinderGallery.length * 40); // Dynamic radius
+        
+        return `
+            <div class="gallery-image" 
+                 onclick="openImageModal('${image.url}', '${image.title}')"
+                 style="transform: rotateY(${rotationAngle}deg) translateZ(${translateZ}px);">
+                <img src="${image.url}" alt="${image.title}" loading="lazy">
+                <div class="gallery-image-overlay">
+                    <div class="gallery-image-title">${image.title}</div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
     galleryTrack.innerHTML = galleryHTML;
     
