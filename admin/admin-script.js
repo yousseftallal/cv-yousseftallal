@@ -322,7 +322,16 @@ class CVDashboard {
 
     // Save data to database
     async saveDataToDatabase() {
+        console.log('=== SAVING TO DATABASE ===');
+        console.log('Data to save:', {
+            profileImage: this.data.profileImage,
+            personalName: this.data.personal?.fullName,
+            skillsCount: this.data.skills?.length,
+            experienceCount: this.data.experience?.length
+        });
+        
         try {
+            console.log('Sending request to /.netlify/functions/cv-data');
             const response = await fetch('/.netlify/functions/cv-data', {
                 method: 'POST',
                 headers: {
@@ -331,48 +340,70 @@ class CVDashboard {
                 body: JSON.stringify(this.data)
             });
             
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                console.error('HTTP error:', response.status, response.statusText);
+                return false;
+            }
+            
             const result = await response.json();
+            console.log('Database response:', result);
             
             if (result.success) {
-                console.log('Data saved to database successfully');
+                console.log('✅ Data saved to database successfully');
                 return true;
             } else {
-                console.error('Error saving to database:', result.error);
+                console.error('❌ Database returned error:', result.error);
                 return false;
             }
         } catch (error) {
-            console.error('Error saving to database:', error);
+            console.error('❌ Network/Parse error saving to database:', error);
             return false;
         }
     }
 
     // Load data from database
     async loadDataFromDatabase() {
+        console.log('=== LOADING FROM DATABASE ===');
         try {
             const response = await fetch('/.netlify/functions/cv-data');
+            console.log('Database load response status:', response.status);
+            
             if (response.ok) {
                 const result = await response.json();
+                console.log('Database load result:', result);
+                
                 if (result.success && result.data) {
+                    console.log('Profile image from database:', result.data.profileImage);
+                    
                     // Load database data
                     this.data = { ...this.data, ...result.data };
                     this.loadDashboardData(); // Refresh dashboard
-                    console.log('Data loaded from database successfully');
+                    console.log('✅ Data loaded from database successfully');
+                    console.log('Current profile image:', this.data.profileImage);
+                } else {
+                    console.log('❌ No valid data in database response');
                 }
+            } else {
+                console.error('❌ Database load HTTP error:', response.status);
             }
         } catch (error) {
-            console.error('Error loading data from database:', error);
+            console.error('❌ Error loading from database:', error);
         }
     }
 
     loadDashboardData() {
+        console.log('=== LOADING DASHBOARD DATA ===');
         this.updateStats();
         this.loadPersonalForm();
         this.loadAboutForm();
         this.loadSkillsList();
         this.loadExperienceList();
         this.loadEducationList();
-        this.loadSettingsForm();
         this.loadProfileImagePreview();
+        console.log('Dashboard data loaded');
     }
 
     loadProfileImagePreview() {
@@ -1262,6 +1293,9 @@ class CVDashboard {
         const urlInput = document.getElementById('profileImageUrl');
         const imageUrl = urlInput.value.trim();
         
+        console.log('=== UPDATE PROFILE IMAGE ===');
+        console.log('Image URL:', imageUrl);
+        
         if (!imageUrl) {
             this.showToast('Please enter a profile image URL', 'error');
             return;
@@ -1270,62 +1304,50 @@ class CVDashboard {
         this.showToast('Updating profile image...', 'info');
         
         try {
-            // Save to database directly
+            // Update local data first
             this.data.profileImage = imageUrl;
+            console.log('Updated local data:', this.data.profileImage);
+            
+            // Save to localStorage
+            this.saveData();
+            console.log('Saved to localStorage');
+            
+            // Update preview immediately
+            const preview = document.getElementById('profilePreview');
+            if (preview) {
+                preview.src = imageUrl;
+                console.log('Updated preview image');
+            }
+            
+            // Try to save to database
+            console.log('Attempting to save to database...');
             const success = await this.saveDataToDatabase();
+            console.log('Database save result:', success);
             
             if (success) {
-                // Update preview
-                const preview = document.getElementById('profilePreview');
-                if (preview) {
-                    preview.src = imageUrl;
-                }
-                
                 this.showToast('Profile image updated successfully in database!', 'success');
-                
-                // Open main site to show the updated image
-                setTimeout(() => {
-                    window.open('../index.html', '_blank');
-                }, 1000);
-                return;
-            }
-            
-            // Fallback: try specific profile image endpoint
-            const response = await fetch('/.netlify/functions/profile-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    imageUrl: imageUrl
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Update local data
-                this.data.profileImage = imageUrl;
-                this.saveData();
-                
-                // Update preview
-                const preview = document.getElementById('profilePreview');
-                if (preview) {
-                    preview.src = imageUrl;
-                }
-                
-                this.showToast('Profile image updated successfully in database!', 'success');
-                
-                // Open main site to show the updated image
-                setTimeout(() => {
-                    window.open('../index.html', '_blank');
-                }, 1000);
             } else {
-                this.showToast('Error: ' + (data.error || 'Failed to update image'), 'error');
+                this.showToast('Profile image saved locally, will sync when database is available', 'warning');
             }
+            
+            // Open main site to show the updated image
+            setTimeout(() => {
+                window.open('../index.html', '_blank');
+            }, 1000);
+            
         } catch (error) {
             console.error('Error updating profile image:', error);
-            this.showToast('Error: Failed to connect to database', 'error');
+            
+            // Still update locally even if database fails
+            this.data.profileImage = imageUrl;
+            this.saveData();
+            
+            const preview = document.getElementById('profilePreview');
+            if (preview) {
+                preview.src = imageUrl;
+            }
+            
+            this.showToast('Profile image saved locally, but failed to sync with database', 'warning');
         }
     }
 
