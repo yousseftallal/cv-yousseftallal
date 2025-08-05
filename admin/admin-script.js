@@ -313,19 +313,27 @@ class CVDashboard {
     }
 
     loadPersonalForm() {
-        const personal = this.data.personal;
-        document.getElementById('fullName').value = personal.fullName;
-        document.getElementById('jobTitle').value = personal.jobTitle;
-        document.getElementById('email').value = personal.email;
-        document.getElementById('phone').value = personal.phone;
-        document.getElementById('location').value = personal.location;
+        const personal = this.data.personalInfo || {};
+        
+        // Load basic info with safe fallbacks
+        const fullNameEl = document.getElementById('fullName');
+        const jobTitleEl = document.getElementById('jobTitle');
+        const emailEl = document.getElementById('email');
+        const phoneEl = document.getElementById('phone');
+        const locationEl = document.getElementById('location');
+        
+        if (fullNameEl) fullNameEl.value = personal.fullName || personal.name || '';
+        if (jobTitleEl) jobTitleEl.value = personal.jobTitle || personal.title || '';
+        if (emailEl) emailEl.value = personal.email || '';
+        if (phoneEl) phoneEl.value = personal.phone || '';
+        if (locationEl) locationEl.value = personal.location || '';
         
         // Load navbar brand fields
         if (document.getElementById('brandIcon')) {
             document.getElementById('brandIcon').value = personal.brandIcon || '';
         }
         if (document.getElementById('brandTitle')) {
-            document.getElementById('brandTitle').value = personal.brandTitle || personal.fullName || '';
+            document.getElementById('brandTitle').value = personal.brandTitle || personal.fullName || personal.name || '';
         }
         if (document.getElementById('brandSubtitle')) {
             document.getElementById('brandSubtitle').value = personal.brandSubtitle || '';
@@ -364,31 +372,6 @@ class CVDashboard {
         }
         if (document.getElementById('websiteUrl')) {
             document.getElementById('websiteUrl').value = personal.websiteUrl || '';
-        }
-
-        // Load contact links
-        if (document.getElementById('emailLink')) {
-            document.getElementById('emailLink').value = personal.emailLink || personal.email || '';
-        }
-        if (document.getElementById('phoneLink')) {
-            document.getElementById('phoneLink').value = personal.phoneLink || personal.phone || '';
-        }
-        if (document.getElementById('locationLink')) {
-            document.getElementById('locationLink').value = personal.locationLink || '';
-        }
-
-        // Load SEO & Meta information
-        if (document.getElementById('siteTitle')) {
-            document.getElementById('siteTitle').value = personal.siteTitle || '';
-        }
-        if (document.getElementById('metaDescription')) {
-            document.getElementById('metaDescription').value = personal.metaDescription || '';
-        }
-        if (document.getElementById('metaKeywords')) {
-            document.getElementById('metaKeywords').value = personal.metaKeywords || '';
-        }
-        if (document.getElementById('metaAuthor')) {
-            document.getElementById('metaAuthor').value = personal.metaAuthor || personal.fullName || '';
         }
     }
 
@@ -474,33 +457,34 @@ class CVDashboard {
     }
 
     async savePersonalInfo() {
-        this.data.personal = {
-            fullName: document.getElementById('fullName').value,
-            jobTitle: document.getElementById('jobTitle').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            location: document.getElementById('location').value,
+        // Ensure personalInfo object exists
+        if (!this.data.personalInfo) {
+            this.data.personalInfo = {};
+        }
+        
+        this.data.personalInfo = {
+            name: document.getElementById('fullName')?.value || '',
+            fullName: document.getElementById('fullName')?.value || '',
+            title: document.getElementById('jobTitle')?.value || '',
+            jobTitle: document.getElementById('jobTitle')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            location: document.getElementById('location')?.value || '',
             brandIcon: document.getElementById('brandIcon')?.value || '',
-            brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName').value,
+            brandTitle: document.getElementById('brandTitle')?.value || document.getElementById('fullName')?.value || '',
             brandSubtitle: document.getElementById('brandSubtitle')?.value || '',
-            brandImage: this.data.personal.brandImage || '', // Keep existing brand image
+            brandImage: this.data.personalInfo.brandImage || '', // Keep existing brand image
             // Contact links
             emailLink: document.getElementById('emailLink')?.value || '',
             phoneLink: document.getElementById('phoneLink')?.value || '',
             locationLink: document.getElementById('locationLink')?.value || '',
-            // SEO & Meta information
-            siteTitle: document.getElementById('siteTitle')?.value || '',
-            metaDescription: document.getElementById('metaDescription')?.value || '',
-            metaKeywords: document.getElementById('metaKeywords')?.value || '',
-            metaAuthor: document.getElementById('metaAuthor')?.value || '',
             // Social media links
             linkedinUrl: document.getElementById('linkedinUrl')?.value || '',
             githubUrl: document.getElementById('githubUrl')?.value || '',
             twitterUrl: document.getElementById('twitterUrl')?.value || '',
             websiteUrl: document.getElementById('websiteUrl')?.value || ''
         };
-        this.saveData();
-        
+
         // Save to database
         const dbSuccess = await this.saveDataToDatabase();
         if (dbSuccess) {
@@ -1577,7 +1561,10 @@ class CVDashboard {
             }
 
             // Save to data
-            this.data.personal.brandImage = base64Image;
+            if (!this.data.personalInfo) {
+                this.data.personalInfo = {};
+            }
+            this.data.personalInfo.brandImage = base64Image;
             this.saveData();
             
             // Save to database
@@ -1781,7 +1768,7 @@ class CVDashboard {
 function removeBrandImage() {
     const dashboard = window.cvDashboard;
     if (dashboard) {
-        dashboard.data.personal.brandImage = '';
+        dashboard.data.personalInfo.brandImage = '';
         
         // Hide preview
         const preview = document.getElementById('brandImagePreview');
