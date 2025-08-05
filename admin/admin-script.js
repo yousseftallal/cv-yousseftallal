@@ -550,6 +550,17 @@ class CVDashboard {
         if (document.getElementById('websiteUrl')) {
             document.getElementById('websiteUrl').value = personal.websiteUrl || '';
         }
+
+        // Load contact links
+        if (document.getElementById('emailLink')) {
+            document.getElementById('emailLink').value = personal.emailLink || personal.email || '';
+        }
+        if (document.getElementById('phoneLink')) {
+            document.getElementById('phoneLink').value = personal.phoneLink || personal.phone || '';
+        }
+        if (document.getElementById('locationLink')) {
+            document.getElementById('locationLink').value = personal.locationLink || '';
+        }
     }
 
     loadAboutForm() {

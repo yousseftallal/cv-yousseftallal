@@ -358,6 +358,24 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     text-transform: uppercase;
 }
 
+/* Arabic text support for brand */
+.nav-brand-text .arabic-text {
+    font-family: 'Cairo', 'Tajawal', 'Amiri', sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+.nav-brand-text .english-text {
+    font-family: 'Inter', sans-serif;
+    direction: ltr;
+    text-align: left;
+}
+
+.nav-brand-subtitle.arabic-text {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
 .nav-menu {
     display: flex;
     list-style: none;

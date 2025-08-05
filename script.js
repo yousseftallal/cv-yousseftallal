@@ -431,31 +431,63 @@ function updatePersonalInfo(personal) {
     const navBrandTitle = document.getElementById('navBrandTitle');
     const navBrandSubtitle = document.getElementById('navBrandSubtitle');
     
-    // Update brand icon/image
-    if (personal.brandImage) {
+    // Update brand icon/image - ENHANCED VERSION
+    console.log('🎨 Updating brand elements:', {
+        brandImage: personal.brandImage,
+        brandIcon: personal.brandIcon,
+        brandTitle: personal.brandTitle,
+        brandSubtitle: personal.brandSubtitle
+    });
+    
+    if (personal.brandImage && personal.brandImage.trim() !== '') {
+        console.log('✅ Using brand image:', personal.brandImage);
         navBrandImage.src = personal.brandImage;
         navBrandImage.style.display = 'block';
         navBrandText.style.display = 'none';
-    } else if (personal.brandIcon) {
+        
+        // Add error handling for image loading
+        navBrandImage.onerror = () => {
+            console.log('❌ Brand image failed to load, falling back to icon');
+            navBrandImage.style.display = 'none';
+            navBrandText.style.display = 'block';
+            navBrandText.textContent = personal.brandIcon || 'YT';
+        };
+    } else if (personal.brandIcon && personal.brandIcon.trim() !== '') {
+        console.log('✅ Using brand icon:', personal.brandIcon);
         navBrandImage.style.display = 'none';
         navBrandText.style.display = 'block';
         navBrandText.textContent = personal.brandIcon;
+    } else {
+        console.log('✅ Using default brand icon: YT');
+        navBrandImage.style.display = 'none';
+        navBrandText.style.display = 'block';
+        navBrandText.textContent = 'YT';
     }
     
-    if (navBrandTitle && personal.brandTitle) {
-        navBrandTitle.textContent = personal.brandTitle;
-        // Add Arabic text class if contains Arabic characters
-        if (/[\u0600-\u06FF]/.test(personal.brandTitle)) {
+    // Update brand title with fallback
+    if (navBrandTitle) {
+        const titleText = personal.brandTitle || personal.fullName || 'Yousef Talal';
+        navBrandTitle.textContent = titleText;
+        console.log('✅ Updated brand title:', titleText);
+        
+        // Add Arabic/English text direction support
+        navBrandTitle.classList.remove('arabic-text', 'english-text');
+        if (/[\u0600-\u06FF]/.test(titleText)) {
             navBrandTitle.classList.add('arabic-text');
         } else {
             navBrandTitle.classList.add('english-text');
         }
     }
     
-    if (navBrandSubtitle && personal.brandSubtitle) {
-        navBrandSubtitle.textContent = personal.brandSubtitle;
-        // Add Arabic text class if contains Arabic characters
-        if (/[\u0600-\u06FF]/.test(personal.brandSubtitle)) {
+    // Update brand subtitle with fallback
+    if (navBrandSubtitle) {
+        const subtitleText = personal.brandSubtitle || 'Developer';
+        navBrandSubtitle.textContent = subtitleText;
+        console.log('✅ Updated brand subtitle:', subtitleText);
+        
+        // Add Arabic/English text direction support
+        navBrandSubtitle.classList.remove('arabic-text', 'english-text');
+        if (/[\u0600-\u06FF]/.test(subtitleText)) {
             navBrandSubtitle.classList.add('arabic-text');
         } else {
             navBrandSubtitle.classList.add('english-text');
