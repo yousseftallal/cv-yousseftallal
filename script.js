@@ -402,16 +402,16 @@ function initializeGalleryCarousel(galleryTrack, totalImages) {
                 zIndex = 10;
             } else if (position === 1 || (position === -(totalImages - 1))) {
                 // Right image
-                translateX = 280;
-                translateZ = -100;
+                translateX = 350;
+                translateZ = -120;
                 rotateY = -25;
                 opacity = 0.7;
                 scale = 0.85;
                 zIndex = 5;
             } else if (position === -1 || (position === totalImages - 1)) {
                 // Left image
-                translateX = -280;
-                translateZ = -100;
+                translateX = -350;
+                translateZ = -120;
                 rotateY = 25;
                 opacity = 0.7;
                 scale = 0.85;
@@ -422,10 +422,10 @@ function initializeGalleryCarousel(galleryTrack, totalImages) {
                 scale = 0.6;
                 zIndex = 1;
                 if (position > 0) {
-                    translateX = 400;
+                    translateX = 500;
                     rotateY = -45;
                 } else {
-                    translateX = -400;
+                    translateX = -500;
                     rotateY = 45;
                 }
             }
