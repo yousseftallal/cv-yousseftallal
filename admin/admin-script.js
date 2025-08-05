@@ -174,6 +174,11 @@ class CVDashboard {
                 emailLink: 'mailto:yousef.talal@email.com',
                 phoneLink: 'tel:+1234567890',
                 locationLink: '',
+                // SEO & Meta information
+                siteTitle: 'Yousef Talal - Computer Science Student & Developer',
+                metaDescription: 'Computer Science student specializing in mobile and web development with expertise in Flutter, Swift, and Java.',
+                metaKeywords: 'developer, programmer, computer science, mobile apps, flutter, swift, java',
+                metaAuthor: 'Yousef Talal',
                 // Social media links
                 linkedinUrl: '',
                 githubUrl: '',
@@ -561,6 +566,20 @@ class CVDashboard {
         if (document.getElementById('locationLink')) {
             document.getElementById('locationLink').value = personal.locationLink || '';
         }
+
+        // Load SEO & Meta information
+        if (document.getElementById('siteTitle')) {
+            document.getElementById('siteTitle').value = personal.siteTitle || '';
+        }
+        if (document.getElementById('metaDescription')) {
+            document.getElementById('metaDescription').value = personal.metaDescription || '';
+        }
+        if (document.getElementById('metaKeywords')) {
+            document.getElementById('metaKeywords').value = personal.metaKeywords || '';
+        }
+        if (document.getElementById('metaAuthor')) {
+            document.getElementById('metaAuthor').value = personal.metaAuthor || personal.fullName || '';
+        }
     }
 
     loadAboutForm() {
@@ -659,6 +678,11 @@ class CVDashboard {
             emailLink: document.getElementById('emailLink')?.value || '',
             phoneLink: document.getElementById('phoneLink')?.value || '',
             locationLink: document.getElementById('locationLink')?.value || '',
+            // SEO & Meta information
+            siteTitle: document.getElementById('siteTitle')?.value || '',
+            metaDescription: document.getElementById('metaDescription')?.value || '',
+            metaKeywords: document.getElementById('metaKeywords')?.value || '',
+            metaAuthor: document.getElementById('metaAuthor')?.value || '',
             // Social media links
             linkedinUrl: document.getElementById('linkedinUrl')?.value || '',
             githubUrl: document.getElementById('githubUrl')?.value || '',

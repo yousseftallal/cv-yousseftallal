@@ -250,6 +250,85 @@ function showSuccessMessage(message) {
     }, 5000);
 }
 
+// Update meta tags for SEO
+function updateMetaTags(personal) {
+    console.log('🔍 Updating SEO meta tags:', {
+        siteTitle: personal.siteTitle,
+        metaDescription: personal.metaDescription,
+        metaKeywords: personal.metaKeywords,
+        metaAuthor: personal.metaAuthor
+    });
+    
+    // Update page title
+    if (personal.siteTitle) {
+        document.title = personal.siteTitle;
+        console.log('✅ Updated page title:', personal.siteTitle);
+    }
+    
+    // Update or create meta description
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.name = 'description';
+        document.head.appendChild(metaDescription);
+    }
+    if (personal.metaDescription) {
+        metaDescription.content = personal.metaDescription;
+        console.log('✅ Updated meta description:', personal.metaDescription);
+    }
+    
+    // Update or create meta keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.name = 'keywords';
+        document.head.appendChild(metaKeywords);
+    }
+    if (personal.metaKeywords) {
+        metaKeywords.content = personal.metaKeywords;
+        console.log('✅ Updated meta keywords:', personal.metaKeywords);
+    }
+    
+    // Update or create meta author
+    let metaAuthor = document.querySelector('meta[name="author"]');
+    if (!metaAuthor) {
+        metaAuthor = document.createElement('meta');
+        metaAuthor.name = 'author';
+        document.head.appendChild(metaAuthor);
+    }
+    if (personal.metaAuthor) {
+        metaAuthor.content = personal.metaAuthor;
+        console.log('✅ Updated meta author:', personal.metaAuthor);
+    }
+    
+    // Update Open Graph tags
+    updateOpenGraphTags(personal);
+}
+
+// Update Open Graph meta tags for social sharing
+function updateOpenGraphTags(personal) {
+    const ogTags = [
+        { property: 'og:title', content: personal.siteTitle || personal.fullName },
+        { property: 'og:description', content: personal.metaDescription || personal.bio },
+        { property: 'og:type', content: 'profile' },
+        { property: 'og:url', content: window.location.href },
+        { property: 'og:image', content: personal.profileImage || 'https://via.placeholder.com/1200x630/4A90E2/FFFFFF?text=' + (personal.brandIcon || 'YT') }
+    ];
+    
+    ogTags.forEach(tag => {
+        if (tag.content) {
+            let ogElement = document.querySelector(`meta[property="${tag.property}"]`);
+            if (!ogElement) {
+                ogElement = document.createElement('meta');
+                ogElement.setAttribute('property', tag.property);
+                document.head.appendChild(ogElement);
+            }
+            ogElement.content = tag.content;
+        }
+    });
+    
+    console.log('✅ Updated Open Graph tags');
+}
 
 
 // Load profile image from database - OPTIMIZED FOR SPEED
@@ -625,6 +704,9 @@ function updateContactSection(personal) {
             item.title = 'Click to view location';
         }
     });
+    
+    // Update SEO & Meta tags
+    updateMetaTags(personal);
     
     // Update social media links
     const socialLinks = document.querySelectorAll('.social-link');
