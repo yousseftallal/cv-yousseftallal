@@ -37,6 +37,26 @@ body {
     padding: 0 20px;
 }
 
+/* Container responsive adjustments */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 95%;
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 500px) {
+    .container {
+        padding: 0 10px;
+    }
+}
+
 /* Navigation */
 .navbar {
     position: fixed;
@@ -1058,7 +1078,7 @@ section {
 }
 
 /* Responsive Design for Skills Carousel */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .skills-grid {
         min-height: 300px;
         perspective: 800px;
@@ -1116,7 +1136,7 @@ section {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
     .skills-grid {
         min-height: 250px;
     }
@@ -1175,7 +1195,6 @@ section {
         font-size: 0.75rem;
         padding: 0.3rem 0.6rem;
     }
-    
 
     
     /* Education Responsive */
@@ -1900,7 +1919,7 @@ section {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .hamburger {
         display: flex;
     }
@@ -2066,9 +2085,37 @@ section {
         flex-direction: column;
         text-align: center;
     }
+    
+    /* Tablet specific adjustments */
+    .hero-text h1 {
+        font-size: 3rem;
+    }
+    
+    .hero-description {
+        font-size: 1.1rem;
+        padding: 1.2rem;
+    }
+    
+    .about-text {
+        padding: 2.5rem;
+    }
+    
+    .about-text p {
+        font-size: 1.1rem;
+    }
+    
+    .about-stats {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+    
+    .contact-info {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
     .section-title {
         font-size: 2rem;
     }
@@ -2171,5 +2218,64 @@ section {
     
     .stat p {
         font-size: 0.85rem;
+    }
+    
+    /* Additional mobile optimizations */
+    .section {
+        padding: 3rem 0;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Navigation Mobile */
+    .nav-container {
+        padding: 0.8rem 1rem;
+    }
+    
+    .nav-menu li {
+        margin: 0.5rem 0;
+    }
+    
+    .nav-menu a {
+        font-size: 1.1rem;
+        padding: 0.8rem 1.5rem;
+    }
+    
+    /* Contact Section Mobile */
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .contact-item {
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+    
+    .contact-item h3 {
+        font-size: 1.1rem;
+    }
+    
+    .contact-item p {
+        font-size: 0.9rem;
+    }
+    
+    /* Social Media Mobile */
+    .social-media {
+        padding: 2rem 0;
+    }
+    
+    .social-icons {
+        gap: 1rem;
+    }
+    
+    .social-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
     }
 }
