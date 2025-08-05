@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+/* Global Responsive Base */
 * {
     margin: 0;
     padding: 0;
@@ -7,6 +7,26 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 16px; /* Base font size for rem calculations */
+}
+
+/* Responsive font scaling */
+@media (max-width: 1200px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 900px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 500px) {
+    html {
+        font-size: 13px;
+    }
 }
 
 body {
@@ -14,10 +34,145 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f8fafc;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Prevent content from going under fixed navbar */
+body {
+    padding-top: 80px; /* Default navbar height */
+}
+
+@media (max-width: 900px) {
+    body {
+        padding-top: 70px; /* Smaller navbar on tablets */
+    }
+}
+
+@media (max-width: 500px) {
+    body {
+        padding-top: 60px; /* Even smaller on mobile */
+    }
 }
 
 /* Arabic Font Support */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&family=Amiri:wght@400;700&display=swap');
+
+/* Global Section Styles - Prevent Overlapping */
+section {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    clear: both;
+    overflow-x: hidden;
+    min-height: auto;
+}
+
+/* Ensure all elements are properly contained */
+*, *::before, *::after {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* Prevent images and media from overflowing */
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Flexible containers */
+.section {
+    padding: 5rem 0;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .section {
+        padding: 4rem 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .section {
+        padding: 3rem 0;
+    }
+}
+
+/* Additional responsive utilities */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.col {
+    flex: 1;
+    padding: 0 15px;
+    box-sizing: border-box;
+    min-width: 0; /* Prevent flex items from overflowing */
+}
+
+@media (max-width: 900px) {
+    .row {
+        margin: 0 -10px;
+    }
+    
+    .col {
+        padding: 0 10px;
+    }
+}
+
+@media (max-width: 500px) {
+    .row {
+        margin: 0 -5px;
+    }
+    
+    .col {
+        padding: 0 5px;
+    }
+}
+
+/* Prevent text overflow */
+h1, h2, h3, h4, h5, h6, p, span, div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Ensure buttons don't overflow */
+.btn, button {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Responsive images and media */
+.responsive-media {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    display: block;
+}
+
+/* Prevent horizontal scroll */
+.no-scroll-x {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* Safe area for mobile devices */
+@supports (padding: max(0px)) {
+    .safe-area {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
 
 .arabic-text {
     font-family: 'Cairo', 'Tajawal', 'Inter', sans-serif;
@@ -35,6 +190,9 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
 }
 
 /* Container responsive adjustments */
@@ -61,13 +219,30 @@ body {
 .navbar {
     position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
+    height: auto;
+    min-height: 80px;
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .navbar {
+        min-height: 70px;
+    }
+}
+
+@media (max-width: 500px) {
+    .navbar {
+        min-height: 60px;
+    }
 }
 
 .navbar::before {
@@ -96,6 +271,21 @@ body {
     margin: 0 auto;
     position: relative;
     z-index: 2;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: inherit;
+}
+
+@media (max-width: 900px) {
+    .nav-container {
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .nav-container {
+        padding: 0.7rem 1rem;
+    }
 }
 
 .nav-brand {
@@ -299,11 +489,27 @@ body {
     padding: 120px 0 80px;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     color: white;
-    min-height: 100vh;
+    min-height: calc(100vh - 80px); /* Account for navbar */
     display: flex;
     align-items: center;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .hero {
+        min-height: calc(100vh - 70px);
+        padding: 100px 0 60px;
+    }
+}
+
+@media (max-width: 500px) {
+    .hero {
+        min-height: calc(100vh - 60px);
+        padding: 80px 0 40px;
+    }
 }
 
 .hero::before {
@@ -348,6 +554,33 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 1200px) {
+    .hero-content {
+        max-width: 95%;
+        gap: 3rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 500px) {
+    .hero-content {
+        gap: 2rem;
+    }
 }
 
 .hero-text {
@@ -690,6 +923,23 @@ section {
     margin-top: 2rem;
     opacity: 1;
     visibility: visible;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .about-stats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .about-stats {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
 }
 
 .stat {
@@ -800,6 +1050,33 @@ section {
     margin-right: auto;
     perspective: 1000px;
     transform-style: preserve-3d;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .skills-grid {
+        max-width: 90%;
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 900px) {
+    .skills-grid {
+        max-width: 95%;
+        min-height: 300px;
+        perspective: 800px;
+    }
+}
+
+@media (max-width: 500px) {
+    .skills-grid {
+        max-width: 100%;
+        min-height: 250px;
+        perspective: 600px;
+        margin-top: 1.5rem;
+    }
+}
 }
 
 /* Auto-scroll animation for skills */
@@ -1270,10 +1547,30 @@ section {
 .timeline {
     position: relative;
     width: 100%;
-    max-width: none;
-    margin: 0;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem 1rem;
-    overflow: hidden;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .timeline {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 900px) {
+    .timeline {
+        max-width: 100%;
+        padding: 2rem 0.5rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .timeline {
+        padding: 1.5rem 0.25rem;
+    }
 }
 
 .timeline::before {
@@ -1642,6 +1939,26 @@ section {
     gap: 3rem;
     margin-bottom: 3rem;
     flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 900px) {
+    .contact-info {
+        gap: 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 500px) {
+    .contact-info {
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
 }
 
 .contact-item {
@@ -1783,6 +2100,26 @@ section {
     overflow-y: auto;
     position: relative;
     animation: slideIn 0.3s ease;
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .modal-content {
+        width: 95%;
+        max-width: 500px;
+        margin: 3% auto;
+        max-height: 85vh;
+    }
+}
+
+@media (max-width: 500px) {
+    .modal-content {
+        width: 98%;
+        max-width: none;
+        margin: 2% auto;
+        max-height: 90vh;
+        border-radius: 0.5rem;
+    }
 }
 
 @keyframes fadeIn {

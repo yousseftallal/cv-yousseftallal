@@ -3,6 +3,30 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    max-width: 100%;
+}
+
+html {
+    font-size: 16px; /* Base font size for rem calculations */
+}
+
+/* Responsive font scaling for admin */
+@media (max-width: 1200px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 900px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 500px) {
+    html {
+        font-size: 13px;
+    }
 }
 
 body {
@@ -12,6 +36,22 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     min-height: 100vh;
+    position: relative;
+    width: 100%;
+}
+
+/* Prevent text overflow in admin */
+h1, h2, h3, h4, h5, h6, p, span, div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Responsive images in admin */
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Sidebar */
@@ -28,6 +68,30 @@ body {
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 260px;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 100%;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 500px) {
+    .sidebar {
+        width: 100vw;
+    }
 }
 
 .sidebar::before {
@@ -173,6 +237,31 @@ body {
     min-height: 100vh;
     background: transparent;
     position: relative;
+    width: calc(100% - 280px);
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+    
+    .main-content::before {
+        left: 260px;
+    }
+}
+
+@media (max-width: 900px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .main-content::before {
+        left: 0;
+    }
 }
 
 .main-content::before {
