@@ -1815,39 +1815,6 @@ class CVDashboard {
         window.location.href = 'login.html';
     }
 
-
-}
-
-// Global function for removing brand image
-function removeBrandImage() {
-    const dashboard = window.cvDashboard;
-    if (dashboard) {
-        dashboard.data.personal.brandImage = '';
-        
-        // Hide preview
-        const preview = document.getElementById('brandImagePreview');
-        if (preview) {
-            preview.style.display = 'none';
-        }
-        
-        // Clear file input
-        const fileInput = document.getElementById('brandImageUpload');
-        if (fileInput) {
-            fileInput.value = '';
-        }
-        
-        dashboard.saveData();
-        
-        // Save to database
-        dashboard.saveDataToDatabase().then(success => {
-            if (success) {
-                dashboard.showToast('Brand logo removed from database!', 'success');
-            } else {
-                dashboard.showToast('Logo removed locally, but failed to update database', 'warning');
-            }
-        });
-    }
-
     // Education Gallery Management
     setupGalleryManagement() {
         console.log('🖼️ Setting up Education Gallery Management');
@@ -2028,6 +1995,39 @@ function removeBrandImage() {
 
     loadGalleryImages() {
         this.renderGalleryImages();
+    }
+
+
+}
+
+// Global function for removing brand image
+function removeBrandImage() {
+    const dashboard = window.cvDashboard;
+    if (dashboard) {
+        dashboard.data.personal.brandImage = '';
+        
+        // Hide preview
+        const preview = document.getElementById('brandImagePreview');
+        if (preview) {
+            preview.style.display = 'none';
+        }
+        
+        // Clear file input
+        const fileInput = document.getElementById('brandImageUpload');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        dashboard.saveData();
+        
+        // Save to database
+        dashboard.saveDataToDatabase().then(success => {
+            if (success) {
+                dashboard.showToast('Brand logo removed from database!', 'success');
+            } else {
+                dashboard.showToast('Logo removed locally, but failed to update database', 'warning');
+            }
+        });
     }
 }
 
