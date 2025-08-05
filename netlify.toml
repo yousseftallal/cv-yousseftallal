@@ -26,4 +26,3 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  DATABASE_URL = "postgresql://neondb_owner:npg_wBxuRO8jN7KX@ep-wild-shadow-aej6461z-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
