@@ -127,8 +127,19 @@ class CVDashboard {
 
     // Data Management
     loadData() {
-        // Load data from database only - no local defaults
-        return {};
+        // Return basic empty structure for dashboard to function
+        return {
+            personalInfo: {},
+            about: {
+                stats: []
+            },
+            skills: [],
+            experience: [],
+            education: [],
+            projects: [],
+            educationGallery: [],
+            profileImage: ''
+        };
     }
 
     saveData() {
@@ -1433,13 +1444,39 @@ class CVDashboard {
 
     // Event Bindings
     bindEvents() {
+        console.log('🔗 Binding events...');
+        
         // Add buttons
-        document.getElementById('addSkill')?.addEventListener('click', () => this.addSkill());
-        document.getElementById('addExperience')?.addEventListener('click', () => this.addExperience());
-        document.getElementById('addEducation')?.addEventListener('click', () => this.addEducation());
+        const addSkillBtn = document.getElementById('addSkill');
+        const addExpBtn = document.getElementById('addExperience');
+        const addEduBtn = document.getElementById('addEducation');
+        const saveBtn = document.getElementById('saveChanges');
+        
+        console.log('Buttons found:', {
+            addSkill: !!addSkillBtn,
+            addExperience: !!addExpBtn,
+            addEducation: !!addEduBtn,
+            saveChanges: !!saveBtn
+        });
+        
+        addSkillBtn?.addEventListener('click', () => {
+            console.log('Add skill clicked');
+            this.addSkill();
+        });
+        addExpBtn?.addEventListener('click', () => {
+            console.log('Add experience clicked');
+            this.addExperience();
+        });
+        addEduBtn?.addEventListener('click', () => {
+            console.log('Add education clicked');
+            this.addEducation();
+        });
 
         // Header buttons
-        document.getElementById('saveChanges')?.addEventListener('click', () => this.saveData());
+        saveBtn?.addEventListener('click', () => {
+            console.log('Save changes clicked');
+            this.saveData();
+        });
         document.getElementById('previewSite')?.addEventListener('click', () => window.open('../index.html', '_blank'));
 
         // Export/Import
@@ -1456,6 +1493,8 @@ class CVDashboard {
         
         // Logout
         document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+        
+        console.log('✅ Events bound successfully');
     }
 
     // Utility Functions
