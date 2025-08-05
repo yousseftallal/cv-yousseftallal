@@ -1,8 +1,11 @@
 // Database configuration for Neon
 const { Pool } = require('pg');
 
+const DATABASE_URL = process.env.DATABASE_URL || 
+    "postgresql://neondb_owner:npg_wBxuRO8jN7KX@ep-wild-shadow-aej6461z-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }
@@ -178,17 +181,27 @@ async function getCVData() {
 // Update CV data
 async function updateCVData(data) {
     try {
+        console.log('📊 updateCVData called with data keys:', Object.keys(data || {}));
+        console.log('🔗 Database URL available:', !!DATABASE_URL);
+        
         const client = await pool.connect();
+        console.log('✅ Database connection established');
+        
         await client.query(`
             INSERT INTO cv_data (data_key, data_value) 
             VALUES ('allData', $1)
             ON CONFLICT (data_key) 
             DO UPDATE SET data_value = $1, updated_at = CURRENT_TIMESTAMP
         `, [JSON.stringify(data)]);
+        
+        console.log('✅ Database query executed successfully');
         client.release();
+        console.log('✅ Database connection released');
+        
         return true;
     } catch (error) {
-        console.error('Error updating CV data:', error);
+        console.error('❌ Error updating CV data:', error.message);
+        console.error('❌ Error stack:', error.stack);
         return false;
     }
 }

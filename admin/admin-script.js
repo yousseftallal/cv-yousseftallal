@@ -314,6 +314,10 @@ class CVDashboard {
     // Save data to database
     async saveDataToDatabase() {
         try {
+            console.log('💾 Saving data to database...');
+            console.log('Data keys to save:', Object.keys(this.data || {}));
+            console.log('Personal info name:', this.data?.personalInfo?.name);
+            
             const response = await fetch('/api/cv-data', {
                 method: 'POST',
                 headers: {
@@ -322,14 +326,21 @@ class CVDashboard {
                 body: JSON.stringify(this.data)
             });
             
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
             if (!response.ok) {
+                const errorText = await response.text();
                 console.error('HTTP error:', response.status, response.statusText);
+                console.error('Error response:', errorText);
                 return false;
             }
             
             const result = await response.json();
+            console.log('API response:', result);
             
             if (result.success) {
+                console.log('✅ Database save successful');
                 return true;
             } else {
                 console.error('❌ Database returned error:', result.error);
@@ -337,6 +348,7 @@ class CVDashboard {
             }
         } catch (error) {
             console.error('❌ Network/Parse error saving to database:', error);
+            console.error('Error details:', error.message);
             return false;
         }
     }

@@ -41,9 +41,14 @@ exports.handler = async (event, context) => {
         
         else if (event.httpMethod === 'POST' || event.httpMethod === 'PUT') {
             // Update CV data
+            console.log('📝 POST/PUT request received');
+            console.log('Request body length:', event.body?.length || 0);
+            
             const body = JSON.parse(event.body);
+            console.log('Parsed body keys:', Object.keys(body || {}));
             
             if (!body) {
+                console.log('❌ No body provided');
                 return {
                     statusCode: 400,
                     headers: {
@@ -57,9 +62,12 @@ exports.handler = async (event, context) => {
                 };
             }
             
+            console.log('🔄 Attempting to update CV data...');
             const success = await updateCVData(body);
+            console.log('Database update result:', success);
             
             if (success) {
+                console.log('✅ Database update successful');
                 return {
                     statusCode: 200,
                     headers: {
@@ -72,6 +80,7 @@ exports.handler = async (event, context) => {
                     })
                 };
             } else {
+                console.log('❌ Database update failed');
                 return {
                     statusCode: 500,
                     headers: {
