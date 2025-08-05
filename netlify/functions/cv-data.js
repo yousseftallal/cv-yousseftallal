@@ -1,10 +1,17 @@
 const { getCVData, updateCVData, initializeDatabase } = require('../../db/database');
 
+// Check environment variables
+console.log('🔍 Environment check:');
+console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 // Initialize database on first load
 initializeDatabase().catch(console.error);
 
 // CV Data API endpoint
 exports.handler = async (event, context) => {
+    console.log('🚀 CV Data API called:', event.httpMethod);
+    
     // Enable CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
