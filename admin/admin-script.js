@@ -1,12 +1,15 @@
 // Admin Dashboard JavaScript
 class CVDashboard {
     constructor() {
+        console.log('🚀 CVDashboard constructor called');
         // Check authentication
         this.checkAuthentication();
         
         this.currentSection = 'overview';
         this.data = this.loadData();
+        console.log('📊 Initial data loaded:', Object.keys(this.data));
         this.init();
+        console.log('✅ CVDashboard initialized');
     }
 
     checkAuthentication() {
@@ -15,6 +18,7 @@ class CVDashboard {
     }
 
     init() {
+        console.log('🔧 Initializing dashboard components...');
         this.setupNavigation();
         this.setupForms();
         this.setupModals();
@@ -23,6 +27,7 @@ class CVDashboard {
         this.loadDashboardData();
         this.bindEvents();
         this.loadDataFromDatabase();
+        console.log('✅ Dashboard initialization complete');
     }
 
     // Navigation

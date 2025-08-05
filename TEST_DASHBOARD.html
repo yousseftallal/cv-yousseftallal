@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test</title>
+</head>
+<body>
+    <h1>Dashboard Test</h1>
+    
+    <div id="test-results">
+        <h2>Testing Dashboard Components:</h2>
+        <ul id="test-list"></ul>
+    </div>
+    
+    <script>
+        // Test if admin script elements exist
+        const tests = [
+            { name: 'Add Skill Button', id: 'addSkill' },
+            { name: 'Add Experience Button', id: 'addExperience' },
+            { name: 'Add Education Button', id: 'addEducation' },
+            { name: 'Save Changes Button', id: 'saveChanges' },
+            { name: 'Modal Element', id: 'modal' },
+            { name: 'Modal Title', id: 'modal-title' },
+            { name: 'Modal Body', id: 'modal-body' }
+        ];
+        
+        function runTests() {
+            const testList = document.getElementById('test-list');
+            
+            // Test if we can load admin page in iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = './admin/index.html';
+            iframe.style.width = '100%';
+            iframe.style.height = '600px';
+            iframe.style.border = '1px solid #ccc';
+            
+            iframe.onload = () => {
+                console.log('Admin page loaded in iframe');
+                
+                // Test elements in iframe
+                tests.forEach(test => {
+                    const element = iframe.contentDocument?.getElementById(test.id);
+                    const li = document.createElement('li');
+                    li.innerHTML = `${test.name}: ${element ? '✅ Found' : '❌ Not Found'}`;
+                    li.style.color = element ? 'green' : 'red';
+                    testList.appendChild(li);
+                });
+            };
+            
+            iframe.onerror = () => {
+                const li = document.createElement('li');
+                li.innerHTML = '❌ Failed to load admin page';
+                li.style.color = 'red';
+                testList.appendChild(li);
+            };
+            
+            document.body.appendChild(iframe);
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>
