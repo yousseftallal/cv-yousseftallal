@@ -145,6 +145,23 @@ async function initializeDatabase() {
                         link: "https://github.com/example/project"
                     }
                 ],
+                educationGallery: [
+                    {
+                        id: "cert1",
+                        url: "https://via.placeholder.com/420x280/667eea/FFFFFF?text=Certificate+1",
+                        title: "Computer Science Certificate"
+                    },
+                    {
+                        id: "cert2", 
+                        url: "https://via.placeholder.com/420x280/764ba2/FFFFFF?text=Certificate+2",
+                        title: "Web Development Certificate"
+                    },
+                    {
+                        id: "cert3",
+                        url: "https://via.placeholder.com/420x280/f093fb/FFFFFF?text=Certificate+3", 
+                        title: "Mobile Development Certificate"
+                    }
+                ],
                 profileImage: "https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT"
             };
             

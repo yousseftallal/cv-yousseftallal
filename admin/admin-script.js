@@ -316,8 +316,21 @@ class CVDashboard {
                 }
             ],
             educationGallery: [
-                // Education gallery images will be stored here
-                // Each item: { id, url, title, timestamp }
+                {
+                    id: "cert1",
+                    url: "https://via.placeholder.com/420x280/667eea/FFFFFF?text=Certificate+1",
+                    title: "Computer Science Certificate"
+                },
+                {
+                    id: "cert2", 
+                    url: "https://via.placeholder.com/420x280/764ba2/FFFFFF?text=Certificate+2",
+                    title: "Web Development Certificate"
+                },
+                {
+                    id: "cert3",
+                    url: "https://via.placeholder.com/420x280/f093fb/FFFFFF?text=Certificate+3", 
+                    title: "Mobile Development Certificate"
+                }
             ]
         };
 
@@ -341,8 +354,8 @@ class CVDashboard {
         });
         
         try {
-            console.log('Sending request to /.netlify/functions/cv-data');
-            const response = await fetch('/.netlify/functions/cv-data', {
+            console.log('Sending request to /api/cv-data');
+            const response = await fetch('/api/cv-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -378,7 +391,7 @@ class CVDashboard {
     async loadDataFromDatabase() {
         console.log('=== LOADING FROM DATABASE ===');
         try {
-            const response = await fetch('/.netlify/functions/cv-data');
+            const response = await fetch('/api/cv-data');
             console.log('Database load response status:', response.status);
             
             if (response.ok) {
