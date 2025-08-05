@@ -660,24 +660,33 @@ async function loadProfileImage() {
         
         if (response.ok) {
             const result = await response.json();
+            console.log('Database response result:', result);
             
-            if (result.success && result.data && result.data.profileImage) {
-                const imageUrl = result.data.profileImage;
-                console.log('⚡ Found profile image, loading instantly:', imageUrl);
+            if (result.success && result.data) {
+                console.log('All data from database:', result.data);
+                console.log('Profile image from database:', result.data.profileImage);
                 
-                // Preload image for instant display
-                const img = new Image();
-                img.onload = () => {
-                    profileImg.src = imageUrl + '?t=' + cacheBuster;
-                    profileImg.style.opacity = '1';
-                    console.log('✅ Profile image loaded INSTANTLY!');
-                };
-                img.onerror = () => {
-                    console.error('❌ Failed to preload image:', imageUrl);
+                if (result.data.profileImage) {
+                    const imageUrl = result.data.profileImage;
+                    console.log('⚡ Found profile image, loading instantly:', imageUrl);
+                    
+                    // Preload image for instant display
+                    const img = new Image();
+                    img.onload = () => {
+                        profileImg.src = imageUrl + '?t=' + cacheBuster;
+                        profileImg.style.opacity = '1';
+                        console.log('✅ Profile image loaded INSTANTLY!');
+                    };
+                    img.onerror = () => {
+                        console.error('❌ Failed to preload image:', imageUrl);
+                        setDefaultImage();
+                    };
+                    img.src = imageUrl + '?t=' + cacheBuster;
+                    return;
+                } else {
+                    console.log('No profile image in database, using default');
                     setDefaultImage();
-                };
-                img.src = imageUrl + '?t=' + cacheBuster;
-                return;
+                }
             } else {
                 console.log('No profile image in database, using default');
                 setDefaultImage();

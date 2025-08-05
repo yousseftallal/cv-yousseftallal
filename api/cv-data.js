@@ -1,4 +1,7 @@
-const { getCVData, updateCVData } = require('../db/database');
+const { getCVData, updateCVData, initializeDatabase } = require('../db/database');
+
+// Initialize database on first load
+initializeDatabase().catch(console.error);
 
 // CV Data API endpoint
 exports.handler = async (event, context) => {
