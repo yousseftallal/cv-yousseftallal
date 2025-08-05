@@ -1,4 +1,4 @@
-const { getCVData, updateCVData, initializeDatabase } = require('../db/database');
+const { getCVData, updateCVData, initializeDatabase } = require('../../db/database');
 
 // Initialize database on first load
 initializeDatabase().catch(console.error);

@@ -595,7 +595,7 @@ async function loadProfileImage() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
         
-        const response = await fetch(`/api/cv-data?t=${cacheBuster}`, {
+        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`, {
             signal: controller.signal,
             headers: {
                 'Cache-Control': 'no-cache',
@@ -659,7 +659,7 @@ async function loadCVDataFromDatabase() {
         // Add cache busting to prevent caching issues
         const cacheBuster = new Date().getTime();
         
-        const response = await fetch(`/api/cv-data?t=${cacheBuster}`);
+        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`);
         
         if (response.ok) {
             const result = await response.json();

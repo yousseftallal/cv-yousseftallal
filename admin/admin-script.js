@@ -159,7 +159,7 @@ class CVDashboard {
             console.log('Data keys to save:', Object.keys(this.data || {}));
             console.log('Personal info name:', this.data?.personalInfo?.name);
             
-            const response = await fetch('/api/cv-data', {
+            const response = await fetch('/.netlify/functions/cv-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ class CVDashboard {
     // Load data from database
     async loadDataFromDatabase() {
         try {
-            const response = await fetch('/api/cv-data');
+            const response = await fetch('/.netlify/functions/cv-data');
             
             if (response.ok) {
                 const result = await response.json();
