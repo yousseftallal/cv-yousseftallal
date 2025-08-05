@@ -144,7 +144,8 @@ async function initializeDatabase() {
                         technologies: ["React", "Node.js", "MongoDB"],
                         link: "https://github.com/example/project"
                     }
-                ]
+                ],
+                profileImage: "https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT"
             };
             
             await client.query(`

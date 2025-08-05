@@ -1349,6 +1349,14 @@ class CVDashboard {
             this.data.profileImage = imageUrl;
             console.log('Updated local data:', this.data.profileImage);
             
+            // Save to database
+            const saveSuccess = await this.saveDataToDatabase();
+            if (!saveSuccess) {
+                this.showToast('Failed to save profile image to database', 'error');
+                return;
+            }
+            console.log('✅ Profile image saved to database');
+            
             // Update preview immediately
             const preview = document.getElementById('profilePreview');
             if (preview) {
@@ -1404,18 +1412,6 @@ class CVDashboard {
             } catch (error) {
                 // Cross-origin restrictions, use postMessage instead
             }
-            
-            // Save to database in background (non-blocking)
-            this.saveDataToDatabase().then(success => {
-                if (success) {
-                    this.showToast('Profile image synced to database!', 'success');
-                } else {
-                    this.showToast('Image updated locally, will sync when online', 'warning');
-                }
-            }).catch(error => {
-                console.log('Database save error:', error);
-                this.showToast('Image updated locally, database sync failed', 'warning');
-            });
             
             // Open main site immediately to show the updated image
             const newWindow = window.open('../index.html', '_blank');
@@ -1600,24 +1596,15 @@ class CVDashboard {
     }
 
     async setAsProfileImage(imageSrc) {
-        // Save to database
+        // Save to database using main CV data API
         try {
-            const response = await fetch('/.netlify/functions/profile-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    imageUrl: imageSrc
-                })
-            });
+            // Update local data
+            this.data.profileImage = imageSrc;
             
-            const data = await response.json();
+            // Save to database
+            const saveSuccess = await this.saveDataToDatabase();
             
-            if (data.success) {
-                // Update profile image data
-                this.data.profileImage = imageSrc;
-                
+            if (saveSuccess) {
                 this.showToast('Profile image updated successfully in database!');
                 
                 // Update the profile image preview in admin
@@ -1634,11 +1621,11 @@ class CVDashboard {
                     window.open('../index.html', '_blank');
                 }, 1000);
             } else {
-                this.showToast('Error: ' + (data.error || 'Failed to update image'), 'error');
+                this.showToast('Error: Failed to save profile image to database', 'error');
             }
         } catch (error) {
             console.error('Error updating profile image:', error);
-            this.showToast('Error: Failed to connect to database', 'error');
+            this.showToast('Error: Failed to save profile image', 'error');
         }
     }
 
