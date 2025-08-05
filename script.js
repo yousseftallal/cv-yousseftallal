@@ -112,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     // Initialize About section with delay to ensure DOM is ready
     setTimeout(() => {
-        console.log('Initializing About section with default data');
         updateAboutSection(defaultAbout);
     }, 100);
     
@@ -126,12 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load profile image multiple times to ensure it loads
     setTimeout(() => {
-        console.log('Second profile image load attempt...');
         loadProfileImage();
     }, 1000);
     
     setTimeout(() => {
-        console.log('Third profile image load attempt...');
         loadProfileImage();
     }, 3000);
     
@@ -158,7 +155,6 @@ function addRefreshButton() {
 
 // Force refresh function
 function forceRefresh() {
-    console.log('Force refreshing data...');
     loadCVDataFromDatabase();
     loadProfileImage();
     
@@ -249,17 +245,9 @@ function showSuccessMessage(message) {
 
 // Update meta tags for SEO
 function updateMetaTags(personal) {
-    console.log('🔍 Updating SEO meta tags:', {
-        siteTitle: personal.siteTitle,
-        metaDescription: personal.metaDescription,
-        metaKeywords: personal.metaKeywords,
-        metaAuthor: personal.metaAuthor
-    });
-    
     // Update page title
     if (personal.siteTitle) {
         document.title = personal.siteTitle;
-        console.log('✅ Updated page title:', personal.siteTitle);
     }
     
     // Update or create meta description
@@ -271,7 +259,6 @@ function updateMetaTags(personal) {
     }
     if (personal.metaDescription) {
         metaDescription.content = personal.metaDescription;
-        console.log('✅ Updated meta description:', personal.metaDescription);
     }
     
     // Update or create meta keywords
@@ -283,7 +270,6 @@ function updateMetaTags(personal) {
     }
     if (personal.metaKeywords) {
         metaKeywords.content = personal.metaKeywords;
-        console.log('✅ Updated meta keywords:', personal.metaKeywords);
     }
     
     // Update or create meta author
@@ -295,7 +281,6 @@ function updateMetaTags(personal) {
     }
     if (personal.metaAuthor) {
         metaAuthor.content = personal.metaAuthor;
-        console.log('✅ Updated meta author:', personal.metaAuthor);
     }
     
     // Update Open Graph tags
@@ -324,25 +309,21 @@ function updateOpenGraphTags(personal) {
         }
     });
     
-    console.log('✅ Updated Open Graph tags');
 }
 
 // Update Education Gallery with Skills-style carousel
 function updateEducationGallery(gallery) {
-    console.log('🖼️ Updating Education Gallery:', gallery);
     
     const galleryContainer = document.getElementById('educationGallery');
     const galleryTrack = document.getElementById('galleryTrack');
     
     if (!galleryContainer || !galleryTrack) {
-        console.log('Gallery containers not found');
         return;
     }
     
     // Hide gallery if no images
     if (!gallery || gallery.length === 0) {
         galleryContainer.style.display = 'none';
-        console.log('No gallery images, hiding gallery section');
         return;
     }
     
@@ -367,7 +348,6 @@ function updateEducationGallery(gallery) {
     // Initialize carousel like Skills
     initializeGalleryCarousel(galleryTrack, gallery.length);
     
-    console.log('✅ Education Gallery updated with', gallery.length, 'images');
 }
 
 // Initialize Gallery Carousel (same as Skills)
@@ -637,7 +617,6 @@ function closeImageModal() {
 
 // Load profile image from database - OPTIMIZED FOR SPEED
 async function loadProfileImage() {
-    console.log('⚡ FAST LOADING PROFILE IMAGE ⚡');
     const profileImg = document.querySelector('.profile-img');
     if (!profileImg) {
         console.error('Profile image element not found');
@@ -653,29 +632,28 @@ async function loadProfileImage() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
         
-        console.log('🚀 Fast fetching CV data...');
-        const response = await fetch(`/api/cv-data?t=${cacheBuster}`);
+        const response = await fetch(`/api/cv-data?t=${cacheBuster}`, {
+            signal: controller.signal,
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
         
         clearTimeout(timeoutId);
         
         if (response.ok) {
             const result = await response.json();
-            console.log('Database response result:', result);
             
             if (result.success && result.data) {
-                console.log('All data from database:', result.data);
-                console.log('Profile image from database:', result.data.profileImage);
-                
                 if (result.data.profileImage) {
                     const imageUrl = result.data.profileImage;
-                    console.log('⚡ Found profile image, loading instantly:', imageUrl);
                     
                     // Preload image for instant display
                     const img = new Image();
                     img.onload = () => {
                         profileImg.src = imageUrl + '?t=' + cacheBuster;
                         profileImg.style.opacity = '1';
-                        console.log('✅ Profile image loaded INSTANTLY!');
                     };
                     img.onerror = () => {
                         console.error('❌ Failed to preload image:', imageUrl);
@@ -684,11 +662,9 @@ async function loadProfileImage() {
                     img.src = imageUrl + '?t=' + cacheBuster;
                     return;
                 } else {
-                    console.log('No profile image in database, using default');
                     setDefaultImage();
                 }
             } else {
-                console.log('No profile image in database, using default');
                 setDefaultImage();
             }
         } else {
@@ -707,7 +683,6 @@ async function loadProfileImage() {
     function setDefaultImage() {
         profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
         profileImg.style.opacity = '1';
-        console.log('Using default profile image');
     }
 }
 
@@ -720,58 +695,46 @@ async function loadCVDataFromDatabase() {
     try {
         // Add cache busting to prevent caching issues
         const cacheBuster = new Date().getTime();
-        console.log('Loading CV data from database...');
         
         const response = await fetch(`/api/cv-data?t=${cacheBuster}`);
-        console.log('Database response status:', response.status);
         
         if (response.ok) {
             const result = await response.json();
-            console.log('Database response:', result);
             
             if (result.success && result.data) {
-                console.log('Personal data from database:', result.data.personal);
-                
                 // Update skills data
                 if (result.data.skills) {
                     window.skillsData = result.data.skills;
-                    console.log('Skills data updated:', result.data.skills);
                 }
                 
                 // Update personal info
                 if (result.data.personal) {
                     updatePersonalInfo(result.data.personal);
-                    console.log('Personal info updated');
                 }
                 
                 // Update experience
                 if (result.data.experience) {
                     updateExperience(result.data.experience);
-                    console.log('Experience updated');
                 }
                 
                 // Update education
                 if (result.data.education) {
                     updateEducation(result.data.education);
-                    console.log('Education updated');
                 }
                 
                 // Update education gallery
                 if (result.data.educationGallery) {
                     updateEducationGallery(result.data.educationGallery);
-                    console.log('Education gallery updated');
                 }
                 
                 // Update about section
                 if (result.data.about) {
                     updateAboutSection(result.data.about);
-                    console.log('About section updated');
                 }
                 
                 // Initialize skills with new data
                 initializeSkills();
                 
-                console.log('CV data loaded from database successfully');
                 return;
             }
         }
@@ -780,7 +743,6 @@ async function loadCVDataFromDatabase() {
     }
     
     // Fallback to default data
-    console.log('Using default CV data');
     
     // Default about data as fallback
     const defaultAbout = {
@@ -815,7 +777,6 @@ async function loadCVDataFromDatabase() {
 
 // Update personal information
 function updatePersonalInfo(personal) {
-    console.log('Updating personal info with:', personal);
     
     // Update navbar
     const navBrandImage = document.getElementById('navBrandImage');
@@ -824,33 +785,23 @@ function updatePersonalInfo(personal) {
     const navBrandSubtitle = document.getElementById('navBrandSubtitle');
     
     // Update brand icon/image - ENHANCED VERSION
-    console.log('🎨 Updating brand elements:', {
-        brandImage: personal.brandImage,
-        brandIcon: personal.brandIcon,
-        brandTitle: personal.brandTitle,
-        brandSubtitle: personal.brandSubtitle
-    });
     
     if (personal.brandImage && personal.brandImage.trim() !== '') {
-        console.log('✅ Using brand image:', personal.brandImage);
         navBrandImage.src = personal.brandImage;
         navBrandImage.style.display = 'block';
         navBrandText.style.display = 'none';
         
         // Add error handling for image loading
         navBrandImage.onerror = () => {
-            console.log('❌ Brand image failed to load, falling back to icon');
             navBrandImage.style.display = 'none';
             navBrandText.style.display = 'block';
             navBrandText.textContent = personal.brandIcon || 'YT';
         };
     } else if (personal.brandIcon && personal.brandIcon.trim() !== '') {
-        console.log('✅ Using brand icon:', personal.brandIcon);
         navBrandImage.style.display = 'none';
         navBrandText.style.display = 'block';
         navBrandText.textContent = personal.brandIcon;
     } else {
-        console.log('✅ Using default brand icon: YT');
         navBrandImage.style.display = 'none';
         navBrandText.style.display = 'block';
         navBrandText.textContent = 'YT';
@@ -860,7 +811,6 @@ function updatePersonalInfo(personal) {
     if (navBrandTitle) {
         const titleText = personal.brandTitle || personal.fullName || 'Yousef Talal';
         navBrandTitle.textContent = titleText;
-        console.log('✅ Updated brand title:', titleText);
         
         // Add Arabic/English text direction support
         navBrandTitle.classList.remove('arabic-text', 'english-text');
@@ -875,7 +825,6 @@ function updatePersonalInfo(personal) {
     if (navBrandSubtitle) {
         const subtitleText = personal.brandSubtitle || 'Developer';
         navBrandSubtitle.textContent = subtitleText;
-        console.log('✅ Updated brand subtitle:', subtitleText);
         
         // Add Arabic/English text direction support
         navBrandSubtitle.classList.remove('arabic-text', 'english-text');
@@ -891,11 +840,6 @@ function updatePersonalInfo(personal) {
     const subtitleElement = document.querySelector('.hero-subtitle');
     const descriptionElement = document.querySelector('.hero-description');
     
-    console.log('Found elements:', {
-        nameElement: !!nameElement,
-        subtitleElement: !!subtitleElement,
-        descriptionElement: !!descriptionElement
-    });
     
     if (nameElement && personal.fullName) {
         // Clear any existing content and start typing animation
@@ -910,18 +854,15 @@ function updatePersonalInfo(personal) {
             nameElement.classList.remove('arabic-text');
         }
         
-        console.log('Starting typing animation for name:', personal.fullName);
         typeWriter(nameElement, personal.fullName, 100);
     }
     
     if (subtitleElement && personal.jobTitle) {
         subtitleElement.textContent = personal.jobTitle;
-        console.log('Updated job title to:', personal.jobTitle);
     }
     
     if (descriptionElement && personal.aboutText) {
         descriptionElement.textContent = personal.aboutText;
-        console.log('Updated description to:', personal.aboutText);
     }
     
     // Update contact section with clickable links
@@ -933,25 +874,17 @@ function updatePersonalInfo(personal) {
     const phoneElement = document.querySelector('.contact-item:nth-child(2) p');
     const locationElement = document.querySelector('.contact-item:nth-child(3) p');
     
-    console.log('Found contact elements:', {
-        emailElement: !!emailElement,
-        phoneElement: !!phoneElement,
-        locationElement: !!locationElement
-    });
     
     if (emailElement && personal.email) {
         emailElement.textContent = personal.email;
-        console.log('Updated email to:', personal.email);
     }
     
     if (phoneElement && personal.phone) {
         phoneElement.textContent = personal.phone;
-        console.log('Updated phone to:', personal.phone);
     }
     
     if (locationElement && personal.location) {
         locationElement.textContent = personal.location;
-        console.log('Updated location to:', personal.location);
     }
     
     // Update stats if available
@@ -975,7 +908,6 @@ function updatePersonalInfo(personal) {
 
 // Update contact section with clickable links
 function updateContactSection(personal) {
-    console.log('Updating contact section with:', personal);
     
     // Update contact items with clickable functionality
     const contactItems = document.querySelectorAll('.contact-item');
@@ -1051,33 +983,25 @@ function updateContactSection(personal) {
         }
     });
     
-    console.log('Contact section updated with links');
 }
 
 // Update About Me section
 function updateAboutSection(about) {
-    console.log('Updating about section with:', about);
     
     // Wait a bit for DOM to be ready
     setTimeout(() => {
-        console.log('DOM should be ready now, updating about section...');
         
         // Check if about section exists
         const aboutSection = document.querySelector('#about');
-        console.log('About section found:', !!aboutSection);
         
         // Update section title
         const sectionTitle = document.querySelector('#about .section-title');
-        console.log('Section title element:', sectionTitle);
         if (sectionTitle && about && about.title) {
             sectionTitle.textContent = about.title;
-            console.log('Updated section title to:', about.title);
         }
         
         // Update paragraphs
         const aboutTextDiv = document.querySelector('.about-text');
-        console.log('About text div:', aboutTextDiv);
-        console.log('About paragraphs:', about?.paragraph1, about?.paragraph2);
         
         if (aboutTextDiv) {
             aboutTextDiv.innerHTML = '';
@@ -1086,14 +1010,12 @@ function updateAboutSection(about) {
                 const p1 = document.createElement('p');
                 p1.textContent = about.paragraph1;
                 aboutTextDiv.appendChild(p1);
-                console.log('Added paragraph 1');
             }
             
             if (about && about.paragraph2) {
                 const p2 = document.createElement('p');
                 p2.textContent = about.paragraph2;
                 aboutTextDiv.appendChild(p2);
-                console.log('Added paragraph 2');
             }
             
             // If no paragraphs, show default message
@@ -1101,14 +1023,11 @@ function updateAboutSection(about) {
                 const defaultP = document.createElement('p');
                 defaultP.textContent = 'No content available. Please update from dashboard.';
                 aboutTextDiv.appendChild(defaultP);
-                console.log('Added default message');
             }
         }
         
         // Update stats
         const statsContainer = document.querySelector('.about-stats');
-        console.log('Stats container:', statsContainer);
-        console.log('About stats:', about?.stats);
         
         if (statsContainer) {
             statsContainer.innerHTML = '';
@@ -1123,7 +1042,6 @@ function updateAboutSection(about) {
                         <p>${stat.description}</p>
                     `;
                     statsContainer.appendChild(statDiv);
-                    console.log(`Added stat ${index + 1}:`, stat);
                 });
             } else {
                 // Show default loading stat if no data
@@ -1135,11 +1053,9 @@ function updateAboutSection(about) {
                     <p>Please update from dashboard</p>
                 `;
                 statsContainer.appendChild(loadingStat);
-                console.log('Added no data message');
             }
         }
         
-        console.log('About section updated successfully');
     }, 50); // Small delay to ensure DOM is ready
 }
 
@@ -1687,7 +1603,6 @@ function initializeScrollEffects() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
-                console.log('Added animate-in class to:', entry.target.className);
             }
         });
     }, observerOptions);
@@ -1699,7 +1614,6 @@ function initializeScrollEffects() {
         setTimeout(() => {
             if (!el.classList.contains('animate-in')) {
                 el.classList.add('animate-in');
-                console.log('Fallback: Added animate-in class to:', el.className);
             }
         }, 1000);
     });
@@ -1830,7 +1744,6 @@ window.addEventListener('scroll', function() {
 // Typing effect for hero title
 function typeWriter(element, text, speed = 100) {
     if (!element || !text) {
-        console.log('TypeWriter: Missing element or text');
         return;
     }
     
@@ -1841,12 +1754,10 @@ function typeWriter(element, text, speed = 100) {
     
     // Store the typing state to prevent multiple simultaneous animations
     if (element.isTyping) {
-        console.log('TypeWriter: Already typing, skipping');
         return;
     }
     
     element.isTyping = true;
-    console.log('TypeWriter: Starting animation for text:', text);
     
     function type() {
         if (i < text.length && element.isTyping) {
@@ -1856,7 +1767,6 @@ function typeWriter(element, text, speed = 100) {
         } else {
             // Animation completed
             element.isTyping = false;
-            console.log('TypeWriter: Animation completed');
         }
     }
     
@@ -1868,7 +1778,6 @@ setTimeout(() => {
     const heroTitle = document.querySelector('.hero-text h1');
     if (heroTitle && !heroTitle.isTyping && heroTitle.textContent.trim()) {
         const currentText = heroTitle.textContent.trim();
-        console.log('Fallback typing animation for:', currentText);
         typeWriter(heroTitle, currentText, 100);
     }
 }, 2000); // Wait 2 seconds for database data to load
@@ -1923,12 +1832,10 @@ window.addEventListener('scroll', debounce(revealOnScroll, 10));
 // Listen for profile image updates from dashboard - IMMEDIATE UPDATE
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'profile-image-updated') {
-        console.log('🚀 IMMEDIATE profile image update from dashboard:', event.data.imageUrl);
         const profileImg = document.querySelector('.profile-img');
         if (profileImg && event.data.imageUrl) {
             // Update immediately without any delay
             profileImg.src = event.data.imageUrl + '?t=' + (event.data.timestamp || Date.now());
-            console.log('✅ Profile image updated instantly!');
             
             // Show visual feedback
             profileImg.style.opacity = '0.7';
@@ -1944,7 +1851,6 @@ window.addEventListener('storage', (event) => {
     if (event.key === 'profileImageUpdate') {
         const data = JSON.parse(event.newValue || '{}');
         if (data.imageUrl) {
-            console.log('🔄 Profile image update from storage:', data.imageUrl);
             const profileImg = document.querySelector('.profile-img');
             if (profileImg) {
                 profileImg.src = data.imageUrl + '?t=' + Date.now();
@@ -1955,7 +1861,6 @@ window.addEventListener('storage', (event) => {
 
 // Auto-refresh profile image every 30 seconds
 setInterval(() => {
-    console.log('Auto-refreshing profile image...');
     loadProfileImage();
 }, 30000);
 

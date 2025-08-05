@@ -13,36 +13,16 @@ async function initializeDatabase() {
     try {
         const client = await pool.connect();
         
-        // Create profile_image table
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS profile_image (
-                id SERIAL PRIMARY KEY,
-                image_url TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        
         // Create cv_data table for all CV content
         await client.query(`
             CREATE TABLE IF NOT EXISTS cv_data (
                 id SERIAL PRIMARY KEY,
-                section_name VARCHAR(100) NOT NULL,
-                content JSONB NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                data_key VARCHAR(100) NOT NULL,
+                data_value JSONB NOT NULL,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(section_name)
+                UNIQUE(data_key)
             )
         `);
-        
-        // Insert default image if table is empty
-        const result = await client.query('SELECT COUNT(*) FROM profile_image');
-        if (parseInt(result.rows[0].count) === 0) {
-            await client.query(`
-                INSERT INTO profile_image (image_url) 
-                VALUES ('https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT')
-            `);
-        }
         
         // Insert default CV data if table is empty
         const cvResult = await client.query('SELECT COUNT(*) FROM cv_data');
@@ -166,7 +146,7 @@ async function initializeDatabase() {
             };
             
             await client.query(`
-                INSERT INTO cv_data (section_name, content) 
+                INSERT INTO cv_data (data_key, data_value) 
                 VALUES ('allData', $1)
             `, [JSON.stringify(defaultData)]);
         }
@@ -178,42 +158,13 @@ async function initializeDatabase() {
     }
 }
 
-// Get current profile image
-async function getProfileImage() {
-    try {
-        const client = await pool.connect();
-        const result = await client.query('SELECT image_url FROM profile_image ORDER BY updated_at DESC LIMIT 1');
-        client.release();
-        return result.rows[0]?.image_url || null;
-    } catch (error) {
-        console.error('Error getting profile image:', error);
-        return null;
-    }
-}
-
-// Update profile image
-async function updateProfileImage(imageUrl) {
-    try {
-        const client = await pool.connect();
-        await client.query(`
-            INSERT INTO profile_image (image_url) 
-            VALUES ($1)
-        `, [imageUrl]);
-        client.release();
-        return true;
-    } catch (error) {
-        console.error('Error updating profile image:', error);
-        return false;
-    }
-}
-
 // Get all CV data
 async function getCVData() {
     try {
         const client = await pool.connect();
-        const result = await client.query('SELECT content FROM cv_data WHERE section_name = $1', ['allData']);
+        const result = await client.query('SELECT data_value FROM cv_data WHERE data_key = $1', ['allData']);
         client.release();
-        return result.rows[0]?.content || null;
+        return result.rows[0]?.data_value || null;
     } catch (error) {
         console.error('Error getting CV data:', error);
         return null;
@@ -225,10 +176,10 @@ async function updateCVData(data) {
     try {
         const client = await pool.connect();
         await client.query(`
-            INSERT INTO cv_data (section_name, content) 
+            INSERT INTO cv_data (data_key, data_value) 
             VALUES ('allData', $1)
-            ON CONFLICT (section_name) 
-            DO UPDATE SET content = $1, updated_at = CURRENT_TIMESTAMP
+            ON CONFLICT (data_key) 
+            DO UPDATE SET data_value = $1, updated_at = CURRENT_TIMESTAMP
         `, [JSON.stringify(data)]);
         client.release();
         return true;
@@ -241,8 +192,6 @@ async function updateCVData(data) {
 module.exports = {
     pool,
     initializeDatabase,
-    getProfileImage,
-    updateProfileImage,
     getCVData,
     updateCVData
 };

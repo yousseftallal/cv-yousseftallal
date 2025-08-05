@@ -27,62 +27,35 @@ class CVDashboard {
 
     // Navigation
     setupNavigation() {
-        console.log('=== SETTING UP NAVIGATION ===');
+        const navLinks = document.querySelectorAll('.nav-link');
         
-        // Wait a bit for DOM to be fully ready
-        setTimeout(() => {
-            const navLinks = document.querySelectorAll('.nav-link');
-            console.log('Found navigation links:', navLinks.length);
+        navLinks.forEach((link, index) => {
+            const href = link.getAttribute('href');
+            const section = href ? href.replace('#', '') : null;
             
-            if (navLinks.length === 0) {
-                console.error('No navigation links found! DOM might not be ready.');
-                return;
-            }
-            
-            navLinks.forEach((link, index) => {
-                const href = link.getAttribute('href');
-                console.log(`Nav link ${index}: ${href} - Text: "${link.textContent.trim()}"`);
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
                 
-                // Remove any existing event listeners
-                link.removeEventListener('click', this.handleNavClick);
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                link.classList.add('active');
                 
-                // Add new event listener
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    console.log('=== NAVIGATION CLICKED ===');
-                    console.log('Clicked link:', link.textContent.trim());
-                    console.log('Href:', href);
-                    
-                    const section = href ? href.substring(1) : 'overview';
-                    console.log('Target section:', section);
-                    
-                    try {
-                        this.showSection(section);
-                        this.updateActiveNav(link);
-                    } catch (error) {
-                        console.error('Error in navigation click:', error);
-                    }
-                });
+                // Show corresponding section
+                if (section) {
+                    this.showSection(section);
+                }
             });
-            
-            console.log('Navigation setup completed');
-        }, 100);
+        });
     }
 
     showSection(sectionName) {
-        console.log('=== SHOW SECTION CALLED ===');
-        console.log('Section name:', sectionName);
-        
         try {
             // Hide all sections first
             const allSections = document.querySelectorAll('.content-section');
-            console.log('Found total sections:', allSections.length);
             
             // List all sections for debugging
             allSections.forEach((section, index) => {
-                console.log(`Section ${index}: ${section.id}`);
                 section.classList.remove('active');
                 section.style.display = 'none';
                 section.style.opacity = '0';
@@ -91,11 +64,8 @@ class CVDashboard {
             // Show target section
             const targetSectionId = `${sectionName}-section`;
             const targetSection = document.getElementById(targetSectionId);
-            console.log('Looking for section ID:', targetSectionId);
-            console.log('Target section found:', !!targetSection);
             
             if (targetSection) {
-                console.log('Activating section:', targetSectionId);
                 
                 // Force show the section
                 targetSection.style.display = 'block';
@@ -111,11 +81,9 @@ class CVDashboard {
                 
                 // Load section data
                 setTimeout(() => {
-                    console.log('Loading data for section:', sectionName);
                     this.loadSectionData(sectionName);
                 }, 100);
                 
-                console.log('✅ Section activated successfully:', sectionName);
                 
                 // Scroll to top of main content
                 const mainContent = document.querySelector('.main-content');
@@ -345,16 +313,7 @@ class CVDashboard {
 
     // Save data to database
     async saveDataToDatabase() {
-        console.log('=== SAVING TO DATABASE ===');
-        console.log('Data to save:', {
-            profileImage: this.data.profileImage,
-            personalName: this.data.personal?.fullName,
-            skillsCount: this.data.skills?.length,
-            experienceCount: this.data.experience?.length
-        });
-        
         try {
-            console.log('Sending request to /api/cv-data');
             const response = await fetch('/api/cv-data', {
                 method: 'POST',
                 headers: {
@@ -363,19 +322,14 @@ class CVDashboard {
                 body: JSON.stringify(this.data)
             });
             
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            
             if (!response.ok) {
                 console.error('HTTP error:', response.status, response.statusText);
                 return false;
             }
             
             const result = await response.json();
-            console.log('Database response:', result);
             
             if (result.success) {
-                console.log('✅ Data saved to database successfully');
                 return true;
             } else {
                 console.error('❌ Database returned error:', result.error);
@@ -389,23 +343,15 @@ class CVDashboard {
 
     // Load data from database
     async loadDataFromDatabase() {
-        console.log('=== LOADING FROM DATABASE ===');
         try {
             const response = await fetch('/api/cv-data');
-            console.log('Database load response status:', response.status);
             
             if (response.ok) {
                 const result = await response.json();
-                console.log('Database load result:', result);
                 
                 if (result.success && result.data) {
-                    console.log('Profile image from database:', result.data.profileImage);
-                    
-                    // Load database data
                     this.data = { ...this.data, ...result.data };
                     this.loadDashboardData(); // Refresh dashboard
-                    console.log('✅ Data loaded from database successfully');
-                    console.log('Current profile image:', this.data.profileImage);
                 } else {
                     console.log('❌ No valid data in database response');
                 }
@@ -418,7 +364,6 @@ class CVDashboard {
     }
 
     loadDashboardData() {
-        console.log('=== LOADING DASHBOARD DATA ===');
         this.updateStats();
         this.loadPersonalForm();
         this.loadAboutForm();
@@ -426,17 +371,13 @@ class CVDashboard {
         this.loadExperienceList();
         this.loadEducationList();
         this.loadProfileImagePreview();
-        console.log('Dashboard data loaded');
     }
 
     loadProfileImagePreview() {
-        console.log('Loading profile image preview, data:', this.data.profileImage);
-        
         const profilePreview = document.getElementById('profilePreview');
         const urlInput = document.getElementById('profileImageUrl');
         
         if (this.data.profileImage) {
-            console.log('Setting profile image to:', this.data.profileImage);
             if (profilePreview) {
                 profilePreview.src = this.data.profileImage;
             }
@@ -444,7 +385,6 @@ class CVDashboard {
                 urlInput.value = this.data.profileImage;
             }
         } else {
-            console.log('No profile image data, using default');
             if (profilePreview) {
                 profilePreview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
             }
@@ -455,8 +395,6 @@ class CVDashboard {
     }
 
     loadSectionData(section) {
-        console.log('Loading section data for:', section);
-        
         try {
             switch (section) {
                 case 'overview':
@@ -723,17 +661,13 @@ class CVDashboard {
 
     // Skills Management
     loadSkillsList() {
-        console.log('Loading skills list...');
-        console.log('Current data object:', this.data);
         const skillsList = document.getElementById('skills-list');
-        console.log('Skills list element:', skillsList);
         if (!skillsList) {
             console.error('Skills list element not found!');
             return;
         }
 
         skillsList.innerHTML = '';
-        console.log('Skills data:', this.data.skills);
         
         if (!this.data.skills || this.data.skills.length === 0) {
             const emptyState = document.createElement('div');
@@ -750,12 +684,10 @@ class CVDashboard {
         }
         
         this.data.skills.forEach((skill, index) => {
-            console.log(`Creating skill card ${index}:`, skill);
             try {
                 const skillCard = this.createSkillCard(skill);
                 skillCard.style.animationDelay = `${index * 0.1}s`;
                 skillsList.appendChild(skillCard);
-                console.log(`Skill card ${index} added successfully`);
             } catch (error) {
                 console.error(`Error creating skill card ${index}:`, error);
             }
@@ -763,7 +695,6 @@ class CVDashboard {
     }
 
     createSkillCard(skill) {
-        console.log('Creating skill card for:', skill);
         
         const card = document.createElement('div');
         card.className = 'item-card skill-card';
@@ -1347,9 +1278,6 @@ class CVDashboard {
         const urlInput = document.getElementById('profileImageUrl');
         const imageUrl = urlInput.value.trim();
         
-        console.log('=== UPDATE PROFILE IMAGE ===');
-        console.log('Image URL:', imageUrl);
-        
         if (!imageUrl) {
             this.showToast('Please enter a profile image URL', 'error');
             return;
@@ -1360,7 +1288,6 @@ class CVDashboard {
         try {
             // Update local data first
             this.data.profileImage = imageUrl;
-            console.log('Updated local data:', this.data.profileImage);
             
             // Save to database
             const saveSuccess = await this.saveDataToDatabase();
@@ -1368,13 +1295,11 @@ class CVDashboard {
                 this.showToast('Failed to save profile image to database', 'error');
                 return;
             }
-            console.log('✅ Profile image saved to database');
             
             // Update preview immediately
             const preview = document.getElementById('profilePreview');
             if (preview) {
                 preview.src = imageUrl;
-                console.log('Updated preview image');
             }
             
             // Notify any open CV windows IMMEDIATELY about the image update
@@ -1405,8 +1330,6 @@ class CVDashboard {
                     });
                 }
                 
-                console.log('Sent immediate update message to CV windows');
-                
             } catch (error) {
                 console.log('Could not send message to other windows:', error);
             }
@@ -1419,7 +1342,6 @@ class CVDashboard {
                     const cvImg = cvWindows.document.querySelector('.profile-img');
                     if (cvImg) {
                         cvImg.src = imageUrl;
-                        console.log('Updated CV image directly');
                     }
                 }
             } catch (error) {
@@ -1436,7 +1358,6 @@ class CVDashboard {
                         const cvImg = newWindow.document.querySelector('.profile-img');
                         if (cvImg) {
                             cvImg.src = imageUrl;
-                            console.log('Updated image in new CV window');
                         }
                     } catch (error) {
                         console.log('Could not update image in new window:', error);
@@ -1461,17 +1382,13 @@ class CVDashboard {
     }
 
     setupProfileImagePreview() {
-        console.log('Setting up FAST profile image preview');
-        
         const urlInput = document.getElementById('profileImageUrl');
         if (urlInput) {
-            console.log('Profile image URL input found, adding event listener');
             
             // Debounce function for better performance
             let timeout;
             urlInput.addEventListener('input', (e) => {
                 const imageUrl = e.target.value.trim();
-                console.log('Profile image URL changed to:', imageUrl);
                 
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
@@ -1486,10 +1403,8 @@ class CVDashboard {
                             img.onload = () => {
                                 preview.src = imageUrl;
                                 preview.style.opacity = '1';
-                                console.log('⚡ Profile image preview loaded instantly');
                             };
                             img.onerror = () => {
-                                console.log('Profile image failed to load, using default');
                                 preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
                                 preview.style.opacity = '1';
                             };
@@ -1803,8 +1718,6 @@ class CVDashboard {
 
     // Education Gallery Management
     setupGalleryManagement() {
-        console.log('🖼️ Setting up Education Gallery Management');
-        
         const addGalleryImageBtn = document.getElementById('addGalleryImage');
         const galleryImageUpload = document.getElementById('galleryImageUpload');
         
@@ -1864,7 +1777,6 @@ class CVDashboard {
             this.showToast('Image added locally, but failed to sync with database', 'warning');
         }
         
-        console.log('✅ Gallery image added:', newImage);
     }
 
     async handleGalleryImageUpload(event) {
@@ -1954,7 +1866,6 @@ class CVDashboard {
             </div>
         `).join('');
         
-        console.log('✅ Gallery images rendered:', gallery.length);
     }
 
     async removeGalleryImage(imageId) {
@@ -1976,7 +1887,6 @@ class CVDashboard {
             this.showToast('Image removed locally, but failed to sync with database', 'warning');
         }
         
-        console.log('✅ Gallery image removed:', imageId);
     }
 
     loadGalleryImages() {
