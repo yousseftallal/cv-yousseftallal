@@ -84,53 +84,16 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize About section with default data immediately
-    const defaultAbout = {
-        title: 'About Me',
-        paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
-        paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I am committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
-        stats: [
-            {
-                id: 'languages',
-                icon: 'fas fa-code',
-                title: '4+',
-                description: 'Programming Languages'
-            },
-            {
-                id: 'platforms',
-                icon: 'fas fa-mobile-alt',
-                title: 'Multi-Platform',
-                description: 'Development Experience'
-            },
-            {
-                id: 'education',
-                icon: 'fas fa-graduation-cap',
-                title: 'Computer Science',
-                description: 'Student'
-            }
-        ]
-    };
-    // Initialize About section with delay to ensure DOM is ready
-    setTimeout(() => {
-        updateAboutSection(defaultAbout);
-    }, 100);
-    
+    // Load CV data from database first
     loadCVDataFromDatabase();
+    
+    // Load profile image
+    loadProfileImage();
+    
     initializeNavigation();
     initializeScrollEffects();
     initializeAnimations();
-    loadProfileImage();
-    checkUrlForImageData();
     addRefreshButton();
-    
-    // Load profile image multiple times to ensure it loads
-    setTimeout(() => {
-        loadProfileImage();
-    }, 1000);
-    
-    setTimeout(() => {
-        loadProfileImage();
-    }, 3000);
     
     // Force refresh data every 30 seconds to ensure latest data
     setInterval(() => {
@@ -681,7 +644,7 @@ async function loadProfileImage() {
     }
     
     function setDefaultImage() {
-        profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+        // No default image - leave empty until database provides one
         profileImg.style.opacity = '1';
     }
 }
@@ -740,39 +703,9 @@ async function loadCVDataFromDatabase() {
         }
     } catch (error) {
         console.error('Error loading CV data from database:', error);
+        // No fallback data - everything should come from database
     }
     
-    // Fallback to default data
-    
-    // Default about data as fallback
-    const defaultAbout = {
-        title: 'About Me',
-        paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
-        paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I am committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
-        stats: [
-            {
-                id: 'languages',
-                icon: 'fas fa-code',
-                title: '4+',
-                description: 'Programming Languages'
-            },
-            {
-                id: 'platforms',
-                icon: 'fas fa-mobile-alt',
-                title: 'Multi-Platform',
-                description: 'Development Experience'
-            },
-            {
-                id: 'education',
-                icon: 'fas fa-graduation-cap',
-                title: 'Computer Science',
-                description: 'Student'
-            }
-        ]
-    };
-    
-    updateAboutSection(defaultAbout);
-    initializeSkills();
 }
 
 // Update personal information
@@ -807,9 +740,9 @@ function updatePersonalInfo(personal) {
         navBrandText.textContent = 'YT';
     }
     
-    // Update brand title with fallback
+    // Update brand title
     if (navBrandTitle) {
-        const titleText = personal.brandTitle || personal.fullName || 'Yousef Talal';
+        const titleText = personal.brandTitle || personal.fullName || '';
         navBrandTitle.textContent = titleText;
         
         // Add Arabic/English text direction support
@@ -821,9 +754,9 @@ function updatePersonalInfo(personal) {
         }
     }
     
-    // Update brand subtitle with fallback
+    // Update brand subtitle
     if (navBrandSubtitle) {
-        const subtitleText = personal.brandSubtitle || 'Developer';
+        const subtitleText = personal.brandSubtitle || '';
         navBrandSubtitle.textContent = subtitleText;
         
         // Add Arabic/English text direction support

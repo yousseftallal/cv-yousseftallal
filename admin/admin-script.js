@@ -127,183 +127,8 @@ class CVDashboard {
 
     // Data Management
     loadData() {
-        const defaultData = {
-            personal: {
-                fullName: 'Yousef Talal',
-                jobTitle: 'Computer Science Student & Application Developer',
-                email: 'yousef.talal@email.com',
-                phone: '+123 456 7890',
-                location: 'City, Country',
-                aboutText: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems.',
-                brandIcon: 'YT',
-                brandTitle: 'Yousef Talal',
-                brandSubtitle: 'Developer',
-                brandImage: '',
-                // Contact links
-                emailLink: 'mailto:yousef.talal@email.com',
-                phoneLink: 'tel:+1234567890',
-                locationLink: '',
-                // SEO & Meta information
-                siteTitle: 'Yousef Talal - Computer Science Student & Developer',
-                metaDescription: 'Computer Science student specializing in mobile and web development with expertise in Flutter, Swift, and Java.',
-                metaKeywords: 'developer, programmer, computer science, mobile apps, flutter, swift, java',
-                metaAuthor: 'Yousef Talal',
-                // Social media links
-                linkedinUrl: '',
-                githubUrl: '',
-                twitterUrl: '',
-                websiteUrl: ''
-            },
-            about: {
-                title: 'About Me',
-                paragraph1: 'I am Yousef Talal, a dedicated computer science student with a passion for creating innovative applications that solve real-world problems. My expertise spans across multiple platforms and technologies, allowing me to develop comprehensive solutions for diverse user needs.',
-                paragraph2: 'With a focus on mobile development using Flutter, iOS development with Swift, and enterprise applications with Java, I bring a versatile skill set to every project. I\'m committed to writing clean, efficient code and staying current with the latest industry trends and best practices.',
-                stats: [
-                    {
-                        id: 'languages',
-                        icon: 'fas fa-code',
-                        title: '4+',
-                        description: 'Programming Languages'
-                    },
-                    {
-                        id: 'platforms',
-                        icon: 'fas fa-mobile-alt',
-                        title: 'Multi-Platform',
-                        description: 'Development Experience'
-                    },
-                    {
-                        id: 'education',
-                        icon: 'fas fa-graduation-cap',
-                        title: 'Computer Science',
-                        description: 'Student'
-                    }
-                ]
-            },
-            skills: [
-                {
-                    id: 'flutter-mobile',
-                    name: 'Flutter Mobile Development',
-                    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg',
-                    description: 'Cross-platform mobile application development using Flutter framework.',
-                    features: [
-                        'Cross-platform app development',
-                        'Native performance',
-                        'Hot reload for fast development',
-                        'Rich UI components and widgets'
-                    ],
-                    projects: [
-                        'E-commerce mobile app with payment integration',
-                        'Social media app with real-time messaging',
-                        'Fitness tracking app with GPS integration'
-                    ],
-                    level: 'Advanced',
-                    experience: '2+ years'
-                },
-                {
-                    id: 'flutter-web',
-                    name: 'Flutter Web Development',
-                    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg',
-                    description: 'Web application development using Flutter for web.',
-                    features: [
-                        'Responsive web applications',
-                        'Progressive Web Apps (PWA)',
-                        'Code sharing between mobile and web'
-                    ],
-                    projects: [
-                        'Portfolio website with Flutter',
-                        'Dashboard application for data visualization'
-                    ],
-                    level: 'Intermediate',
-                    experience: '1.5+ years'
-                },
-                {
-                    id: 'swift-ios',
-                    name: 'Swift iOS Development',
-                    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg',
-                    description: 'Native iOS application development using Swift.',
-                    features: [
-                        'Native iOS app development',
-                        'Core Data for data persistence',
-                        'UIKit and SwiftUI frameworks',
-                        'App Store optimization'
-                    ],
-                    projects: [
-                        'Task management iOS app',
-                        'Weather app with location services',
-                        'Photo editing app with Core Image'
-                    ],
-                    level: 'Intermediate',
-                    experience: '1+ years'
-                },
-                {
-                    id: 'java-enterprise',
-                    name: 'Java Enterprise Development',
-                    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',
-                    description: 'Enterprise-level application development using Java.',
-                    level: 'Intermediate',
-                    experience: '2+ years'
-                }
-            ],
-            experience: [
-                {
-                    id: 'mobile-dev',
-                    title: 'Mobile App Development',
-                    period: '2023 - Present',
-                    description: 'Developing cross-platform mobile applications using Flutter.',
-                    technologies: ['Flutter', 'Dart', 'Firebase']
-                },
-                {
-                    id: 'web-dev',
-                    title: 'Web Application Development',
-                    period: '2022 - Present',
-                    description: 'Creating responsive web applications using Flutter for web.',
-                    technologies: ['Flutter Web', 'HTML/CSS', 'JavaScript']
-                },
-                {
-                    id: 'ios-dev',
-                    title: 'iOS Development',
-                    period: '2022 - Present',
-                    description: 'Building native iOS applications using Swift.',
-                    technologies: ['Swift', 'SwiftUI', 'Xcode']
-                },
-                {
-                    id: 'java-dev',
-                    title: 'Java Application Development',
-                    period: '2021 - Present',
-                    description: 'Developing enterprise-level applications using Java.',
-                    technologies: ['Java', 'Spring Boot', 'Maven']
-                }
-            ],
-            education: [
-                {
-                    id: 'cs-degree',
-                    title: 'Bachelor of Computer Science',
-                    institution: 'University Name',
-                    period: '2021 - 2025 (Expected)',
-                    description: 'Specialized in software engineering and mobile application development.'
-                }
-            ],
-            educationGallery: [
-                {
-                    id: "cert1",
-                    url: "https://via.placeholder.com/420x280/667eea/FFFFFF?text=Certificate+1",
-                    title: "Computer Science Certificate"
-                },
-                {
-                    id: "cert2", 
-                    url: "https://via.placeholder.com/420x280/764ba2/FFFFFF?text=Certificate+2",
-                    title: "Web Development Certificate"
-                },
-                {
-                    id: "cert3",
-                    url: "https://via.placeholder.com/420x280/f093fb/FFFFFF?text=Certificate+3", 
-                    title: "Mobile Development Certificate"
-                }
-            ]
-        };
-
-        // Load data from database only, no localStorage fallback
-        return defaultData;
+        // Load data from database only - no local defaults
+        return {};
     }
 
     saveData() {
@@ -663,9 +488,9 @@ class CVDashboard {
         // Save to database
         const dbSuccess = await this.saveDataToDatabase();
         if (dbSuccess) {
-            this.showToast('Personal info saved to database!', 'success');
+            this.showToast('Personal information saved successfully!', 'success');
         } else {
-            this.showToast('Saved locally, but failed to save to database', 'warning');
+            this.showToast('Failed to save to database', 'error');
         }
     }
 
@@ -788,7 +613,7 @@ class CVDashboard {
             if (dbSuccess) {
                 this.showToast('Skill deleted from database!', 'success');
             } else {
-                this.showToast('Deleted locally, but failed to update database', 'warning');
+                this.showToast('Failed to delete skill from database', 'error');
             }
             
             this.loadSkillsList();
@@ -889,7 +714,7 @@ class CVDashboard {
         if (dbSuccess) {
             this.showToast('Skill saved to database!', 'success');
         } else {
-            this.showToast('Saved locally, but failed to save to database', 'warning');
+            this.showToast('Failed to save skill to database', 'error');
         }
         
         this.loadSkillsList();
@@ -1002,7 +827,7 @@ class CVDashboard {
             if (dbSuccess) {
                 this.showToast('Experience deleted from database!', 'success');
             } else {
-                this.showToast('Deleted locally, but failed to update database', 'warning');
+                this.showToast('Failed to delete experience from database', 'error');
             }
             
             this.loadExperienceList();
@@ -1062,7 +887,7 @@ class CVDashboard {
         if (dbSuccess) {
             this.showToast('Experience saved to database!', 'success');
         } else {
-            this.showToast('Saved locally, but failed to save to database', 'warning');
+            this.showToast('Failed to save experience to database', 'error');
         }
         
         this.loadExperienceList();
@@ -1167,7 +992,7 @@ class CVDashboard {
             if (dbSuccess) {
                 this.showToast('Education deleted from database!', 'success');
             } else {
-                this.showToast('Deleted locally, but failed to update database', 'warning');
+                this.showToast('Failed to delete education from database', 'error');
             }
             
             this.loadEducationList();
@@ -1227,7 +1052,7 @@ class CVDashboard {
         if (dbSuccess) {
             this.showToast('Education saved to database!', 'success');
         } else {
-            this.showToast('Saved locally, but failed to save to database', 'warning');
+            this.showToast('Failed to save education to database', 'error');
         }
         
         this.loadEducationList();
@@ -1786,7 +1611,7 @@ class CVDashboard {
         if (success) {
             this.showToast('Image added to gallery successfully!', 'success');
         } else {
-            this.showToast('Image added locally, but failed to sync with database', 'warning');
+            this.showToast('Failed to add image to gallery', 'error');
         }
         
     }
@@ -1896,7 +1721,7 @@ class CVDashboard {
         if (success) {
             this.showToast('Image removed from gallery', 'success');
         } else {
-            this.showToast('Image removed locally, but failed to sync with database', 'warning');
+            this.showToast('Failed to remove image from gallery', 'error');
         }
         
     }
