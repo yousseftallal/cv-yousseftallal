@@ -943,12 +943,12 @@ function createSkillCard(skill) {
     
     card.innerHTML = `
         <div class="skill-card-inner">
+            <div class="skill-level-badge" style="background: ${levelColor}">
+                ${skillLevel}
+            </div>
             <div class="skill-header">
                 <div class="skill-icon-wrapper">
                     <img src="${skillIcon}" alt="${skillName}" class="skill-icon" onerror="this.src='https://via.placeholder.com/60x60/2563eb/FFFFFF?text=${skillName.charAt(0)}'">
-                    <div class="skill-level-badge" style="background: ${levelColor}">
-                        ${skillLevel}
-                    </div>
                 </div>
                 <div class="skill-info">
                     <h3 class="skill-title">${skillName}</h3>
