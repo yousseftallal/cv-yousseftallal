@@ -1446,3 +1446,81 @@ function debounce(func, wait) {
 // Apply debouncing to scroll events
 window.addEventListener('scroll', debounce(updateActiveNavigation, 10));
 window.addEventListener('scroll', debounce(revealOnScroll, 10));
+
+// Theme Management for CV
+function initializeThemeSupport() {
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('cvTheme') || 'cv-light';
+    applyCVTheme(savedTheme);
+    
+    // Listen for theme changes from dashboard
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'theme-change') {
+            console.log('Received theme change:', event.data.theme);
+            applyCVTheme(event.data.theme);
+        }
+    });
+    
+    console.log('CV theme support initialized with theme:', savedTheme);
+}
+
+function applyCVTheme(theme) {
+    console.log('Applying CV theme:', theme);
+    
+    const body = document.body;
+    
+    // Remove existing theme classes
+    body.classList.remove('cv-light', 'cv-dark');
+    
+    if (theme === 'cv-dark') {
+        body.classList.add('cv-dark');
+        applyDarkCVTheme();
+    } else {
+        body.classList.add('cv-light');
+        applyLightCVTheme();
+    }
+    
+    // Save theme preference
+    localStorage.setItem('cvTheme', theme);
+}
+
+function applyDarkCVTheme() {
+    const root = document.documentElement;
+    
+    // Dark theme colors
+    root.style.setProperty('--bg-primary', '#0f172a');
+    root.style.setProperty('--bg-secondary', '#1e293b');
+    root.style.setProperty('--bg-tertiary', '#334155');
+    root.style.setProperty('--text-primary', '#ffffff');
+    root.style.setProperty('--text-secondary', '#e2e8f0');
+    root.style.setProperty('--text-muted', '#94a3b8');
+    root.style.setProperty('--accent-color', '#3b82f6');
+    root.style.setProperty('--border-color', '#334155');
+    root.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0.5)');
+    
+    // Update body background
+    document.body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)';
+    document.body.style.color = '#ffffff';
+}
+
+function applyLightCVTheme() {
+    const root = document.documentElement;
+    
+    // Light theme colors (keep existing)
+    root.style.setProperty('--bg-primary', '#ffffff');
+    root.style.setProperty('--bg-secondary', '#f8fafc');
+    root.style.setProperty('--bg-tertiary', '#e2e8f0');
+    root.style.setProperty('--text-primary', '#1a202c');
+    root.style.setProperty('--text-secondary', '#4a5568');
+    root.style.setProperty('--text-muted', '#718096');
+    root.style.setProperty('--accent-color', '#3182ce');
+    root.style.setProperty('--border-color', '#e2e8f0');
+    root.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0.1)');
+    
+    // Reset body background to original
+    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    document.body.style.color = '#333';
+}
+
+// Initialize theme support when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeThemeSupport);

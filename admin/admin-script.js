@@ -1765,29 +1765,107 @@ class CVDashboard {
     applyDashboardTheme(theme) {
         const body = document.body;
         
+        console.log('Applying dashboard theme:', theme);
+        
         // Remove existing dashboard theme classes
         body.classList.remove('dashboard-light', 'dashboard-dark');
         
         if (theme === 'dashboard-light') {
             body.classList.add('dashboard-light');
-            body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #ffffff 100%)';
+            // Apply comprehensive light theme
+            this.applyLightTheme();
         } else if (theme === 'dashboard-dark') {
             body.classList.add('dashboard-dark');
-            body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)';
+            // Apply comprehensive dark theme
+            this.applyDarkTheme();
         }
+        
+        console.log('Dashboard theme applied:', theme);
+    }
+
+    applyLightTheme() {
+        const root = document.documentElement;
+        
+        // Set CSS custom properties for light theme
+        root.style.setProperty('--bg-primary', '#ffffff');
+        root.style.setProperty('--bg-secondary', '#f8fafc');
+        root.style.setProperty('--bg-tertiary', '#e2e8f0');
+        root.style.setProperty('--text-primary', '#1a202c');
+        root.style.setProperty('--text-secondary', '#4a5568');
+        root.style.setProperty('--text-muted', '#718096');
+        root.style.setProperty('--border-color', '#e2e8f0');
+        root.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0.1)');
+        root.style.setProperty('--accent-color', '#3182ce');
+        root.style.setProperty('--success-color', '#38a169');
+        root.style.setProperty('--warning-color', '#d69e2e');
+        root.style.setProperty('--error-color', '#e53e3e');
+        
+        // Apply to body
+        document.body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #ffffff 100%)';
+        document.body.style.color = '#1a202c';
+    }
+
+    applyDarkTheme() {
+        const root = document.documentElement;
+        
+        // Set CSS custom properties for dark theme
+        root.style.setProperty('--bg-primary', '#1a202c');
+        root.style.setProperty('--bg-secondary', '#2d3748');
+        root.style.setProperty('--bg-tertiary', '#4a5568');
+        root.style.setProperty('--text-primary', '#ffffff');
+        root.style.setProperty('--text-secondary', '#e2e8f0');
+        root.style.setProperty('--text-muted', '#a0aec0');
+        root.style.setProperty('--border-color', '#4a5568');
+        root.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0.3)');
+        root.style.setProperty('--accent-color', '#63b3ed');
+        root.style.setProperty('--success-color', '#68d391');
+        root.style.setProperty('--warning-color', '#f6e05e');
+        root.style.setProperty('--error-color', '#fc8181');
+        
+        // Apply to body
+        document.body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)';
+        document.body.style.color = '#ffffff';
     }
 
     applyCVTheme(theme) {
-        // This would be applied to the CV page
-        // For now, just store the preference
-        console.log('CV theme will be applied:', theme);
+        console.log('Applying CV theme:', theme);
         
-        // You could send this to the main CV page via postMessage or localStorage
+        // Store the preference locally
         localStorage.setItem('cvTheme', theme);
+        
+        // Save to database as well
+        this.data.settings = this.data.settings || {};
+        this.data.settings.cvTheme = theme;
+        
+        // Save to database
+        this.saveDataToDatabase().then(success => {
+            if (success) {
+                console.log('CV theme saved to database:', theme);
+                this.showToast(`CV theme changed to ${theme.replace('cv-', '')}`, 'success');
+            } else {
+                console.log('CV theme saved locally only');
+                this.showToast('CV theme saved locally, will sync when possible', 'warning');
+            }
+        });
+        
+        // Apply theme to CV iframe if present
+        const cvFrame = document.getElementById('cv-preview-frame');
+        if (cvFrame && cvFrame.contentWindow) {
+            try {
+                cvFrame.contentWindow.postMessage({
+                    type: 'theme-change',
+                    theme: theme
+                }, '*');
+            } catch (error) {
+                console.log('Could not communicate with CV frame:', error);
+            }
+        }
     }
 
     loadSettingsForm() {
         const settings = this.data.settings || {};
+        
+        console.log('Loading settings form with data:', settings);
         
         // Load dashboard title
         const dashboardTitle = document.getElementById('dashboardTitle');
@@ -1795,9 +1873,17 @@ class CVDashboard {
             dashboardTitle.value = settings.dashboardTitle || 'CV Dashboard';
         }
         
-        // Load saved themes
-        const savedDashboardTheme = localStorage.getItem('selectedTheme') || 'dashboard-dark';
-        const savedCVTheme = localStorage.getItem('cvTheme') || 'cv-light';
+        // Load dashboard icon preview if exists
+        const iconPreview = document.getElementById('dashboardIconPreview');
+        if (iconPreview && settings.dashboardIcon) {
+            iconPreview.innerHTML = `<img src="${settings.dashboardIcon}" alt="Dashboard Icon" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">`;
+        }
+        
+        // Load saved themes (from database first, then localStorage as fallback)
+        const savedDashboardTheme = settings.dashboardTheme || localStorage.getItem('selectedTheme') || 'dashboard-light';
+        const savedCVTheme = settings.cvTheme || localStorage.getItem('cvTheme') || 'cv-light';
+        
+        console.log('Applying themes:', { dashboard: savedDashboardTheme, cv: savedCVTheme });
         
         // Apply saved theme selections
         document.querySelectorAll('.theme-option').forEach(option => {
@@ -1811,6 +1897,30 @@ class CVDashboard {
         
         // Apply current dashboard theme
         this.applyTheme(savedDashboardTheme);
+        
+        // Update navbar with current settings
+        const navTitle = document.querySelector('.nav-brand h2');
+        if (navTitle) {
+            navTitle.textContent = settings.dashboardTitle || 'CV Dashboard';
+        }
+        
+        if (settings.dashboardIcon) {
+            const navBrand = document.querySelector('.nav-brand');
+            if (navBrand) {
+                const existingIcon = navBrand.querySelector('.dashboard-icon');
+                if (existingIcon) {
+                    existingIcon.remove();
+                }
+                
+                const iconImg = document.createElement('img');
+                iconImg.src = settings.dashboardIcon;
+                iconImg.alt = 'Dashboard Icon';
+                iconImg.className = 'dashboard-icon';
+                iconImg.style.cssText = 'width: 32px; height: 32px; border-radius: 8px; margin-right: 12px; object-fit: cover;';
+                
+                navBrand.insertBefore(iconImg, navTitle);
+            }
+        }
     }
 
     saveSettings() {
@@ -1846,8 +1956,27 @@ class CVDashboard {
                 navTitle.textContent = settings.dashboardTitle;
             }
             
+            // Update dashboard icon in navbar if present
+            const navBrand = document.querySelector('.nav-brand');
+            if (navBrand && settings.dashboardIcon) {
+                // Remove existing icon if any
+                const existingIcon = navBrand.querySelector('.dashboard-icon');
+                if (existingIcon) {
+                    existingIcon.remove();
+                }
+                
+                // Add new icon
+                const iconImg = document.createElement('img');
+                iconImg.src = settings.dashboardIcon;
+                iconImg.alt = 'Dashboard Icon';
+                iconImg.className = 'dashboard-icon';
+                iconImg.style.cssText = 'width: 32px; height: 32px; border-radius: 8px; margin-right: 12px; object-fit: cover;';
+                
+                navBrand.insertBefore(iconImg, navTitle);
+            }
+            
             // Save to database
-            const response = await fetch('/api/cv-data', {
+            const response = await fetch('/.netlify/functions/cv-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
