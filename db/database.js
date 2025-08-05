@@ -34,7 +34,11 @@ async function initializeDatabase() {
                     email: "youssef@example.com",
                     phone: "+1234567890",
                     location: "Cairo, Egypt",
-                    about: "Passionate full stack developer with experience in modern web technologies."
+                    about: "Passionate full stack developer with experience in modern web technologies.",
+                    brandIcon: "YT",
+                    brandTitle: "Youssef Tallal",
+                    brandSubtitle: "Developer",
+                    brandImage: ""
                 },
                 about: {
                     title: 'About Me',
