@@ -330,7 +330,7 @@ function updateOpenGraphTags(personal) {
     console.log('✅ Updated Open Graph tags');
 }
 
-// Update Education Gallery
+// Update Education Gallery with Skills-style carousel
 function updateEducationGallery(gallery) {
     console.log('🖼️ Updating Education Gallery:', gallery);
     
@@ -352,21 +352,8 @@ function updateEducationGallery(gallery) {
     // Show gallery
     galleryContainer.style.display = 'block';
     
-    // Create 3D cylinder - minimum 3 images for proper display
-    let cylinderGallery = [...gallery];
-    
-    // If less than 3 images, duplicate to fill the cylinder
-    while (cylinderGallery.length < 3) {
-        cylinderGallery = [...cylinderGallery, ...gallery];
-    }
-    
-    // For smooth rotation, duplicate images
-    if (cylinderGallery.length <= 6) {
-        cylinderGallery = [...cylinderGallery, ...cylinderGallery];
-    }
-    
-    // Create 3D gallery HTML with CSS-controlled positioning
-    const galleryHTML = cylinderGallery.slice(0, 6).map((image, index) => {
+    // Create gallery HTML
+    const galleryHTML = gallery.map((image, index) => {
         return `
             <div class="gallery-image" 
                  onclick="openImageModal('${image.url}', '${image.title}')">
@@ -380,7 +367,145 @@ function updateEducationGallery(gallery) {
     
     galleryTrack.innerHTML = galleryHTML;
     
+    // Initialize carousel like Skills
+    initializeGalleryCarousel(galleryTrack, gallery.length);
+    
     console.log('✅ Education Gallery updated with', gallery.length, 'images');
+}
+
+// Initialize Gallery Carousel (same as Skills)
+function initializeGalleryCarousel(galleryTrack, totalImages) {
+    if (totalImages === 0) return;
+    
+    const images = galleryTrack.querySelectorAll('.gallery-image');
+    let currentIndex = 0;
+    const autoRotateSpeed = 4000; // 4 seconds per image
+    
+    function updateGalleryCarousel() {
+        images.forEach((image, index) => {
+            const position = index - currentIndex;
+            let translateX = 0;
+            let translateZ = 0;
+            let rotateY = 0;
+            let opacity = 0;
+            let scale = 0.8;
+            let zIndex = 1;
+            
+            // Show 3 images: center, left, right
+            if (position === 0) {
+                // Center image (main focus)
+                translateX = 0;
+                translateZ = 0;
+                rotateY = 0;
+                opacity = 1;
+                scale = 1;
+                zIndex = 10;
+            } else if (position === 1 || (position === -(totalImages - 1))) {
+                // Right image
+                translateX = 280;
+                translateZ = -100;
+                rotateY = -25;
+                opacity = 0.7;
+                scale = 0.85;
+                zIndex = 5;
+            } else if (position === -1 || (position === totalImages - 1)) {
+                // Left image
+                translateX = -280;
+                translateZ = -100;
+                rotateY = 25;
+                opacity = 0.7;
+                scale = 0.85;
+                zIndex = 5;
+            } else {
+                // Hidden images
+                opacity = 0;
+                scale = 0.6;
+                zIndex = 1;
+                if (position > 0) {
+                    translateX = 400;
+                    rotateY = -45;
+                } else {
+                    translateX = -400;
+                    rotateY = 45;
+                }
+            }
+            
+            image.style.transform = `
+                translateX(${translateX}px) 
+                translateZ(${translateZ}px) 
+                rotateY(${rotateY}deg) 
+                scale(${scale})
+            `;
+            image.style.opacity = opacity;
+            image.style.zIndex = zIndex;
+        });
+    }
+    
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % totalImages;
+        updateGalleryCarousel();
+        updateGalleryIndicators();
+    }
+    
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+        updateGalleryCarousel();
+        updateGalleryIndicators();
+    }
+    
+    // Initial setup
+    updateGalleryCarousel();
+    
+    // Auto-rotate
+    setInterval(nextImage, autoRotateSpeed);
+    
+    // Add navigation controls
+    const gallerySection = galleryTrack.closest('.education-gallery');
+    let navContainer = gallerySection.querySelector('.gallery-nav');
+    
+    if (!navContainer) {
+        navContainer = document.createElement('div');
+        navContainer.className = 'gallery-nav';
+        navContainer.innerHTML = `
+            <button class="gallery-btn prev-btn" onclick="prevGalleryImage()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="gallery-indicators">
+                ${images.length > 0 ? Array.from(images).map((_, index) => 
+                    `<span class="gallery-indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></span>`
+                ).join('') : ''}
+            </div>
+            <button class="gallery-btn next-btn" onclick="nextGalleryImage()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        gallerySection.appendChild(navContainer);
+    }
+    
+    // Add click handlers for indicators
+    const indicators = navContainer.querySelectorAll('.gallery-indicator');
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            currentIndex = index;
+            updateGalleryCarousel();
+            updateGalleryIndicators();
+        });
+    });
+    
+    function updateGalleryIndicators() {
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // Global functions for navigation buttons
+    window.nextGalleryImage = () => {
+        nextImage();
+    };
+    
+    window.prevGalleryImage = () => {
+        prevImage();
+    };
 }
 
 // Open image in modal (lightbox effect)

@@ -2058,6 +2058,9 @@ section {
     padding: 2rem;
     perspective: 1200px;
     perspective-origin: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .gallery-container::before {
@@ -2109,14 +2112,15 @@ section {
     overflow: hidden;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     cursor: pointer;
     backface-visibility: hidden;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+    transform-origin: center center;
     top: 50%;
     left: 50%;
     margin-top: -120px;
     margin-left: -160px;
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
 }
 
 .gallery-image:hover {
@@ -2220,6 +2224,62 @@ section {
     color: rgba(139, 92, 246, 0.5);
 }
 
+/* Gallery Navigation Controls */
+.gallery-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.gallery-btn {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: rgba(139, 92, 246, 0.8);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.gallery-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: rgba(139, 92, 246, 1);
+    transform: scale(1.1);
+}
+
+.gallery-indicators {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.gallery-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-indicator.active {
+    background: rgba(139, 92, 246, 0.8);
+    transform: scale(1.2);
+}
+
+.gallery-indicator:hover {
+    background: rgba(139, 92, 246, 0.6);
+    transform: scale(1.1);
+}
+
 /* 3D Cylinder Animation */
 @keyframes rotate3D {
     0% {
@@ -2230,78 +2290,7 @@ section {
     }
 }
 
-/* 3D Cylinder with Dynamic Tilting */
-.gallery-image {
-    animation: tiltToCenter 20s linear infinite;
-}
-
-/* Keyframes for tilting effect - images tilt towards center when on sides */
-@keyframes tiltToCenter {
-    0% {
-        transform: rotateY(0deg) translateZ(300px) rotateX(0deg);
-    }
-    
-    /* Right side - tilt left towards center */
-    12.5% {
-        transform: rotateY(45deg) translateZ(300px) rotateX(-15deg) rotateZ(-10deg);
-    }
-    
-    25% {
-        transform: rotateY(90deg) translateZ(300px) rotateX(-20deg) rotateZ(-15deg);
-    }
-    
-    37.5% {
-        transform: rotateY(135deg) translateZ(300px) rotateX(-15deg) rotateZ(-10deg);
-    }
-    
-    /* Back - straight but smaller */
-    50% {
-        transform: rotateY(180deg) translateZ(300px) rotateX(0deg) rotateZ(0deg) scale(0.8);
-    }
-    
-    /* Left side - tilt right towards center */
-    62.5% {
-        transform: rotateY(225deg) translateZ(300px) rotateX(-15deg) rotateZ(10deg);
-    }
-    
-    75% {
-        transform: rotateY(270deg) translateZ(300px) rotateX(-20deg) rotateZ(15deg);
-    }
-    
-    87.5% {
-        transform: rotateY(315deg) translateZ(300px) rotateX(-15deg) rotateZ(10deg);
-    }
-    
-    /* Front - straight and prominent */
-    100% {
-        transform: rotateY(360deg) translateZ(300px) rotateX(0deg) rotateZ(0deg);
-    }
-}
-
-/* Individual positioning with staggered animation delays */
-.gallery-image:nth-child(1) {
-    animation-delay: 0s;
-}
-
-.gallery-image:nth-child(2) {
-    animation-delay: -6.67s; /* 120° offset */
-}
-
-.gallery-image:nth-child(3) {
-    animation-delay: -13.33s; /* 240° offset */
-}
-
-.gallery-image:nth-child(4) {
-    animation-delay: -3.33s; /* 60° offset */
-}
-
-.gallery-image:nth-child(5) {
-    animation-delay: -10s; /* 180° offset */
-}
-
-.gallery-image:nth-child(6) {
-    animation-delay: -16.67s; /* 300° offset */
-}
+/* Gallery images will be positioned by JavaScript like Skills carousel */
 
 /* Responsive 3D Gallery */
 @media (max-width: 900px) {
