@@ -1349,10 +1349,6 @@ class CVDashboard {
             this.data.profileImage = imageUrl;
             console.log('Updated local data:', this.data.profileImage);
             
-            // Save to localStorage
-            this.saveData();
-            console.log('Saved to localStorage');
-            
             // Update preview immediately
             const preview = document.getElementById('profilePreview');
             if (preview) {
@@ -1390,16 +1386,6 @@ class CVDashboard {
                 
                 console.log('Sent immediate update message to CV windows');
                 
-                // Also use localStorage for cross-tab communication
-                localStorage.setItem('profileImageUpdate', JSON.stringify({
-                    imageUrl: imageUrl,
-                    timestamp: Date.now()
-                }));
-                
-                // Clear the storage item after a short delay
-                setTimeout(() => {
-                    localStorage.removeItem('profileImageUpdate');
-                }, 1000);
             } catch (error) {
                 console.log('Could not send message to other windows:', error);
             }

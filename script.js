@@ -84,8 +84,6 @@ const navMenu = document.querySelector('.nav-menu');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    // Force reload to prevent caching issues - no localStorage to clear
-    
     // Initialize About section with default data immediately
     const defaultAbout = {
         title: 'About Me',
@@ -161,7 +159,6 @@ function addRefreshButton() {
 // Force refresh function
 function forceRefresh() {
     console.log('Force refreshing data...');
-    // No localStorage to clear - data comes from database only
     loadCVDataFromDatabase();
     loadProfileImage();
     
