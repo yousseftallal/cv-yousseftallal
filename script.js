@@ -126,6 +126,17 @@ document.addEventListener('DOMContentLoaded', function() {
     checkUrlForImageData();
     addRefreshButton();
     
+    // Load profile image multiple times to ensure it loads
+    setTimeout(() => {
+        console.log('Second profile image load attempt...');
+        loadProfileImage();
+    }, 1000);
+    
+    setTimeout(() => {
+        console.log('Third profile image load attempt...');
+        loadProfileImage();
+    }, 3000);
+    
     // Force refresh data every 30 seconds to ensure latest data
     setInterval(() => {
         loadCVDataFromDatabase();
@@ -243,40 +254,56 @@ function showSuccessMessage(message) {
 
 // Load profile image from database
 async function loadProfileImage() {
+    console.log('=== LOADING PROFILE IMAGE ===');
     const profileImg = document.querySelector('.profile-img');
-    if (!profileImg) return;
+    if (!profileImg) {
+        console.error('Profile image element not found');
+        return;
+    }
     
     try {
-        // Try to load from database first with cache busting
+        // Load from main CV data endpoint with cache busting
         const cacheBuster = new Date().getTime();
-        const response = await fetch(`/.netlify/functions/profile-image?t=${cacheBuster}`);
+        console.log('Fetching CV data for profile image...');
+        const response = await fetch(`/.netlify/functions/cv-data?t=${cacheBuster}`);
+        
         if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.imageUrl) {
-                // Add cache busting to image URL
-                const imageUrl = `${data.imageUrl}${data.imageUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`;
+            const result = await response.json();
+            console.log('CV data response:', result);
+            
+            if (result.success && result.data && result.data.profileImage) {
+                const imageUrl = result.data.profileImage;
+                console.log('Found profile image in database:', imageUrl);
+                
+                // Add cache busting to image URL if it's not a placeholder
+                const finalImageUrl = imageUrl.includes('placeholder') ? 
+                    imageUrl : 
+                    `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`;
                 
                 profileImg.onload = () => {
-                    console.log('Profile image loaded successfully from database:', data.imageUrl);
+                    console.log('✅ Profile image loaded successfully:', imageUrl);
                 };
                 profileImg.onerror = () => {
-                    console.error('Failed to load image from database URL:', data.imageUrl);
+                    console.error('❌ Failed to load profile image:', imageUrl);
                     // Fallback to default
                     profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
                 };
-                profileImg.src = imageUrl;
+                
+                profileImg.src = finalImageUrl;
                 return;
+            } else {
+                console.log('No profile image found in database data');
             }
+        } else {
+            console.error('Failed to fetch CV data:', response.status);
         }
     } catch (error) {
-        console.error('Error loading profile image from database:', error);
+        console.error('❌ Error loading profile image from database:', error);
     }
     
-    // No localStorage fallback - data comes from database only
-    
-    // Default placeholder
-    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
+    // Fallback to default placeholder
     console.log('Using default profile image placeholder');
+    profileImg.src = 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=YT';
 }
 
 
@@ -1446,4 +1473,21 @@ function debounce(func, wait) {
 // Apply debouncing to scroll events
 window.addEventListener('scroll', debounce(updateActiveNavigation, 10));
 window.addEventListener('scroll', debounce(revealOnScroll, 10));
+
+// Listen for profile image updates from dashboard
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'profile-image-updated') {
+        console.log('Received profile image update from dashboard:', event.data.imageUrl);
+        const profileImg = document.querySelector('.profile-img');
+        if (profileImg && event.data.imageUrl) {
+            profileImg.src = event.data.imageUrl;
+        }
+    }
+});
+
+// Auto-refresh profile image every 30 seconds
+setInterval(() => {
+    console.log('Auto-refreshing profile image...');
+    loadProfileImage();
+}, 30000);
 

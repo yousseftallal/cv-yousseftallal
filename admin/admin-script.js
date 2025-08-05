@@ -1330,6 +1330,27 @@ class CVDashboard {
                 this.showToast('Profile image saved locally, will sync when database is available', 'warning');
             }
             
+            // Notify any open CV windows about the image update
+            try {
+                // Send message to parent window if this is in iframe
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'profile-image-updated',
+                        imageUrl: imageUrl
+                    }, '*');
+                }
+                
+                // Send message to any other windows
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'profile-image-updated',
+                        imageUrl: imageUrl
+                    }, '*');
+                }
+            } catch (error) {
+                console.log('Could not send message to other windows:', error);
+            }
+            
             // Open main site to show the updated image
             setTimeout(() => {
                 window.open('../index.html', '_blank');
