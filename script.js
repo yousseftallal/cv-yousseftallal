@@ -669,7 +669,9 @@ async function loadCVDataFromDatabase() {
                 
                 // Update skills data
                 if (result.data.skills) {
-                    window.skillsData = result.data.skills;
+                    window.skillsData = Array.isArray(result.data.skills) ? result.data.skills : [];
+                } else {
+                    window.skillsData = [];
                 }
                 
                 // Update personal info (use personalInfo from DB)
@@ -1083,7 +1085,7 @@ function initializeSkills() {
     
     skillsGrid.innerHTML = '';
     
-    const currentSkillsData = window.skillsData || skillsData;
+    const currentSkillsData = Array.isArray(window.skillsData) ? window.skillsData : [];
     
     // Create skill cards
     currentSkillsData.forEach(skill => {
