@@ -153,18 +153,19 @@ class CVDashboard {
     }
 
     // Save data to database
-    async saveDataToDatabase() {
+    async saveDataToDatabase(payloadOverride) {
         try {
+            const payload = payloadOverride || this.data;
             console.log('💾 Saving data to database...');
-            console.log('Data keys to save:', Object.keys(this.data || {}));
-            console.log('Personal info name:', this.data?.personalInfo?.name);
+            console.log('Data keys to save:', Object.keys(payload || {}));
+            console.log('Personal info name:', payload?.personalInfo?.name);
             
             const response = await fetch('/.netlify/functions/cv-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(this.data)
+                body: JSON.stringify(payload)
             });
             
             console.log('Response status:', response.status);
@@ -1123,10 +1124,17 @@ class CVDashboard {
         this.showToast('Updating profile image...', 'info');
         
         try {
-            // Update local data first
-            this.data.profileImage = imageUrl;
+            // Save to database first; do not update local data unless DB succeeds
+            const originalData = { ...this.data };
+            const payload = { ...this.data, profileImage: imageUrl };
+            const dbSuccess = await this.saveDataToDatabase(payload);
+            if (!dbSuccess) {
+                this.showToast('Failed to save profile image to database', 'error');
+                return;
+            }
+            this.data = payload;
             
-            // Save to database
+            // Update preview
             const saveSuccess = await this.saveDataToDatabase();
             if (!saveSuccess) {
                 this.showToast('Failed to save profile image to database', 'error');
@@ -1204,17 +1212,7 @@ class CVDashboard {
             
         } catch (error) {
             console.error('Error updating profile image:', error);
-            
-            // Still update locally even if database fails
-            this.data.profileImage = imageUrl;
-            this.saveData();
-            
-            const preview = document.getElementById('profilePreview');
-            if (preview) {
-                preview.src = imageUrl;
-            }
-            
-            this.showToast('Profile image saved locally, but failed to sync with database', 'warning');
+            this.showToast('Failed to save profile image to database', 'error');
         }
     }
 
@@ -1296,14 +1294,7 @@ class CVDashboard {
                 
                 this.showToast('Profile image cleared successfully!', 'success');
             } else {
-                this.showToast('Profile image cleared locally, but failed to sync with database', 'warning');
-                
-                // Still update UI
-                const urlInput = document.getElementById('profileImageUrl');
-                const preview = document.getElementById('profilePreview');
-                
-                if (urlInput) urlInput.value = '';
-                if (preview) preview.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+                this.showToast('Failed to clear profile image from database', 'error');
             }
         } catch (error) {
             console.error('Error clearing profile image:', error);
@@ -1560,19 +1551,22 @@ class CVDashboard {
                 preview.style.display = 'flex';
             }
 
-            // Save to data
+            // Save directly to database; do not keep locally if DB fails
             if (!this.data.personalInfo) {
                 this.data.personalInfo = {};
             }
-            this.data.personalInfo.brandImage = base64Image;
-            this.saveData();
-            
-            // Save to database
-            this.saveDataToDatabase().then(success => {
+            const payload = { ...this.data, personalInfo: { ...this.data.personalInfo, brandImage: base64Image } };
+            this.saveDataToDatabase(payload).then(success => {
                 if (success) {
+                    this.data = payload;
                     this.showToast('Brand logo uploaded and saved to database!', 'success');
                 } else {
-                    this.showToast('Logo uploaded locally, but failed to save to database', 'warning');
+                    // Revert preview to placeholder on failure
+                    if (preview && previewImg) {
+                        previewImg.src = 'https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=YT';
+                        preview.style.display = 'flex';
+                    }
+                    this.showToast('Failed to save logo to database', 'error');
                 }
             });
         };
