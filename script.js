@@ -257,7 +257,7 @@ function updateOpenGraphTags(personal) {
         { property: 'og:description', content: personal.metaDescription || personal.bio },
         { property: 'og:type', content: 'profile' },
         { property: 'og:url', content: window.location.href },
-        { property: 'og:image', content: personal.profileImage || 'https://via.placeholder.com/1200x630/4A90E2/FFFFFF?text=' + (personal.brandIcon || 'YT') }
+        { property: 'og:image', content: (window.currentCvData && window.currentCvData.profileImage) || personal.profileImage || 'https://via.placeholder.com/1200x630/4A90E2/FFFFFF?text=' + (personal.brandIcon || 'YT') }
     ];
     
     ogTags.forEach(tag => {
@@ -268,10 +268,9 @@ function updateOpenGraphTags(personal) {
                 ogElement.setAttribute('property', tag.property);
                 document.head.appendChild(ogElement);
             }
-            ogElement.content = tag.content;
+            ogElement.setAttribute('content', tag.content);
         }
     });
-    
 }
 
 // Update Education Gallery with Skills-style carousel
@@ -665,14 +664,17 @@ async function loadCVDataFromDatabase() {
             const result = await response.json();
             
             if (result.success && result.data) {
+                // Expose the latest data globally for components that need cross-section context
+                window.currentCvData = result.data;
+                
                 // Update skills data
                 if (result.data.skills) {
                     window.skillsData = result.data.skills;
                 }
                 
-                // Update personal info
-                if (result.data.personal) {
-                    updatePersonalInfo(result.data.personal);
+                // Update personal info (use personalInfo from DB)
+                if (result.data.personalInfo) {
+                    updatePersonalInfo(result.data.personalInfo);
                 }
                 
                 // Update experience
