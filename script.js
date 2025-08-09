@@ -1045,7 +1045,12 @@ function updateExperience(experience) {
 // Update education section
 function updateEducation(education) {
     const educationGrid = document.querySelector('.education-grid');
-    if (educationGrid && education.length > 0) {
+    if (!educationGrid) return;
+
+    // Always clear any static or previous content to avoid local defaults
+    educationGrid.innerHTML = '';
+
+    if (Array.isArray(education) && education.length > 0) {
         let educationHTML = '';
         education.forEach((edu, index) => {
             educationHTML += `
