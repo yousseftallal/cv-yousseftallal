@@ -1788,19 +1788,6 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// Also listen for storage events for cross-tab communication
-window.addEventListener('storage', (event) => {
-    if (event.key === 'profileImageUpdate') {
-        const data = JSON.parse(event.newValue || '{}');
-        if (data.imageUrl) {
-            const profileImg = document.querySelector('.profile-img');
-            if (profileImg) {
-                profileImg.src = data.imageUrl + '?t=' + Date.now();
-            }
-        }
-    }
-});
-
 // Auto-refresh profile image every 30 seconds
 setInterval(() => {
     loadProfileImage();
