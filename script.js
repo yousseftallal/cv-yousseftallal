@@ -999,7 +999,12 @@ function updateAboutSection(about) {
 // Update experience section
 function updateExperience(experience) {
     const timeline = document.querySelector('.timeline');
-    if (timeline && experience.length > 0) {
+    if (!timeline) return;
+
+    // Always clear any static content
+    timeline.innerHTML = '';
+
+    if (Array.isArray(experience) && experience.length > 0) {
         let experienceHTML = '';
         experience.forEach((exp, index) => {
             const isEven = index % 2 === 0;
