@@ -257,7 +257,7 @@ function updateOpenGraphTags(personal) {
         { property: 'og:description', content: personal.metaDescription || personal.bio },
         { property: 'og:type', content: 'profile' },
         { property: 'og:url', content: window.location.href },
-        { property: 'og:image', content: personal.profileImage || 'https://via.placeholder.com/1200x630/4A90E2/FFFFFF?text=' + (personal.brandIcon || 'YT') }
+        { property: 'og:image', content: (window.currentCvData && window.currentCvData.profileImage) || personal.profileImage || 'https://via.placeholder.com/1200x630/4A90E2/FFFFFF?text=' + (personal.brandIcon || 'YT') }
     ];
     
     ogTags.forEach(tag => {
@@ -268,10 +268,9 @@ function updateOpenGraphTags(personal) {
                 ogElement.setAttribute('property', tag.property);
                 document.head.appendChild(ogElement);
             }
-            ogElement.content = tag.content;
+            ogElement.setAttribute('content', tag.content);
         }
     });
-    
 }
 
 // Update Education Gallery with Skills-style carousel
@@ -665,14 +664,19 @@ async function loadCVDataFromDatabase() {
             const result = await response.json();
             
             if (result.success && result.data) {
+                // Expose the latest data globally for components that need cross-section context
+                window.currentCvData = result.data;
+                
                 // Update skills data
                 if (result.data.skills) {
-                    window.skillsData = result.data.skills;
+                    window.skillsData = Array.isArray(result.data.skills) ? result.data.skills : [];
+                } else {
+                    window.skillsData = [];
                 }
                 
-                // Update personal info
-                if (result.data.personal) {
-                    updatePersonalInfo(result.data.personal);
+                // Update personal info (use personalInfo from DB)
+                if (result.data.personalInfo) {
+                    updatePersonalInfo(result.data.personalInfo);
                 }
                 
                 // Update experience
@@ -995,7 +999,12 @@ function updateAboutSection(about) {
 // Update experience section
 function updateExperience(experience) {
     const timeline = document.querySelector('.timeline');
-    if (timeline && experience.length > 0) {
+    if (!timeline) return;
+
+    // Always clear any static content
+    timeline.innerHTML = '';
+
+    if (Array.isArray(experience) && experience.length > 0) {
         let experienceHTML = '';
         experience.forEach((exp, index) => {
             const isEven = index % 2 === 0;
@@ -1041,7 +1050,12 @@ function updateExperience(experience) {
 // Update education section
 function updateEducation(education) {
     const educationGrid = document.querySelector('.education-grid');
-    if (educationGrid && education.length > 0) {
+    if (!educationGrid) return;
+
+    // Always clear any static or previous content to avoid local defaults
+    educationGrid.innerHTML = '';
+
+    if (Array.isArray(education) && education.length > 0) {
         let educationHTML = '';
         education.forEach((edu, index) => {
             educationHTML += `
@@ -1081,7 +1095,7 @@ function initializeSkills() {
     
     skillsGrid.innerHTML = '';
     
-    const currentSkillsData = window.skillsData || skillsData;
+    const currentSkillsData = Array.isArray(window.skillsData) ? window.skillsData : [];
     
     // Create skill cards
     currentSkillsData.forEach(skill => {
@@ -1775,19 +1789,6 @@ window.addEventListener('message', (event) => {
             setTimeout(() => {
                 profileImg.style.opacity = '1';
             }, 200);
-        }
-    }
-});
-
-// Also listen for storage events for cross-tab communication
-window.addEventListener('storage', (event) => {
-    if (event.key === 'profileImageUpdate') {
-        const data = JSON.parse(event.newValue || '{}');
-        if (data.imageUrl) {
-            const profileImg = document.querySelector('.profile-img');
-            if (profileImg) {
-                profileImg.src = data.imageUrl + '?t=' + Date.now();
-            }
         }
     }
 });

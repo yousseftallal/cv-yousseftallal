@@ -1,23 +1,15 @@
-// Database configuration for Neon
-const { Pool } = require('pg');
+// Database configuration for Neon (serverless)
+const { neon } = require('@neondatabase/serverless');
 
 const DATABASE_URL = process.env.DATABASE_URL || 
-    "postgresql://neondb_owner:npg_wBxuRO8jN7KX@ep-wild-shadow-aej6461z-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+    "postgresql://neondb_owner:npg_4lrSGXds7KCv@ep-calm-morning-a9g6k8gb-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require";
 
-const pool = new Pool({
-    connectionString: DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+const sql = neon(DATABASE_URL);
 
 // Create tables if they don't exist
 async function initializeDatabase() {
     try {
-        const client = await pool.connect();
-        
-        // Create cv_data table for all CV content
-        await client.query(`
+        await sql`
             CREATE TABLE IF NOT EXISTS cv_data (
                 id SERIAL PRIMARY KEY,
                 data_key VARCHAR(100) NOT NULL,
@@ -25,12 +17,7 @@ async function initializeDatabase() {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(data_key)
             )
-        `);
-        
-        // Database is ready - no default data insertion
-        // All data must be entered through the dashboard
-        
-        client.release();
+        `;
         console.log('Database initialized successfully - ready for data entry');
     } catch (error) {
         console.error('Database initialization error:', error);
@@ -40,10 +27,8 @@ async function initializeDatabase() {
 // Get all CV data
 async function getCVData() {
     try {
-        const client = await pool.connect();
-        const result = await client.query('SELECT data_value FROM cv_data WHERE data_key = $1', ['allData']);
-        client.release();
-        return result.rows[0]?.data_value || null;
+        const rows = await sql`SELECT data_value FROM cv_data WHERE data_key = 'allData'`;
+        return rows[0]?.data_value || null;
     } catch (error) {
         console.error('Error getting CV data:', error);
         return null;
@@ -56,20 +41,14 @@ async function updateCVData(data) {
         console.log('📊 updateCVData called with data keys:', Object.keys(data || {}));
         console.log('🔗 Database URL available:', !!DATABASE_URL);
         
-        const client = await pool.connect();
-        console.log('✅ Database connection established');
-        
-        await client.query(`
-            INSERT INTO cv_data (data_key, data_value) 
-            VALUES ('allData', $1)
-            ON CONFLICT (data_key) 
-            DO UPDATE SET data_value = $1, updated_at = CURRENT_TIMESTAMP
-        `, [JSON.stringify(data)]);
+        await sql`
+            INSERT INTO cv_data (data_key, data_value)
+            VALUES ('allData', ${JSON.stringify(data)}::jsonb)
+            ON CONFLICT (data_key)
+            DO UPDATE SET data_value = ${JSON.stringify(data)}::jsonb, updated_at = CURRENT_TIMESTAMP
+        `;
         
         console.log('✅ Database query executed successfully');
-        client.release();
-        console.log('✅ Database connection released');
-        
         return true;
     } catch (error) {
         console.error('❌ Error updating CV data:', error.message);
@@ -79,7 +58,7 @@ async function updateCVData(data) {
 }
 
 module.exports = {
-    pool,
+    sql,
     initializeDatabase,
     getCVData,
     updateCVData
